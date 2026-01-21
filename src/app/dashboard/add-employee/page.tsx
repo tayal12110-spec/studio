@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Contacts } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Contact } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -88,7 +88,7 @@ export default function AddEmployeePage() {
 
           <div className="flex justify-center pt-2">
             <Button variant="ghost" className="text-accent hover:text-accent">
-                <Contacts className="mr-2 h-5 w-5" />
+                <Contact className="mr-2 h-5 w-5" />
               Add From Contacts
             </Button>
           </div>
