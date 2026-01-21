@@ -2,49 +2,24 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  CreditCard,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-  Users,
-  BarChart3,
-} from 'lucide-react';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
-import { Icons } from '@/components/icons';
-import { UserNav } from '@/components/dashboard/user-nav';
+import { Home, Handshake, Settings } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const navItems = [
   {
     href: '/dashboard',
-    icon: LayoutDashboard,
-    label: 'Dashboard',
+    icon: Home,
+    label: 'Home',
   },
   {
-    href: '/dashboard/employees',
-    icon: Users,
-    label: 'Employees',
+    href: '#',
+    icon: Handshake,
+    label: 'CRM',
   },
   {
-    href: '/dashboard/reports',
-    icon: BarChart3,
-    label: 'Reports',
-  },
-  {
-    href: '/dashboard/subscription',
-    icon: CreditCard,
-    label: 'Subscription',
+    href: '#',
+    icon: Settings,
+    label: 'Settings',
   },
 ];
 
@@ -56,60 +31,27 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen bg-background">
-        <Sidebar>
-          <SidebarHeader className="p-4">
+    <div className="flex min-h-screen flex-col bg-background">
+      <main className="flex-1 pb-20">{children}</main>
+      <footer className="fixed bottom-0 z-10 w-full border-t bg-card">
+        <nav className="grid grid-cols-3">
+          {navItems.map((item) => (
             <Link
-              href="/dashboard"
-              className="flex items-center gap-2 text-primary"
+              key={item.label}
+              href={item.href}
+              className={cn(
+                'flex flex-col items-center gap-1 py-2 text-sm font-medium',
+                pathname === item.href
+                  ? 'text-primary'
+                  : 'text-muted-foreground'
+              )}
             >
-              <Icons.logo className="h-7 w-7" />
-              <span className="font-headline text-xl font-semibold">
-                PayEase
-              </span>
+              <item.icon className="h-6 w-6" />
+              <span>{item.label}</span>
             </Link>
-          </SidebarHeader>
-          <SidebarContent className="p-4">
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <Link href={item.href}>
-                    <SidebarMenuButton
-                      isActive={pathname === item.href}
-                      tooltip={item.label}
-                    >
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </Link>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-          <SidebarFooter className="p-4">
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Settings">
-                  <Settings />
-                  <span>Settings</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <Link href="/">
-                  <SidebarMenuButton tooltip="Log Out">
-                    <LogOut />
-                    <span>Log Out</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarFooter>
-        </Sidebar>
-        <SidebarInset>
-          <main className="flex-1">{children}</main>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
+          ))}
+        </nav>
+      </footer>
+    </div>
   );
 }
