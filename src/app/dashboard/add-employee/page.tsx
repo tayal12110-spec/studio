@@ -16,8 +16,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function AddEmployeePage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="flex h-16 items-center border-b bg-card px-4">
+    <div className="flex h-full flex-col">
+      <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
         <Link href="/dashboard" passHref>
           <Button variant="ghost" size="icon" aria-label="Go back">
             <ArrowLeft className="h-5 w-5" />
@@ -26,7 +26,7 @@ export default function AddEmployeePage() {
         <h1 className="ml-4 text-lg font-semibold">Add Employee Details</h1>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-6 pb-24">
+      <main className="flex-1 overflow-y-auto p-6">
         <Alert className="mb-8 border-accent/50 bg-accent/10">
           <AlertDescription className="text-primary">
             Now Add Multiple Staff using Desktop app -{' '}
@@ -95,7 +95,7 @@ export default function AddEmployeePage() {
         </form>
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 border-t bg-card p-4">
+      <footer className="shrink-0 border-t bg-card p-4">
         <Button className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90">
           Add Employee
           <ArrowRight className="ml-2 h-5 w-5" />
