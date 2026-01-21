@@ -20,6 +20,8 @@ import {
     DialogContent,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useEmployees } from '../employee-context';
+import type { Staff } from '../data';
 
 
 export default function AddEmployeePage() {
@@ -28,6 +30,7 @@ export default function AddEmployeePage() {
   const [isInviteDialogOpen, setInviteDialogOpen] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { addEmployee } = useEmployees();
 
   const handleAddEmployee = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +40,12 @@ export default function AddEmployeePage() {
   };
 
   const handleInvite = () => {
+    const newEmployee: Staff = {
+        name: staffName,
+        status: 'Inactive',
+        avatar: staffName.charAt(0).toUpperCase() || 'N',
+    };
+    addEmployee(newEmployee);
     setInviteDialogOpen(false);
     toast({
         title: 'Invitation Sent!',

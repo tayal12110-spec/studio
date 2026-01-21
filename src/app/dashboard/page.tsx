@@ -23,8 +23,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { staff, type Staff } from './data';
+import { type Staff } from './data';
 import Link from 'next/link';
+import { useEmployees } from './employee-context';
 
 function Header() {
   return (
@@ -115,10 +116,11 @@ function QuickActions() {
 }
 
 function EmployeeList() {
+  const { employees } = useEmployees();
   return (
     <div className="mt-4 bg-card p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Staff on Payroll ({staff.length})</h2>
+        <h2 className="text-lg font-semibold">Staff on Payroll ({employees.length})</h2>
         <Link
           href="/dashboard/employees"
           className="text-sm font-semibold text-primary"
@@ -134,7 +136,7 @@ function EmployeeList() {
         </Button>
       </div>
       <div className="space-y-4">
-        {staff.map((employee: Staff) => (
+        {employees.map((employee: Staff) => (
           <div
             key={employee.name}
             className="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0"
