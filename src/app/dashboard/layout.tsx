@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Handshake, Settings } from 'lucide-react';
+import { Home, Handshake, Settings, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -12,14 +12,19 @@ const navItems = [
     label: 'Home',
   },
   {
-    href: '#',
-    icon: Handshake,
-    label: 'CRM',
+    href: '/dashboard/employees',
+    icon: Users,
+    label: 'Employees',
   },
   {
-    href: '#',
+    href: '/dashboard/reports',
+    icon: Handshake,
+    label: 'Payroll',
+  },
+  {
+    href: '/dashboard/subscription',
     icon: Settings,
-    label: 'Settings',
+    label: 'More',
   },
 ];
 
@@ -34,7 +39,7 @@ export default function DashboardLayout({
     <div className="flex min-h-screen flex-col bg-background">
       <main className="flex-1 pb-20">{children}</main>
       <footer className="fixed bottom-0 z-10 w-full border-t bg-card">
-        <nav className="grid grid-cols-3">
+        <nav className="grid grid-cols-4">
           {navItems.map((item) => (
             <Link
               key={item.label}

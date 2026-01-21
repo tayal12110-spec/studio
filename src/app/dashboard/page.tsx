@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { staff, type Staff } from './data';
+import Link from 'next/link';
 
 function Header() {
   return (
@@ -166,10 +167,13 @@ export default function DashboardPage() {
       <EmployeeList />
 
       <Button
+        asChild
         className="fixed bottom-24 right-4 h-14 w-14 rounded-full bg-accent text-accent-foreground shadow-lg hover:bg-accent/90"
         size="icon"
       >
-        <Plus className="h-8 w-8" />
+        <Link href="/dashboard/add-employee">
+          <Plus className="h-8 w-8" />
+        </Link>
       </Button>
     </div>
   );
