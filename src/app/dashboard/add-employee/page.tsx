@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Contact, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Contact } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,6 +18,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useEmployees } from '../employee-context';
@@ -160,24 +163,16 @@ export default function AddEmployeePage() {
       </div>
 
       <Dialog open={isInviteDialogOpen} onOpenChange={setInviteDialogOpen}>
-        <DialogContent className="sm:max-w-xs p-0 bg-card border-none rounded-lg">
-            <div className="relative p-6 pt-10 text-center">
-                <div className="absolute top-0 right-0 pt-2 pr-2">
-                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8" onClick={() => setInviteDialogOpen(false)}>
-                        <X className="h-5 w-5" />
-                        <span className="sr-only">Close</span>
-                    </Button>
-                </div>
-                <div>
-                    <h3 className="font-bold text-lg mb-2">Invite {staffName}</h3>
-                    <p className="text-muted-foreground mb-6 text-sm px-4">
-                        {staffName} can use SalaryBox to mark their own attendance.
-                    </p>
-                    <Button onClick={handleInvite} className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90">
-                        Invite Staff
-                    </Button>
-                </div>
-            </div>
+        <DialogContent className="sm:max-w-xs">
+          <DialogHeader className="text-center">
+            <DialogTitle className="font-bold text-lg mb-2">Invite {staffName}</DialogTitle>
+            <DialogDescription className="text-muted-foreground text-sm px-4 mb-6">
+              {staffName} can use SalaryBox to mark their own attendance.
+            </DialogDescription>
+          </DialogHeader>
+          <Button onClick={handleInvite} className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90">
+              Invite Staff
+          </Button>
         </DialogContent>
       </Dialog>
     </>
