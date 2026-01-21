@@ -117,6 +117,15 @@ function QuickActions() {
 function EmployeeList() {
   return (
     <div className="mt-4 bg-card p-4">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Staff on Payroll ({staff.length})</h2>
+        <Link
+          href="/dashboard/employees"
+          className="text-sm font-semibold text-primary"
+        >
+          View All
+        </Link>
+      </div>
       <div className="relative mb-4 flex items-center">
         <Search className="absolute left-3 h-5 w-5 text-muted-foreground" />
         <Input placeholder="Search employee" className="pl-10" />
@@ -128,7 +137,7 @@ function EmployeeList() {
         {staff.map((employee: Staff) => (
           <div
             key={employee.name}
-            className="flex items-center justify-between border-b pb-4"
+            className="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0"
           >
             <div className="flex items-center gap-4">
               <Avatar className="relative h-12 w-12">
@@ -141,10 +150,23 @@ function EmployeeList() {
               </Avatar>
               <div>
                 <p className="font-semibold">{employee.name}</p>
-                {employee.status === 'Inactive' && (
-                  <p className="text-sm text-red-500">Inactive</p>
+                {employee.status === 'Active' ? (
+                  <p className="text-sm font-medium text-green-600">Active</p>
+                ) : (
+                  <p className="text-sm font-medium text-red-500">Inactive</p>
                 )}
               </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm">
+                View
+              </Button>
+              <Button
+                size="sm"
+                className="bg-accent text-accent-foreground hover:bg-accent/90"
+              >
+                Pay
+              </Button>
             </div>
           </div>
         ))}
