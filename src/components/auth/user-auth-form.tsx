@@ -23,6 +23,7 @@ import {
   initiateEmailSignIn,
   initiateEmailSignUp,
 } from '@/firebase/non-blocking-login';
+import { FirebaseError } from 'firebase/app';
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   isSignUp?: boolean;
@@ -58,26 +59,53 @@ export function UserAuthForm({
   const onSubmit = async (data: UserFormValue) => {
     setIsLoading(true);
 
-    if (isSignUp) {
-      initiateEmailSignUp(auth, data.email, data.password);
-    } else {
-      initiateEmailSignIn(auth, data.email, data.password);
+    try {
+      if (isSignUp) {
+        await initiateEmailSignUp(auth, data.email, data.password);
+      } else {
+        await initiateEmailSignIn(auth, data.email, data.password);
+      }
+
+      toast({
+        title: isSignUp ? 'Account Created!' : 'Logged In!',
+        description: isSignUp
+          ? "We've created your account for you."
+          : 'You have been successfully logged in.',
+      });
+
+      router.push('/dashboard');
+    } catch (error) {
+      let title = isSignUp ? 'Sign-up failed' : 'Login failed';
+      let description = 'An unexpected error occurred. Please try again.';
+
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case 'auth/invalid-credential':
+          case 'auth/wrong-password':
+          case 'auth/user-not-found':
+            description = 'Invalid email or password. Please try again.';
+            break;
+          case 'auth/email-already-in-use':
+            description = 'This email is already registered. Please sign in.';
+            break;
+          case 'auth/weak-password':
+            description =
+              'Password is too weak. Please choose a stronger password.';
+            break;
+          default:
+            description = error.message;
+            break;
+        }
+      }
+
+      toast({
+        variant: 'destructive',
+        title: title,
+        description: description,
+      });
+    } finally {
+      setIsLoading(false);
     }
-
-    // This is optimistic UI. We show loading and toast,
-    // and a listener on onAuthStateChanged will redirect.
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsLoading(false);
-
-    toast({
-      title: isSignUp ? 'Account Created!' : 'Logged In!',
-      description: isSignUp
-        ? "We've created your account for you."
-        : 'You have been successfully logged in.',
-    });
-
-    router.push('/dashboard');
   };
 
   return (
