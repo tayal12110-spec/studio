@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useEmployees } from '../employee-context';
-import type { Staff } from '../data';
+import type { Employee } from '../data';
 
 
 export default function AddEmployeePage() {
@@ -43,8 +43,9 @@ export default function AddEmployeePage() {
   };
 
   const handleInvite = () => {
-    const newEmployee: Staff = {
+    const newEmployee: Omit<Employee, 'id'> = {
         name: staffName,
+        phoneNumber: phoneNumber,
         status: 'Inactive',
         avatar: staffName.charAt(0).toUpperCase() || 'N',
     };
@@ -164,9 +165,9 @@ export default function AddEmployeePage() {
 
       <Dialog open={isInviteDialogOpen} onOpenChange={setInviteDialogOpen}>
         <DialogContent className="sm:max-w-xs">
-          <DialogHeader className="text-center">
-            <DialogTitle className="font-bold text-lg mb-2">Invite {staffName}</DialogTitle>
-            <DialogDescription className="text-muted-foreground text-sm px-4 mb-6">
+          <DialogHeader>
+            <DialogTitle className="text-center font-bold text-lg mb-2">Invite {staffName}</DialogTitle>
+            <DialogDescription className="text-center text-muted-foreground text-sm px-4 mb-6">
               {staffName} can use SalaryBox to mark their own attendance.
             </DialogDescription>
           </DialogHeader>

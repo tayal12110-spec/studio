@@ -6,148 +6,31 @@
       "type": "object",
       "description": "Represents an employee in the PayEase system.",
       "properties": {
-        "id": {
+        "name": {
           "type": "string",
-          "description": "Unique identifier for the Employee entity."
-        },
-        "firstName": {
-          "type": "string",
-          "description": "The first name of the employee."
-        },
-        "lastName": {
-          "type": "string",
-          "description": "The last name of the employee."
-        },
-        "email": {
-          "type": "string",
-          "description": "The email address of the employee.",
-          "format": "email"
+          "description": "The name of the employee."
         },
         "phoneNumber": {
           "type": "string",
           "description": "The phone number of the employee."
         },
-        "jobTitle": {
-          "type": "string",
-          "description": "The job title of the employee."
-        },
-        "salary": {
-          "type": "number",
-          "description": "The annual salary of the employee."
-        },
-        "hireDate": {
-          "type": "string",
-          "description": "The date the employee was hired.",
-          "format": "date-time"
-        },
-        "department": {
-          "type": "string",
-          "description": "The department the employee belongs to."
-        }
-      },
-      "required": [
-        "id",
-        "firstName",
-        "lastName",
-        "email",
-        "phoneNumber",
-        "jobTitle",
-        "salary",
-        "hireDate",
-        "department"
-      ]
-    },
-    "Payroll": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Payroll",
-      "type": "object",
-      "description": "Represents a payroll record for an employee.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Payroll entity."
-        },
-        "employeeId": {
-          "type": "string",
-          "description": "Reference to Employee. (Relationship: Employee 1:N Payroll)"
-        },
-        "paymentDate": {
-          "type": "string",
-          "description": "The date the employee was paid.",
-          "format": "date-time"
-        },
-        "grossPay": {
-          "type": "number",
-          "description": "The gross pay amount for the employee."
-        },
-        "deductions": {
-          "type": "number",
-          "description": "The total deductions for the employee."
-        },
-        "netPay": {
-          "type": "number",
-          "description": "The net pay amount for the employee."
-        },
-        "taxAmount": {
-          "type": "number",
-          "description": "The tax amount deducted from the employee's pay."
-        }
-      },
-      "required": [
-        "id",
-        "employeeId",
-        "paymentDate",
-        "grossPay",
-        "deductions",
-        "netPay",
-        "taxAmount"
-      ]
-    },
-    "Subscription": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Subscription",
-      "type": "object",
-      "description": "Represents a user's subscription plan.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Subscription entity."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N Subscription)"
-        },
-        "planName": {
-          "type": "string",
-          "description": "The name of the subscription plan."
-        },
-        "startDate": {
-          "type": "string",
-          "description": "The start date of the subscription.",
-          "format": "date-time"
-        },
-        "endDate": {
-          "type": "string",
-          "description": "The end date of the subscription.",
-          "format": "date-time"
-        },
         "status": {
           "type": "string",
-          "description": "The status of the subscription (e.g., active, inactive, canceled)."
+          "description": "The status of the employee.",
+          "enum": [
+            "Active",
+            "Inactive"
+          ]
         },
-        "razorpaySubscriptionId": {
+        "avatar": {
           "type": "string",
-          "description": "The subscription ID from Razorpay."
+          "description": "The avatar character for the employee."
         }
       },
       "required": [
-        "id",
-        "userId",
-        "planName",
-        "startDate",
-        "endDate",
+        "name",
         "status",
-        "razorpaySubscriptionId"
+        "avatar"
       ]
     },
     "User": {
@@ -164,21 +47,11 @@
           "type": "string",
           "description": "The email address of the user.",
           "format": "email"
-        },
-        "firstName": {
-          "type": "string",
-          "description": "The first name of the user."
-        },
-        "lastName": {
-          "type": "string",
-          "description": "The last name of the user."
         }
       },
       "required": [
         "id",
-        "email",
-        "firstName",
-        "lastName"
+        "email"
       ]
     }
   },
@@ -197,31 +70,11 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores user profile information.  Owned by the user (path-based ownership).",
+          "description": "Stores user profile information. Owned by the user (path-based ownership).",
           "params": [
             {
               "name": "userId",
               "description": "The unique identifier of the user."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/subscriptions/{subscriptionId}",
-        "definition": {
-          "entityName": "Subscription",
-          "schema": {
-            "$ref": "#/backend/entities/Subscription"
-          },
-          "description": "Stores user's subscription information. Owned by the user (path-based ownership).",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "subscriptionId",
-              "description": "The unique identifier of the subscription."
             }
           ]
         }
@@ -233,36 +86,16 @@
           "schema": {
             "$ref": "#/backend/entities/Employee"
           },
-          "description": "Stores employee data. No explicit ownership.",
+          "description": "Stores employee data. All authenticated users can access.",
           "params": [
             {
               "name": "employeeId",
               "description": "The unique identifier of the employee."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/employees/{employeeId}/payrolls/{payrollId}",
-        "definition": {
-          "entityName": "Payroll",
-          "schema": {
-            "$ref": "#/backend/entities/Payroll"
-          },
-          "description": "Stores payroll information for each employee. Associated with an employee. No explicit ownership.",
-          "params": [
-            {
-              "name": "employeeId",
-              "description": "The unique identifier of the employee."
-            },
-            {
-              "name": "payrollId",
-              "description": "The unique identifier of the payroll record."
             }
           ]
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to support the PayEase application's requirements, focusing on user authentication, employee management, payroll processing, and subscription handling. The structure prioritizes authorization independence through denormalization where needed and adheres to structural segregation principles to simplify security rules. Path-based ownership is employed where applicable, particularly for user-owned data, to enhance security and efficiency. Membership maps are not required as all entities except `Employee` and `Payroll` are owned by the user. The structure supports the QAPs by segregating user data and subscription information, thus enabling secure list operations. The database also segregates employee and payroll data to avoid role explosion.\n\nSpecifically, each user owns their data under the `/users/{userId}` collection. Subscriptions related to the user are located under `/users/{userId}/subscriptions/{subscriptionId}`.  Employee data is stored under `/employees/{employeeId}`, allowing global access to this data. Payroll data is located under `/employees/{employeeId}/payrolls/{payrollId}` to associate payrolls with specific employees and avoid role explosion. This design ensures that rules can be written simply based on path and `request.auth.uid`, avoiding `get()` calls for authorization."
+    "reasoning": "The Firestore data structure is designed to be simple for the PayEase prototype. It separates user data from employee data. User data is private, while employee data is accessible to all authenticated users for simplicity in this early version. This avoids complex roles and rules."
   }
 }

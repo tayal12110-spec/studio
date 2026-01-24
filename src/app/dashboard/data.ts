@@ -1,12 +1,7 @@
-export type Staff = {
+export type Employee = {
+  id: string; // Firestore document ID
   name: string;
   status: 'Active' | 'Inactive';
   avatar: string;
+  phoneNumber?: string;
 };
-
-export const staff: Staff[] = [
-  { name: 'Amrita Singh Dhillon', status: 'Inactive', avatar: 'A' },
-  { name: 'Sunny', status: 'Inactive', avatar: 'S' },
-  { name: 'Ramendra Dwivedi', status: 'Inactive', avatar: 'R' },
-  { name: 'Sanjay Beg', status: 'Active', avatar: 'S' },
-];

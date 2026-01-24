@@ -1,24 +1,51 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { type Staff, staff as initialStaff } from './data';
+import React, { createContext, useContext, ReactNode, useMemo } from 'react';
+import { type Employee } from './data';
+import {
+  useCollection,
+  useFirestore,
+  useMemoFirebase,
+  addDocumentNonBlocking,
+} from '@/firebase';
+import { collection, CollectionReference } from 'firebase/firestore';
 
 interface EmployeeContextType {
-  employees: Staff[];
-  addEmployee: (employee: Staff) => void;
+  employees: Employee[];
+  addEmployee: (employee: Omit<Employee, 'id'>) => void;
+  isLoading: boolean;
 }
 
-const EmployeeContext = createContext<EmployeeContextType | undefined>(undefined);
+const EmployeeContext = createContext<EmployeeContextType | undefined>(
+  undefined
+);
 
 export function EmployeeProvider({ children }: { children: ReactNode }) {
-  const [employees, setEmployees] = useState<Staff[]>(initialStaff);
+  const firestore = useFirestore();
 
-  const addEmployee = (employee: Staff) => {
-    setEmployees(prevEmployees => [...prevEmployees, employee]);
+  const employeesCol = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'employees') : null),
+    [firestore]
+  ) as CollectionReference | null;
+
+  const { data: employees, isLoading } = useCollection<Employee>(employeesCol);
+
+  const addEmployee = (employee: Omit<Employee, 'id'>) => {
+    if (employeesCol) {
+      addDocumentNonBlocking(employeesCol, employee);
+    } else {
+      console.error('Firestore collection is not available to add employee.');
+    }
+  };
+
+  const value = {
+    employees: employees || [],
+    addEmployee,
+    isLoading,
   };
 
   return (
-    <EmployeeContext.Provider value={{ employees, addEmployee }}>
+    <EmployeeContext.Provider value={value}>
       {children}
     </EmployeeContext.Provider>
   );

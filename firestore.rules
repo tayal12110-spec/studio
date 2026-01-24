@@ -1,154 +1,22 @@
-/**
- * This Firestore Security Ruleset is designed for the PayEase application,
- * establishing a clear boundary between private user data and shared company data.
- *
- * Core Philosophy:
- * The security model is a hybrid, enforcing strict user-ownership for personal
- * information while providing controlled, authenticated access to company-wide
- * data like employee records. This ensures user privacy while facilitating
- * internal application functionality.
- *
- * Data Structure:
- * - /users/{userId}: Contains private user profiles and their nested subcollections.
- *   All data under this path is exclusively owned and managed by the corresponding user.
- * - /employees/{employeeId}: A top-level collection for company employee data.
- *   This data is considered internal and is accessible to all authenticated users
- *   of the application, reflecting a trusted internal environment.
- *
- * Key Security Decisions:
- * - User Data Isolation: A user can only access documents under their own
- *   `/users/{userId}` path. Listing or reading other users' data is strictly forbidden.
- * - Authenticated Access for Company Data: In this prototyping phase, all
- *   authenticated users are granted read and write access to the `/employees`
- *   and `/employees/{employeeId}/payrolls` collections. This supports rapid
- *   development of internal features. In a production environment, this would
- *   be further restricted by introducing specific roles (e.g., 'Admin', 'HR').
- * - No Public Access: All data access requires user authentication. There are
- *   no publicly readable collections.
- * - User Enumeration Disabled: The root `/users` collection cannot be listed,
- *   preventing potential attackers from discovering user IDs.
- *
- * Denormalization for Authorization:
- * The ruleset leverages denormalized fields for simple and performant authorization.
- * For example, a `Subscription` document under `/users/{userId}/subscriptions/` must
- * contain a `userId` field that matches the `{userId}` in the path. This enforces
- * relational integrity without costly cross-document reads (`get()` calls).
- *
- * Structural Segregation:
- * The clear separation between the `/users` and `/employees` collections is a
- * key architectural choice. It allows for fundamentally different, simple, and
- * highly performant security rules for each data domain, avoiding complex,
- * error-prone logic within a single collection.
- */
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ------------------------------------------------------------------------
-    // Helper Functions
-    // ------------------------------------------------------------------------
-
-    /**
-     * Returns true if the user is signed in.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * Returns true if the request is coming from the owner of the document,
-     * identified by the userId in the path.
-     */
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
 
-    /**
-     * Returns true if the document exists and the request is from the owner.
-     * Used for secure update and delete operations on user-owned documents.
-     */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
-    }
-
-    /**
-     * Returns true if the document being operated on already exists.
-     * Used for secure update and delete operations.
-     */
-    function docExists() {
-      return resource != null;
-    }
-
-    // ------------------------------------------------------------------------
-    // User Data Rules
-    // ------------------------------------------------------------------------
-
-    /**
-     * @description Manages user profile documents. Users can create, read, and
-     *   update their own profile, but cannot see other users' profiles.
-     * @path /users/{userId}
-     * @allow (create) A new user creating their own user document after signing up: `create /users/user_abc` with auth.uid=`user_abc`.
-     * @deny (get) A signed-in user trying to read another user's profile: `get /users/user_xyz` with auth.uid=`user_abc`.
-     * @deny (list) Any user trying to get a list of all users in the system.
-     * @principle Restricts access to a user's own data tree and prevents user enumeration.
-     */
     match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
-
-      /**
-       * @description Manages a user's subscription records. A user can manage
-       *   their own subscriptions, but not those of other users.
-       * @path /users/{userId}/subscriptions/{subscriptionId}
-       * @allow (create) A user creating a new subscription for themselves: `create /users/user_abc/subscriptions/sub_123` with auth.uid=`user_abc`.
-       * @deny (list) A user trying to list subscriptions belonging to another user: `list /users/user_xyz/subscriptions` with auth.uid=`user_abc`.
-       * @principle Enforces data ownership based on the parent document's path.
-       */
-      match /subscriptions/{subscriptionId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isOwner(userId) && request.resource.data.userId == userId;
-        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-        allow delete: if isExistingOwner(userId);
-      }
+      allow read, write: if isOwner(userId);
     }
 
-    // ------------------------------------------------------------------------
-    // Company Data Rules
-    // ------------------------------------------------------------------------
-
-    /**
-     * @description Manages employee records. In this prototype, any authenticated
-     *   user can read and write employee data, simulating an internal company tool.
-     * @path /employees/{employeeId}
-     * @allow (create) Any signed-in user creating a new employee record.
-     * @allow (list) Any signed-in user listing all employee records.
-     * @deny (get) An anonymous (not signed-in) user trying to read an employee record.
-     * @principle Provides global access to internal application data for all authenticated users.
-     */
     match /employees/{employeeId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && docExists();
-      allow delete: if isSignedIn() && docExists();
-
-      /**
-       * @description Manages payroll records for a specific employee. Access is
-       *   granted to any authenticated user, consistent with the parent employee record.
-       * @path /employees/{employeeId}/payrolls/{payrollId}
-       * @allow (create) Any signed-in user creating a payroll record for an employee, ensuring the `employeeId` field matches the path.
-       * @deny (update) Any user trying to change the `employeeId` of an existing payroll record.
-       * @deny (create) An anonymous user trying to create a payroll record.
-       * @principle Provides global access for authenticated users while enforcing relational integrity to the parent employee.
-       */
-      match /payrolls/{payrollId} {
-        allow get, list: if isSignedIn();
-        allow create: if isSignedIn() && request.resource.data.employeeId == employeeId;
-        allow update: if isSignedIn() && docExists() && request.resource.data.employeeId == resource.data.employeeId;
-        allow delete: if isSignedIn() && docExists();
-      }
+      allow read, write: if isSignedIn();
     }
   }
 }

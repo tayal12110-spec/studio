@@ -18,6 +18,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/firebase';
+import {
+  initiateEmailSignIn,
+  initiateEmailSignUp,
+} from '@/firebase/non-blocking-login';
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   isSignUp?: boolean;
@@ -40,6 +45,7 @@ export function UserAuthForm({
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const auth = useAuth();
 
   const form = useForm<UserFormValue>({
     resolver: zodResolver(formSchema),
@@ -52,7 +58,14 @@ export function UserAuthForm({
   const onSubmit = async (data: UserFormValue) => {
     setIsLoading(true);
 
-    // Simulate API call
+    if (isSignUp) {
+      initiateEmailSignUp(auth, data.email, data.password);
+    } else {
+      initiateEmailSignIn(auth, data.email, data.password);
+    }
+
+    // This is optimistic UI. We show loading and toast,
+    // and a listener on onAuthStateChanged will redirect.
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     setIsLoading(false);

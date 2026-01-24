@@ -12,6 +12,7 @@ import {
   SlidersHorizontal,
   Plus,
   XCircle,
+  Loader2,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { type Staff } from './data';
+import { type Employee } from './data';
 import Link from 'next/link';
 import { useEmployees } from './employee-context';
 
@@ -116,11 +117,13 @@ function QuickActions() {
 }
 
 function EmployeeList() {
-  const { employees } = useEmployees();
+  const { employees, isLoading } = useEmployees();
   return (
     <div className="mt-4 bg-card p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Staff on Payroll ({employees.length})</h2>
+        <h2 className="text-lg font-semibold">
+          Staff on Payroll ({employees.length})
+        </h2>
         <Link
           href="/dashboard/employees"
           className="text-sm font-semibold text-primary"
@@ -136,42 +139,50 @@ function EmployeeList() {
         </Button>
       </div>
       <div className="space-y-4">
-        {employees.map((employee: Staff) => (
-          <div
-            key={employee.name}
-            className="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0"
-          >
-            <div className="flex items-center gap-4">
-              <Avatar className="relative h-12 w-12">
-                <AvatarFallback className="text-xl">
-                  {employee.avatar}
-                </AvatarFallback>
-                {employee.status === 'Inactive' && (
-                  <XCircle className="absolute bottom-0 right-0 h-5 w-5 fill-red-500 text-white" />
-                )}
-              </Avatar>
-              <div>
-                <p className="font-semibold">{employee.name}</p>
-                {employee.status === 'Active' ? (
-                  <p className="text-sm font-medium text-green-600">Active</p>
-                ) : (
-                  <p className="text-sm font-medium text-red-500">Inactive</p>
-                )}
+        {isLoading ? (
+          <div className="flex justify-center items-center h-24">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : employees.length === 0 ? (
+          <p className="text-center text-muted-foreground">No employees found.</p>
+        ) : (
+          employees.map((employee: Employee) => (
+            <div
+              key={employee.id}
+              className="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0"
+            >
+              <div className="flex items-center gap-4">
+                <Avatar className="relative h-12 w-12">
+                  <AvatarFallback className="text-xl">
+                    {employee.avatar}
+                  </AvatarFallback>
+                  {employee.status === 'Inactive' && (
+                    <XCircle className="absolute bottom-0 right-0 h-5 w-5 fill-red-500 text-white" />
+                  )}
+                </Avatar>
+                <div>
+                  <p className="font-semibold">{employee.name}</p>
+                  {employee.status === 'Active' ? (
+                    <p className="text-sm font-medium text-green-600">Active</p>
+                  ) : (
+                    <p className="text-sm font-medium text-red-500">Inactive</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm">
+                  View
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-accent text-accent-foreground hover:bg-accent/90"
+                >
+                  Pay
+                </Button>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                View
-              </Button>
-              <Button
-                size="sm"
-                className="bg-accent text-accent-foreground hover:bg-accent/90"
-              >
-                Pay
-              </Button>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
