@@ -6,9 +6,18 @@
       "type": "object",
       "description": "Represents an employee in the PayEase system.",
       "properties": {
+        "employeeId": {
+          "type": "string",
+          "description": "The unique identifier for the employee."
+        },
         "name": {
           "type": "string",
           "description": "The name of the employee."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the employee.",
+          "format": "email"
         },
         "phoneNumber": {
           "type": "string",
@@ -19,18 +28,38 @@
           "description": "The status of the employee.",
           "enum": [
             "Active",
-            "Inactive"
+            "Inactive",
+            "On Leave",
+            "Terminated"
           ]
         },
         "avatar": {
           "type": "string",
           "description": "The avatar character for the employee."
+        },
+        "department": {
+          "type": "string",
+          "description": "The department the employee belongs to.",
+          "enum": [
+            "Engineering",
+            "HR",
+            "Marketing",
+            "Sales"
+          ]
+        },
+        "baseSalary": {
+          "type": "number",
+          "description": "The base salary of the employee."
         }
       },
       "required": [
+        "employeeId",
         "name",
+        "email",
         "status",
-        "avatar"
+        "avatar",
+        "department",
+        "baseSalary"
       ]
     },
     "User": {
@@ -62,40 +91,17 @@
     ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores user profile information. Owned by the user (path-based ownership).",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            }
-          ]
-        }
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/backend/entities/User"
       },
-      {
-        "path": "/employees/{employeeId}",
-        "definition": {
-          "entityName": "Employee",
-          "schema": {
-            "$ref": "#/backend/entities/Employee"
-          },
-          "description": "Stores employee data. All authenticated users can access.",
-          "params": [
-            {
-              "name": "employeeId",
-              "description": "The unique identifier of the employee."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore data structure is designed to be simple for the PayEase prototype. It separates user data from employee data. User data is private, while employee data is accessible to all authenticated users for simplicity in this early version. This avoids complex roles and rules."
+      "description": "Stores user profile information. Owned by the user (path-based ownership)."
+    },
+    "/employees/{employeeId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Employee"
+      },
+      "description": "Stores employee data. All authenticated users can access."
+    }
   }
 }

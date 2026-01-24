@@ -3,17 +3,42 @@
 import type { ColumnDef } from '@tanstack/react-table';
 
 import { Badge } from '@/components/ui/badge';
-import type { Employee } from './data';
+import type { Employee } from '../data';
 import { DataTableRowActions } from './components/data-table-row-actions';
 import { DataTableColumnHeader } from './components/data-table-column-header';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export const columns: ColumnDef<Employee>[] = [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+        className="translate-y-[2px]"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+        className="translate-y-[2px]"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: 'employeeId',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Employee ID" />
     ),
-    cell: ({ row }) => <div>{row.getValue('employeeId')}</div>,
+    cell: ({ row }) => <div className="w-[80px]">{row.getValue('employeeId')}</div>,
     enableSorting: false,
     enableHiding: false,
   },
@@ -55,14 +80,18 @@ export const columns: ColumnDef<Employee>[] = [
     ),
     cell: ({ row }) => {
       const status = row.getValue('status') as string;
-      const variant: 'outline' | 'secondary' | 'destructive' =
+      const variant: 'default' | 'secondary' | 'destructive' =
         status === 'Active'
-          ? 'outline'
+          ? 'default'
           : status === 'On Leave'
           ? 'secondary'
           : 'destructive';
 
-      return <Badge variant={variant}>{status}</Badge>;
+      const statusClass = status === 'Active' ? 'bg-green-100 text-green-800' : 
+                           status === 'On Leave' ? 'bg-yellow-100 text-yellow-800' : 
+                           'bg-red-100 text-red-800';
+
+      return <Badge className={statusClass} variant={variant}>{status}</Badge>;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
