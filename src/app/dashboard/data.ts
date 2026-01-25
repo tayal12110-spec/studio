@@ -18,6 +18,13 @@ export type Employee = {
   emergencyContactRelationship?: string;
   emergencyContactMobile?: string;
   emergencyContactAddress?: string;
+  branch?: string;
+  employeeType?: 'Full Time' | 'Part Time' | 'Contract';
+  jobTitle?: string;
+  dateOfJoining?: string; // YYYY-MM-DD
+  dateOfLeaving?: string; // YYYY-MM-DD
+  pfAccountNumber?: string;
+  esiAccountNumber?: string;
 };
 
 export type AttendanceStatus = 'ABSENT' | 'HALF DAY' | 'PRESENT' | 'WEEK OFF' | 'HOLIDAY' | 'PAID LEAVE' | 'HALF DAY LEAVE' | 'UNPAID LEAVE';

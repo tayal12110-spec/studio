@@ -92,6 +92,41 @@
         "emergencyContactAddress": {
           "type": "string",
           "description": "The address of the emergency contact."
+        },
+        "branch": {
+          "type": "string",
+          "description": "The branch the employee works at."
+        },
+        "employeeType": {
+          "type": "string",
+          "description": "The type of employment.",
+          "enum": [
+            "Full Time",
+            "Part Time",
+            "Contract"
+          ]
+        },
+        "jobTitle": {
+          "type": "string",
+          "description": "The employee's job title."
+        },
+        "dateOfJoining": {
+          "type": "string",
+          "description": "The date the employee joined.",
+          "format": "date"
+        },
+        "dateOfLeaving": {
+          "type": "string",
+          "description": "The date the employee left.",
+          "format": "date"
+        },
+        "pfAccountNumber": {
+          "type": "string",
+          "description": "Provident Fund account number."
+        },
+        "esiAccountNumber": {
+          "type": "string",
+          "description": "Employee State Insurance account number."
         }
       },
       "required": [
