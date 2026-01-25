@@ -9,3 +9,12 @@ export type Employee = {
   department: 'Engineering' | 'HR' | 'Marketing' | 'Sales';
   baseSalary: number;
 };
+
+export type AttendanceStatus = 'ABSENT' | 'HALF DAY' | 'PRESENT' | 'WEEK OFF' | 'HOLIDAY' | 'PAID LEAVE' | 'HALF DAY LEAVE' | 'UNPAID LEAVE';
+
+export type Attendance = {
+  employeeId: string;
+  date: string; // 'yyyy-MM-dd'
+  status: AttendanceStatus;
+  note?: string;
+};

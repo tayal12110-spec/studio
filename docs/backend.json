@@ -82,6 +82,44 @@
         "id",
         "email"
       ]
+    },
+    "Attendance": {
+      "title": "Attendance",
+      "type": "object",
+      "description": "Represents an employee's attendance record for a specific day.",
+      "properties": {
+        "employeeId": {
+          "type": "string",
+          "description": "The ID of the employee this record belongs to."
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "The date of the attendance record (YYYY-MM-DD)."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "ABSENT",
+            "HALF DAY",
+            "PRESENT",
+            "WEEK OFF",
+            "HOLIDAY",
+            "PAID LEAVE",
+            "HALF DAY LEAVE",
+            "UNPAID LEAVE"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional note about the attendance."
+        }
+      },
+      "required": [
+        "employeeId",
+        "date",
+        "status"
+      ]
     }
   },
   "auth": {
@@ -102,6 +140,12 @@
         "$ref": "#/backend/entities/Employee"
       },
       "description": "Stores employee data. All authenticated users can access."
+    },
+    "/employees/{employeeId}/attendance/{date}": {
+      "schema": {
+        "$ref": "#/backend/entities/Attendance"
+      },
+      "description": "Stores daily attendance records for each employee. The document ID is the date in 'YYYY-MM-DD' format."
     }
   }
 }

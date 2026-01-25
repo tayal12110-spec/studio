@@ -8,15 +8,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { doc, DocumentReference } from 'firebase/firestore';
 import { useFirestore, useMemoFirebase } from '@/firebase';
-import type { Employee } from '../../data';
+import type { Employee, AttendanceStatus } from '../../../data';
 import { format, parseISO, isValid } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
-type AttendanceOption = 'ABSENT' | 'HALF DAY' | 'PRESENT' | 'WEEK OFF' | 'HOLIDAY' | 'PAID LEAVE' | 'HALF DAY LEAVE' | 'UNPAID LEAVE';
-
-const attendanceStatuses: AttendanceOption[] = ['ABSENT', 'HALF DAY', 'PRESENT', 'WEEK OFF', 'HOLIDAY'];
-const leaveTypes: AttendanceOption[] = ['PAID LEAVE', 'HALF DAY LEAVE', 'UNPAID LEAVE'];
+const attendanceStatuses: AttendanceStatus[] = ['ABSENT', 'HALF DAY', 'PRESENT', 'WEEK OFF', 'HOLIDAY'];
+const leaveTypes: AttendanceStatus[] = ['PAID LEAVE', 'HALF DAY LEAVE', 'UNPAID LEAVE'];
 
 export default function EditAttendancePage() {
   const router = useRouter();
@@ -37,25 +36,42 @@ export default function EditAttendancePage() {
 
   const { data: employee, isLoading: isLoadingEmployee } = useDoc<Employee>(employeeRef);
 
-  const [selectedStatus, setSelectedStatus] = useState<AttendanceOption>('ABSENT');
+  const [selectedStatus, setSelectedStatus] = useState<AttendanceStatus>('ABSENT');
   const [note, setNote] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = async () => {
+  const handleSave = () => {
+    if (!firestore || !employee) {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Could not save attendance. Employee or database not found.",
+        });
+        return;
+    }
+
     setIsSaving(true);
-    console.log('Saving attendance:', {
+    const attendanceDate = format(selectedDate, 'yyyy-MM-dd');
+    const attendanceRef = doc(firestore, 'employees', employeeId, 'attendance', attendanceDate);
+
+    const newAttendanceData = {
       employeeId,
-      date: format(selectedDate, 'yyyy-MM-dd'),
+      date: attendanceDate,
       status: selectedStatus,
       note,
-    });
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    };
+    
+    setDocumentNonBlocking(attendanceRef, newAttendanceData, { merge: true });
+
     toast({
       title: 'Attendance Updated',
-      description: `Attendance for ${employee?.name} on ${format(selectedDate, 'do MMMM yyyy')} has been updated.`,
+      description: `Attendance for ${employee.name} on ${format(selectedDate, 'do MMMM yyyy')} has been updated.`,
     });
-    setIsSaving(false);
-    router.back();
+    
+    setTimeout(() => {
+        setIsSaving(false);
+        router.back();
+    }, 500);
   };
   
   if (isLoadingEmployee) {
@@ -70,7 +86,7 @@ export default function EditAttendancePage() {
     return <div className="p-4 text-center">Employee not found.</div>;
   }
   
-  const getButtonClass = (option: AttendanceOption, isSelected: boolean) => {
+  const getButtonClass = (option: AttendanceStatus, isSelected: boolean) => {
     if (isSelected) {
       switch(option) {
         case 'ABSENT': return 'bg-red-500 hover:bg-red-600 text-white border-transparent';

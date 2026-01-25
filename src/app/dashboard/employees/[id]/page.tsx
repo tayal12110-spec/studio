@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,44 +24,87 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { useDoc } from '@/firebase/firestore/use-doc';
-import { doc, DocumentReference } from 'firebase/firestore';
+import { useDoc, useCollection, WithId } from '@/firebase';
+import {
+  doc,
+  DocumentReference,
+  collection,
+  query,
+  where,
+} from 'firebase/firestore';
 import { useFirestore, useMemoFirebase } from '@/firebase';
-import type { Employee } from '../../data';
+import type { Employee, Attendance, AttendanceStatus } from '../../data';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
+import { format, startOfMonth, endOfMonth, getDaysInMonth, getDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 
-const generateCalendarDays = (year: number, month: number) => {
-  const startDate = new Date(year, month, 1);
-  const endDate = new Date(year, month + 1, 0);
-  const daysInMonth = endDate.getDate();
-  const startDay = startDate.getDay();
+type Day = {
+  day: number | null;
+  status: AttendanceStatus | 'future' | 'empty' | 'NOT_MARKED';
+};
 
-  const days = [];
+const generateCalendarDays = (
+  year: number,
+  month: number,
+  attendance: WithId<Attendance>[] | null
+): Day[] => {
+  const startDate = new Date(year, month, 1);
+  const daysInMonth = getDaysInMonth(startDate);
+  const startDay = getDay(startDate);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const days: Day[] = [];
   for (let i = 0; i < startDay; i++) {
     days.push({ day: null, status: 'empty' });
   }
+
   for (let i = 1; i <= daysInMonth; i++) {
-    if (i === 1) days.push({ day: i, status: 'present' });
-    else if (i > 1 && i <= 22) days.push({ day: i, status: 'absent' });
-    else days.push({ day: i, status: 'future' });
+    const currentDate = new Date(year, month, i);
+    const dateStr = format(currentDate, 'yyyy-MM-dd');
+    const attendanceForDay = attendance?.find((a) => a.date === dateStr);
+
+    if (currentDate > today) {
+      days.push({ day: i, status: 'future' });
+    } else if (attendanceForDay) {
+      days.push({ day: i, status: attendanceForDay.status });
+    } else {
+      days.push({ day: i, status: 'NOT_MARKED' });
+    }
   }
   return days;
+};
+
+const getDayStatusClass = (status: Day['status']) => {
+    switch(status) {
+      case 'PRESENT': return 'bg-green-500 text-white';
+      case 'ABSENT': return 'bg-red-500 text-white';
+      case 'HALF DAY': return 'bg-yellow-500 text-white';
+      case 'WEEK OFF':
+      case 'HOLIDAY':
+        return 'bg-gray-700 text-white';
+      case 'PAID LEAVE': return 'bg-purple-500 text-white';
+      case 'HALF DAY LEAVE': return 'bg-fuchsia-500 text-white';
+      case 'UNPAID LEAVE': return 'bg-sky-500 text-white';
+      case 'future':
+      case 'NOT_MARKED':
+        return 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400';
+      case 'empty': return '';
+      default: return 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400';
+    }
 };
 
 export default function EmployeeDetailPage() {
   const params = useParams();
   const employeeId = params.id as string;
   const firestore = useFirestore();
-  const [currentDate, setCurrentDate] = useState(
-    new Date('2026-01-01T00:00:00')
-  );
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const employeeRef = useMemoFirebase(
     () =>
@@ -70,13 +113,53 @@ export default function EmployeeDetailPage() {
   ) as DocumentReference<Employee> | null;
 
   const { data: employee, isLoading } = useDoc<Employee>(employeeRef);
+  
+  const firstDayOfMonth = useMemo(() => startOfMonth(currentDate), [currentDate]);
+  const lastDayOfMonth = useMemo(() => endOfMonth(currentDate), [currentDate]);
 
-  const calendarDays = generateCalendarDays(
+  const attendanceQuery = useMemoFirebase(() => {
+    if (!firestore || !employeeId) return null;
+    return query(
+      collection(firestore, 'employees', employeeId, 'attendance'),
+      where('date', '>=', format(firstDayOfMonth, 'yyyy-MM-dd')),
+      where('date', '<=', format(lastDayOfMonth, 'yyyy-MM-dd'))
+    );
+  }, [firestore, employeeId, firstDayOfMonth, lastDayOfMonth]);
+
+  const { data: attendanceData, isLoading: isLoadingAttendance } = useCollection<Attendance>(attendanceQuery);
+
+  const calendarDays = useMemo(() => generateCalendarDays(
     currentDate.getFullYear(),
-    currentDate.getMonth()
-  );
+    currentDate.getMonth(),
+    attendanceData
+  ), [currentDate, attendanceData]);
 
-  if (isLoading) {
+  const attendanceStats = useMemo(() => {
+    const initialStats = [
+      { label: 'Present', value: 0, color: 'text-green-600' },
+      { label: 'Absent', value: 0, color: 'text-red-600' },
+      { label: 'Half day', value: 0, color: 'text-yellow-600' },
+      { label: 'Paid Leave', value: 0, color: 'text-purple-600' },
+      { label: 'Week Off', value: 0, color: 'text-gray-600' },
+    ];
+    if (!attendanceData) return initialStats;
+
+    const statsCounter = attendanceData.reduce((acc, record) => {
+        if (record.status === 'PRESENT') acc.Present++;
+        if (record.status === 'ABSENT') acc.Absent++;
+        if (record.status === 'HALF DAY') acc['Half day']++;
+        if (record.status === 'PAID LEAVE') acc['Paid Leave']++;
+        if (record.status === 'WEEK OFF') acc['Week Off']++;
+        return acc;
+    }, { Present: 0, Absent: 0, 'Half day': 0, 'Paid Leave': 0, 'Week Off': 0 });
+
+    return initialStats.map(stat => ({
+        ...stat,
+        value: statsCounter[stat.label as keyof typeof statsCounter]
+    }));
+  }, [attendanceData]);
+
+  if (isLoading || isLoadingAttendance) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -88,16 +171,8 @@ export default function EmployeeDetailPage() {
     return <div className="p-4">Employee not found.</div>;
   }
 
-  const attendanceStats = [
-    { label: 'Present', value: 1, color: 'text-green-600' },
-    { label: 'Absent', value: 21, color: 'text-red-600' },
-    { label: 'Half day', value: 0, color: 'text-yellow-600' },
-    { label: 'Paid Leave', value: '0.0', color: 'text-purple-600' },
-    { label: 'Week Off', value: 0, color: 'text-gray-600' },
-  ];
-
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-background">
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-card px-4">
         <div className="flex items-center gap-4">
           <Link href="/dashboard/employees" passHref>
@@ -166,6 +241,9 @@ export default function EmployeeDetailPage() {
                       selected={currentDate}
                       onSelect={(date) => date && setCurrentDate(date)}
                       initialFocus
+                      defaultMonth={currentDate}
+                      numberOfMonths={1}
+                      disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
                     />
                   </PopoverContent>
                 </Popover>
@@ -189,7 +267,7 @@ export default function EmployeeDetailPage() {
 
             <Card>
               <CardContent className="p-0">
-                <div className="grid grid-cols-5 divide-x divide-gray-200 text-center">
+                <div className="grid grid-cols-5 divide-x divide-gray-200 dark:divide-gray-700 text-center">
                   {attendanceStats.map((stat) => (
                     <div key={stat.label} className={'p-3'}>
                       <p className="text-xs text-muted-foreground">
@@ -237,11 +315,7 @@ export default function EmployeeDetailPage() {
                         <div
                           className={cn(
                             'flex h-9 w-9 items-center justify-center rounded-md text-sm font-semibold cursor-pointer',
-                            day.status === 'present' &&
-                              'bg-green-500 text-white',
-                            day.status === 'absent' && 'bg-red-500 text-white',
-                            day.status === 'future' &&
-                              'bg-gray-200 text-gray-500',
+                            getDayStatusClass(day.status)
                           )}
                         >
                           {day.day}
