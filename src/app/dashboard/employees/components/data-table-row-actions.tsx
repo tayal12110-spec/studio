@@ -2,6 +2,7 @@
 
 import { MoreHorizontal } from 'lucide-react';
 import type { Row } from '@tanstack/react-table';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -39,7 +40,11 @@ export function DataTableRowActions<TData>({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
           <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>View Details</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href={`/dashboard/employees/${employee.id}`}>
+              View Details
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setIsPayrollDialogOpen(true)}>
             Calculate Payroll
