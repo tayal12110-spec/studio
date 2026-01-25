@@ -32,10 +32,13 @@ function Header() {
   return (
     <header className="flex items-center justify-between bg-card p-4">
       <div className="flex items-center gap-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+        <div className="relative flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
           <span className="text-xs font-bold text-muted-foreground">
             ADD LOGO
           </span>
+          <div className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-accent-foreground">
+            <Plus className="h-3 w-3" />
+          </div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -63,6 +66,7 @@ function Header() {
 }
 
 function AttendanceSummary() {
+  const { employees } = useEmployees();
   return (
     <Card className="m-4 bg-primary text-primary-foreground">
       <CardContent className="p-4">
@@ -81,7 +85,7 @@ function AttendanceSummary() {
           </div>
         </div>
         <div className="mt-4 flex items-center justify-between text-sm">
-          <span>Total Staff - 0</span>
+          <span>Total Staff - {employees.length}</span>
           <a href="#" className="font-semibold">
             Edit Attendance &gt;&gt;
           </a>
@@ -162,23 +166,8 @@ function EmployeeList() {
                 </Avatar>
                 <div>
                   <p className="font-semibold">{employee.name}</p>
-                  {employee.status === 'Active' ? (
-                    <p className="text-sm font-medium text-green-600">Active</p>
-                  ) : (
-                    <p className="text-sm font-medium text-red-500">Inactive</p>
-                  )}
+                  <p className="text-sm text-muted-foreground">{employee.status}</p>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm">
-                  View
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-accent text-accent-foreground hover:bg-accent/90"
-                >
-                  Pay
-                </Button>
               </div>
             </div>
           ))
@@ -190,24 +179,24 @@ function EmployeeList() {
 
 export default function DashboardPage() {
   return (
-    <div className="relative">
+    <div className="relative pb-24">
       <Header />
       <AttendanceSummary />
       <QuickActions />
 
       <div className="m-4 rounded-lg border border-yellow-300 bg-yellow-100 p-3 text-center text-yellow-800">
-        <p>Your Free trial ends today</p>
+        <p>3 days left in your Free Trial.</p>
       </div>
 
       <EmployeeList />
 
       <Button
         asChild
-        className="fixed bottom-24 right-4 h-14 w-14 rounded-full bg-accent text-accent-foreground shadow-lg hover:bg-accent/90"
-        size="icon"
+        className="fixed bottom-24 right-4 h-auto rounded-full bg-accent px-4 py-2 text-base text-accent-foreground shadow-lg hover:bg-accent/90"
       >
         <Link href="/dashboard/add-employee">
-          <Plus className="h-8 w-8" />
+          <Plus className="mr-2 h-5 w-5" />
+          Add Staff
         </Link>
       </Button>
     </div>
