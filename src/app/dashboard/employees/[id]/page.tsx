@@ -2,109 +2,80 @@
 
 import {
   ArrowLeft,
-  Calendar as CalendarIcon,
-  Download,
-  MoreVertical,
-  UserCheck,
+  User,
+  Briefcase,
+  ClipboardList,
+  ShieldCheck,
+  CalendarDays,
+  Wallet,
+  Landmark,
+  UserCog,
+  Clock,
+  BookUser,
+  FileText,
+  Bell,
+  Mail,
+  Settings2,
+  ChevronRight,
+  Phone,
+  MessageSquare,
+  Share2,
   MapPin,
-  Info,
+  Handshake,
+  RefreshCw,
+  UserX,
+  Trash2,
+  Camera,
   Loader2,
-  ChevronDown,
+  FileDown,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useState, useMemo } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useDoc } from '@/firebase';
+import { doc, DocumentReference } from 'firebase/firestore';
+import { useFirestore, useMemoFirebase } from '@/firebase';
+import type { Employee } from '../../data';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { useDoc, useCollection, WithId } from '@/firebase';
-import {
-  doc,
-  DocumentReference,
-  collection,
-  query,
-  where,
-} from 'firebase/firestore';
-import { useFirestore, useMemoFirebase } from '@/firebase';
-import type { Employee, Attendance, AttendanceStatus } from '../../data';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { format, startOfMonth, endOfMonth, getDaysInMonth, getDay } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 
-type Day = {
-  day: number | null;
-  status: AttendanceStatus | 'future' | 'empty' | 'NOT_MARKED';
-};
+const DetailRow = ({
+  icon,
+  label,
+  children,
+  onClick,
+}: {
+  icon: React.ElementType;
+  label: string;
+  children?: React.ReactNode;
+  onClick?: () => void;
+}) => {
+  const Icon = icon;
+  const content = (
+    <Card onClick={onClick} className={onClick ? 'cursor-pointer' : ''}>
+      <CardContent className="flex items-center justify-between p-4">
+        <div className="flex items-center gap-4">
+          <Icon className="h-5 w-5 text-muted-foreground" />
+          <span className="font-medium">{label}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {children}
+          {onClick && <ChevronRight className="h-5 w-5 text-muted-foreground" />}
+        </div>
+      </CardContent>
+    </Card>
+  );
 
-const generateCalendarDays = (
-  year: number,
-  month: number,
-  attendance: WithId<Attendance>[] | null
-): Day[] => {
-  const startDate = new Date(year, month, 1);
-  const daysInMonth = getDaysInMonth(startDate);
-  const startDay = getDay(startDate);
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const days: Day[] = [];
-  for (let i = 0; i < startDay; i++) {
-    days.push({ day: null, status: 'empty' });
-  }
-
-  for (let i = 1; i <= daysInMonth; i++) {
-    const currentDate = new Date(year, month, i);
-    const dateStr = format(currentDate, 'yyyy-MM-dd');
-    const attendanceForDay = attendance?.find((a) => a.date === dateStr);
-
-    if (currentDate > today) {
-      days.push({ day: i, status: 'future' });
-    } else if (attendanceForDay) {
-      days.push({ day: i, status: attendanceForDay.status });
-    } else {
-      days.push({ day: i, status: 'NOT_MARKED' });
-    }
-  }
-  return days;
-};
-
-const getDayStatusClass = (status: Day['status']) => {
-    switch(status) {
-      case 'PRESENT': return 'bg-green-500 text-white';
-      case 'ABSENT': return 'bg-red-500 text-white';
-      case 'HALF DAY': return 'bg-yellow-500 text-white';
-      case 'WEEK OFF':
-      case 'HOLIDAY':
-        return 'bg-gray-700 text-white';
-      case 'PAID LEAVE': return 'bg-purple-500 text-white';
-      case 'HALF DAY LEAVE': return 'bg-fuchsia-500 text-white';
-      case 'UNPAID LEAVE': return 'bg-sky-500 text-white';
-      case 'future':
-      case 'NOT_MARKED':
-        return 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400';
-      case 'empty': return '';
-      default: return 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400';
-    }
+  return content;
 };
 
 export default function EmployeeDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const employeeId = params.id as string;
   const firestore = useFirestore();
-  const [currentDate, setCurrentDate] = useState(new Date());
 
   const employeeRef = useMemoFirebase(
     () =>
@@ -113,53 +84,8 @@ export default function EmployeeDetailPage() {
   ) as DocumentReference<Employee> | null;
 
   const { data: employee, isLoading } = useDoc<Employee>(employeeRef);
-  
-  const firstDayOfMonth = useMemo(() => startOfMonth(currentDate), [currentDate]);
-  const lastDayOfMonth = useMemo(() => endOfMonth(currentDate), [currentDate]);
 
-  const attendanceQuery = useMemoFirebase(() => {
-    if (!firestore || !employeeId) return null;
-    return query(
-      collection(firestore, 'employees', employeeId, 'attendance'),
-      where('date', '>=', format(firstDayOfMonth, 'yyyy-MM-dd')),
-      where('date', '<=', format(lastDayOfMonth, 'yyyy-MM-dd'))
-    );
-  }, [firestore, employeeId, firstDayOfMonth, lastDayOfMonth]);
-
-  const { data: attendanceData, isLoading: isLoadingAttendance } = useCollection<Attendance>(attendanceQuery);
-
-  const calendarDays = useMemo(() => generateCalendarDays(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    attendanceData
-  ), [currentDate, attendanceData]);
-
-  const attendanceStats = useMemo(() => {
-    const initialStats = [
-      { label: 'Present', value: 0, color: 'text-green-600' },
-      { label: 'Absent', value: 0, color: 'text-red-600' },
-      { label: 'Half day', value: 0, color: 'text-yellow-600' },
-      { label: 'Paid Leave', value: 0, color: 'text-purple-600' },
-      { label: 'Week Off', value: 0, color: 'text-gray-600' },
-    ];
-    if (!attendanceData) return initialStats;
-
-    const statsCounter = attendanceData.reduce((acc, record) => {
-        if (record.status === 'PRESENT') acc.Present++;
-        if (record.status === 'ABSENT') acc.Absent++;
-        if (record.status === 'HALF DAY') acc['Half day']++;
-        if (record.status === 'PAID LEAVE') acc['Paid Leave']++;
-        if (record.status === 'WEEK OFF') acc['Week Off']++;
-        return acc;
-    }, { Present: 0, Absent: 0, 'Half day': 0, 'Paid Leave': 0, 'Week Off': 0 });
-
-    return initialStats.map(stat => ({
-        ...stat,
-        value: statsCounter[stat.label as keyof typeof statsCounter]
-    }));
-  }, [attendanceData]);
-
-  if (isLoading || isLoadingAttendance) {
+  if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -168,180 +94,123 @@ export default function EmployeeDetailPage() {
   }
 
   if (!employee) {
-    return <div className="p-4">Employee not found.</div>;
+    return <div className="p-4 text-center">Employee not found.</div>;
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-background">
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-card px-4">
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard/employees" passHref>
+    <div className="flex min-h-screen flex-col bg-slate-100 dark:bg-gray-950">
+      <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b bg-card px-4">
+        <div className="flex items-center gap-2">
+          <Link href="/dashboard/employees">
             <Button variant="ghost" size="icon" aria-label="Go back">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <div className="flex items-center gap-2">
-            <Avatar className="h-9 w-9 bg-primary text-primary-foreground">
-              <AvatarFallback>{employee.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <span className="font-semibold">{employee.name}</span>
-          </div>
+          <h1 className="font-semibold">{employee.name}</h1>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" asChild>
-            <Link href={`/dashboard/employees/${employeeId}/edit`}>EDIT</Link>
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Delete Employee</DropdownMenuItem>
-              <DropdownMenuItem>Deactivate Employee</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <Button variant="outline">
+          <FileDown className="mr-2 h-4 w-4" />
+          Biodata
+        </Button>
       </header>
 
-      <main className="flex-1 pb-20">
-        <Tabs defaultValue="attendance" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 rounded-none bg-card">
-            <TabsTrigger value="attendance">ATTENDANCE</TabsTrigger>
-            <TabsTrigger value="salary">SALARY</TabsTrigger>
-            <TabsTrigger value="notes">NOTES</TabsTrigger>
-          </TabsList>
-          <TabsContent value="attendance" className="m-0 space-y-4 p-4">
-            <Card>
-              <CardContent className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Info className="h-5 w-5 text-amber-500" />
-                  <span>Attendance For</span>
-                </div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={'outline'}
-                      className={cn(
-                        'w-auto justify-start text-left font-normal',
-                        !currentDate && 'text-muted-foreground'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {currentDate ? (
-                        format(currentDate, 'MMM yyyy')
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <ChevronDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
-                    <Calendar
-                      mode="single"
-                      selected={currentDate}
-                      onSelect={(date) => date && setCurrentDate(date)}
-                      initialFocus
-                      defaultMonth={currentDate}
-                      numberOfMonths={1}
-                      disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </CardContent>
-            </Card>
+      <main className="flex-1 pb-24">
+        <div className="flex flex-col items-center bg-card p-6 text-center">
+          <div className="relative">
+            <Avatar className="h-24 w-24 border-2 border-primary">
+              <AvatarFallback className="bg-primary text-4xl font-bold text-primary-foreground">
+                {employee.name.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <Button
+              size="icon"
+              className="absolute bottom-0 right-0 h-8 w-8 rounded-full border-2 border-card"
+            >
+              <Camera className="h-4 w-4" />
+            </Button>
+          </div>
+          <h2 className="mt-4 text-xl font-bold">{employee.name}</h2>
+          <p className="text-muted-foreground">{employee.phoneNumber}</p>
+        </div>
 
-            <div className="grid grid-cols-3 gap-2 text-center text-sm">
-              <Button variant="link" className="font-semibold text-primary">
-                <Download className="mr-1 h-4 w-4" />
-                Download Report
+        <div className="my-4 grid grid-cols-5 gap-2 px-4 text-center">
+          {[
+            { icon: Phone, label: 'Call' },
+            { icon: MessageSquare, label: 'Text' },
+            { icon: Share2, label: 'Invite' },
+            { icon: MapPin, label: 'Location' },
+            { icon: Handshake, label: 'CRM' },
+          ].map((action) => (
+            <div key={action.label} className="flex flex-col items-center">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-12 w-12 rounded-lg bg-card"
+              >
+                <action.icon className="h-5 w-5 text-primary" />
               </Button>
-              <Button variant="link" className="font-semibold text-primary">
-                <UserCheck className="mr-1 h-4 w-4" />
-                Mark All Present
-              </Button>
-              <Button variant="link" className="font-semibold text-primary">
-                <MapPin className="mr-1 h-4 w-4" />
-                Live Location
-              </Button>
+              <span className="mt-1 text-xs text-muted-foreground">
+                {action.label}
+              </span>
             </div>
+          ))}
+        </div>
 
-            <Card>
-              <CardContent className="p-0">
-                <div className="grid grid-cols-5 divide-x divide-gray-200 dark:divide-gray-700 text-center">
-                  {attendanceStats.map((stat) => (
-                    <div key={stat.label} className={'p-3'}>
-                      <p className="text-xs text-muted-foreground">
-                        {stat.label}
-                      </p>
-                      <p className={`text-2xl font-bold ${stat.color}`}>
-                        {stat.value}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+        <div className="space-y-2 px-4">
+          <DetailRow
+            onClick={() => router.push(`/dashboard/employees/${employeeId}/edit`)}
+            icon={User}
+            label="Personal Details"
+          />
+          <DetailRow icon={Briefcase} label="Current Employment" />
+          <DetailRow icon={ClipboardList} label="Custom Details">
+            <Badge variant="destructive" className="bg-red-500 text-white">
+              New
+            </Badge>
+          </DetailRow>
+          <DetailRow icon={ShieldCheck} label="Background Verification" />
+        </div>
 
-            <Card>
-              <CardContent className="p-2">
-                <div className="grid grid-cols-7 text-center text-xs font-medium text-muted-foreground">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(
-                    (day) => (
-                      <div key={day} className="py-2">
-                        {day}
-                      </div>
-                    )
-                  )}
-                </div>
-                <div className="grid grid-cols-7 gap-2 text-center">
-                  {calendarDays.map((day, index) => {
-                    if (day.day === null) {
-                      return <div key={index} className="h-9 w-9" />;
-                    }
+        <div className="my-4 space-y-2 px-4">
+          <DetailRow icon={CalendarDays} label="Attendance Details" />
+          <DetailRow icon={Wallet} label="Salary Details" />
+          <DetailRow icon={Landmark} label="Bank Details">
+            <Badge variant="destructive" className='bg-red-100 text-red-700'>Not Verified</Badge>
+          </DetailRow>
+          <DetailRow icon={UserCog} label="User Permission">
+            <span className="text-sm text-muted-foreground">Employee</span>
+          </DetailRow>
+          <DetailRow icon={Clock} label="Penalty & Overtime" />
+        </div>
 
-                    const dayDate = new Date(
-                      currentDate.getFullYear(),
-                      currentDate.getMonth(),
-                      day.day
-                    );
-                    const dateString = format(dayDate, 'yyyy-MM-dd');
+        <div className="space-y-2 px-4">
+          <DetailRow icon={BookUser} label="Leave Balances & Policy" />
+          <DetailRow icon={FileText} label="Documents" />
+          <DetailRow icon={Bell} label="Notifications">
+            <Switch defaultChecked />
+          </DetailRow>
+          <DetailRow icon={Mail} label="Requests" />
+          <DetailRow icon={Settings2} label="Additional Settings" />
+        </div>
 
-                    return (
-                      <Link
-                        key={index}
-                        href={`/dashboard/employees/${employeeId}/edit-attendance?date=${dateString}`}
-                        className="flex items-center justify-center rounded-md transition-colors hover:bg-muted"
-                      >
-                        <div
-                          className={cn(
-                            'flex h-9 w-9 items-center justify-center rounded-md text-sm font-semibold cursor-pointer',
-                            getDayStatusClass(day.status)
-                          )}
-                        >
-                          {day.day}
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="salary" className="p-4">
-            Salary details will go here.
-          </TabsContent>
-          <TabsContent value="notes" className="p-4">
-            Notes will go here.
-          </TabsContent>
-        </Tabs>
+        <div className="mt-8 space-y-3 px-4">
+          <Button
+            variant="outline"
+            className="w-full justify-center bg-card text-foreground"
+          >
+            <RefreshCw className="mr-2 h-4 w-4" /> Generate Login OTP
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-center bg-card text-foreground"
+          >
+            <UserX className="mr-2 h-4 w-4" /> Make Inactive
+          </Button>
+          <Button variant="destructive" className="w-full justify-center">
+            <Trash2 className="mr-2 h-4 w-4" /> Delete Staff
+          </Button>
+        </div>
       </main>
-      <footer className="fixed bottom-0 z-10 w-full border-t bg-card p-4">
-        <Button className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90">
-          Ask Staff To Mark Attendance
-        </Button>
-      </footer>
     </div>
   );
 }
