@@ -188,7 +188,9 @@ export default function EmployeeDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline">EDIT</Button>
+          <Button variant="outline" asChild>
+            <Link href={`/dashboard/employees/${employeeId}/edit`}>EDIT</Link>
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">

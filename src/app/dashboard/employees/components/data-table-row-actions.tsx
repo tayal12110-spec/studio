@@ -39,7 +39,11 @@ export function DataTableRowActions<TData>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href={`/dashboard/employees/${employee.id}/edit`}>
+              Edit
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href={`/dashboard/employees/${employee.id}`}>
               View Details
