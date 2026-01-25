@@ -8,6 +8,16 @@ export type Employee = {
   phoneNumber?: string;
   department: 'Engineering' | 'HR' | 'Marketing' | 'Sales';
   baseSalary: number;
+  personalEmail?: string;
+  dateOfBirth?: string; // Storing as string 'YYYY-MM-DD'
+  gender?: 'Male' | 'Female' | 'Other';
+  maritalStatus?: 'Unmarried' | 'Married' | 'Divorced' | 'Widowed';
+  bloodGroup?: string;
+  guardianName?: string;
+  emergencyContactName?: string;
+  emergencyContactRelationship?: string;
+  emergencyContactMobile?: string;
+  emergencyContactAddress?: string;
 };
 
 export type AttendanceStatus = 'ABSENT' | 'HALF DAY' | 'PRESENT' | 'WEEK OFF' | 'HOLIDAY' | 'PAID LEAVE' | 'HALF DAY LEAVE' | 'UNPAID LEAVE';

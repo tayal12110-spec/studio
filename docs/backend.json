@@ -50,6 +50,48 @@
         "baseSalary": {
           "type": "number",
           "description": "The base salary of the employee."
+        },
+        "personalEmail": {
+          "type": "string",
+          "description": "The personal email address of the employee.",
+          "format": "email"
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "description": "The employee's date of birth.",
+          "format": "date"
+        },
+        "gender": {
+          "type": "string",
+          "description": "The gender of the employee."
+        },
+        "maritalStatus": {
+          "type": "string",
+          "description": "The marital status of the employee."
+        },
+        "bloodGroup": {
+          "type": "string",
+          "description": "The blood group of the employee."
+        },
+        "guardianName": {
+          "type": "string",
+          "description": "The name of the employee's guardian."
+        },
+        "emergencyContactName": {
+          "type": "string",
+          "description": "The name of the emergency contact."
+        },
+        "emergencyContactRelationship": {
+          "type": "string",
+          "description": "The relationship of the emergency contact to the employee."
+        },
+        "emergencyContactMobile": {
+          "type": "string",
+          "description": "The mobile number of the emergency contact."
+        },
+        "emergencyContactAddress": {
+          "type": "string",
+          "description": "The address of the emergency contact."
         }
       },
       "required": [

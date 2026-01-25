@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Loader2,
+  FileText,
+  Calendar as CalendarIcon,
+  BookUser,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,75 +19,125 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
-import { useDoc, useFirestore, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
+import {
+  useDoc,
+  useFirestore,
+  useMemoFirebase,
+  updateDocumentNonBlocking,
+} from '@/firebase';
 import { doc, DocumentReference } from 'firebase/firestore';
 import type { Employee } from '../../../data';
+import { format, parseISO, isValid } from 'date-fns';
+import { cn } from '@/lib/utils';
 
-export default function EditEmployeePage() {
+export default function PersonalDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const employeeId = params.id as string;
-  
+
   const firestore = useFirestore();
   const { toast } = useToast();
 
   const employeeRef = useMemoFirebase(
-    () => (firestore && employeeId ? doc(firestore, 'employees', employeeId) : null),
+    () =>
+      firestore && employeeId
+        ? doc(firestore, 'employees', employeeId)
+        : null,
     [firestore, employeeId]
   ) as DocumentReference<Employee> | null;
 
-  const { data: employee, isLoading: isLoadingEmployee } = useDoc<Employee>(employeeRef);
+  const { data: employee, isLoading: isLoadingEmployee } =
+    useDoc<Employee>(employeeRef);
 
   const [staffName, setStaffName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [department, setDepartment] = useState<'Engineering' | 'HR' | 'Marketing' | 'Sales'>('Sales');
-  const [baseSalary, setBaseSalary] = useState('');
-  const [status, setStatus] = useState<'Active' | 'On Leave' | 'Terminated' | 'Inactive'>('Active');
-  
+  const [mobileCountryCode, setMobileCountryCode] = useState('+91');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [personalEmail, setPersonalEmail] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>();
+  const [gender, setGender] = useState<Employee['gender']>();
+  const [maritalStatus, setMaritalStatus] = useState<Employee['maritalStatus']>();
+  const [bloodGroup, setBloodGroup] = useState('');
+  const [guardianName, setGuardianName] = useState('');
+  const [emergencyContactName, setEmergencyContactName] = useState('');
+  const [emergencyContactRelationship, setEmergencyContactRelationship] = useState('');
+  const [emergencyContactMobileCountryCode, setEmergencyContactMobileCountryCode] = useState('+91');
+  const [emergencyContactMobile, setEmergencyContactMobile] = useState('');
+  const [emergencyContactAddress, setEmergencyContactAddress] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (employee) {
       setStaffName(employee.name);
-      setPhoneNumber(employee.phoneNumber || '');
-      setEmail(employee.email);
-      setDepartment(employee.department);
-      setBaseSalary(String(employee.baseSalary));
-      setStatus(employee.status);
+
+      const phone = employee.phoneNumber || '';
+      const phoneParts = phone.split(' ');
+      if (phoneParts.length > 1) {
+        setMobileCountryCode(phoneParts[0]);
+        setMobileNumber(phoneParts.slice(1).join(' '));
+      } else {
+        setMobileNumber(phone);
+      }
+
+      setPersonalEmail(employee.personalEmail || '');
+      setDateOfBirth(employee.dateOfBirth && isValid(parseISO(employee.dateOfBirth)) ? parseISO(employee.dateOfBirth) : undefined);
+      setGender(employee.gender);
+      setMaritalStatus(employee.maritalStatus);
+      setBloodGroup(employee.bloodGroup || '');
+      setGuardianName(employee.guardianName || '');
+      setEmergencyContactName(employee.emergencyContactName || '');
+      setEmergencyContactRelationship(employee.emergencyContactRelationship || '');
+      
+      const emergencyMobile = employee.emergencyContactMobile || '';
+      const emergencyMobileParts = emergencyMobile.split(' ');
+      if (emergencyMobileParts.length > 1) {
+        setEmergencyContactMobileCountryCode(emergencyMobileParts[0]);
+        setEmergencyContactMobile(emergencyMobileParts.slice(1).join(' '));
+      } else {
+        setEmergencyContactMobile(emergencyMobile);
+      }
+      
+      setEmergencyContactAddress(employee.emergencyContactAddress || '');
     }
   }, [employee]);
 
-  const handleUpdateEmployee = (e: React.FormEvent) => {
+  const handleSaveDetails = (e: React.FormEvent) => {
     e.preventDefault();
     if (employeeRef) {
       setIsSaving(true);
-      const updatedData = {
+      const updatedData: Partial<Employee> = {
         name: staffName,
-        email,
-        phoneNumber,
-        department,
-        baseSalary: Number(baseSalary),
-        status,
+        phoneNumber: `${mobileCountryCode} ${mobileNumber}`.trim(),
+        personalEmail,
+        dateOfBirth: dateOfBirth ? format(dateOfBirth, 'yyyy-MM-dd') : undefined,
+        gender,
+        maritalStatus,
+        bloodGroup,
+        guardianName,
+        emergencyContactName,
+        emergencyContactRelationship,
+        emergencyContactMobile: `${emergencyContactMobileCountryCode} ${emergencyContactMobile}`.trim(),
+        emergencyContactAddress,
       };
-      
+
       updateDocumentNonBlocking(employeeRef, updatedData);
-      
+
       toast({
-        title: 'Employee Updated!',
-        description: `${staffName}'s details have been updated.`,
+        title: 'Details Saved!',
+        description: `${staffName}'s personal details have been updated.`,
       });
-      
+
       setTimeout(() => {
         setIsSaving(false);
-        router.push(`/dashboard/employees/${employeeId}`);
+        router.back();
       }, 500);
     }
   };
 
-  const isFormValid = staffName.trim() && phoneNumber.trim() && email.trim() && baseSalary.trim();
-
+  const isFormValid = staffName.trim() && mobileNumber.trim();
+  
   if (isLoadingEmployee) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -90,105 +146,141 @@ export default function EditEmployeePage() {
     );
   }
 
-  if (!employee) {
-    return <div className="p-4 text-center">Employee not found.</div>;
-  }
-
   return (
     <>
       <div className="flex h-full flex-col">
-        <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
-          <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => router.back()}>
-            <ArrowLeft className="h-5 w-5" />
+        <header className="flex h-16 shrink-0 items-center justify-between border-b bg-card px-4">
+          <div className='flex items-center'>
+            <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => router.back()}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="ml-4 text-lg font-semibold">Personal Details</h1>
+          </div>
+          <Button variant='outline'>
+            <FileText className='mr-2 h-4 w-4' />
+            Biodata
           </Button>
-          <h1 className="ml-4 text-lg font-semibold">Edit Employee Details</h1>
         </header>
 
-        <form
-          onSubmit={handleUpdateEmployee}
-          className="flex flex-1 flex-col overflow-hidden"
-        >
+        <form onSubmit={handleSaveDetails} className="flex flex-1 flex-col overflow-hidden">
           <main className="flex-1 overflow-y-auto p-6">
             <div className="space-y-6">
               <div>
                 <Label htmlFor="staff-name">Staff Name</Label>
-                <Input
-                  id="staff-name"
-                  placeholder="Enter Name"
-                  className="mt-1"
-                  value={staffName}
-                  onChange={(e) => setStaffName(e.target.value)}
-                  required
-                />
+                <Input id="staff-name" placeholder="rinku" className="mt-1" value={staffName} onChange={(e) => setStaffName(e.target.value)} required />
               </div>
 
               <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter Email"
-                  className="mt-1"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                <Label htmlFor="mobile-number">Mobile Number</Label>
+                <div className='flex items-center mt-1'>
+                  <Select value={mobileCountryCode} onValueChange={setMobileCountryCode}>
+                    <SelectTrigger className="w-[80px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="+91">+91</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className='relative flex-1'>
+                    <Input id="mobile-number" type="tel" placeholder="9811021904" className="pl-4" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value)} required />
+                    <BookUser className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="personal-email">Personal Email ID</Label>
+                <Input id="personal-email" type="email" placeholder="eg. personal_email@gmail.com" className="mt-1" value={personalEmail} onChange={(e) => setPersonalEmail(e.target.value)} />
+              </div>
+
+              <div>
+                <Label htmlFor="dob">Date Of Birth</Label>
+                 <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-between text-left font-normal mt-1",
+                          !dateOfBirth && "text-muted-foreground"
+                        )}
+                      >
+                        {dateOfBirth ? format(dateOfBirth, "dd/MM/yyyy") : <span>DD/MM/YYYY</span>}
+                        <CalendarIcon className="h-4 w-4" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar mode="single" selected={dateOfBirth} onSelect={setDateOfBirth} initialFocus />
+                    </PopoverContent>
+                  </Popover>
+              </div>
+
+               <div>
+                <Label htmlFor="gender">Gender</Label>
+                <Select onValueChange={(value: any) => setGender(value)} value={gender}>
+                  <SelectTrigger id="gender" className="mt-1">
+                    <SelectValue placeholder="eg. Male" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
               <div>
-                <Label htmlFor="phone-number">Phone Number</Label>
-                <Input
-                  id="phone-number"
-                  type="tel"
-                  placeholder="Enter Phone Number"
-                  className="mt-1"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="department">Department</Label>
-                <Select onValueChange={(value: any) => setDepartment(value)} value={department}>
-                  <SelectTrigger id="department" className="mt-1">
-                    <SelectValue placeholder="Select department" />
+                <Label htmlFor="marital-status">Marital Status</Label>
+                <Select onValueChange={(value: any) => setMaritalStatus(value)} value={maritalStatus}>
+                  <SelectTrigger id="marital-status" className="mt-1">
+                    <SelectValue placeholder="eg. Unmarried" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Engineering">Engineering</SelectItem>
-                    <SelectItem value="HR">HR</SelectItem>
-                    <SelectItem value="Marketing">Marketing</SelectItem>
-                    <SelectItem value="Sales">Sales</SelectItem>
+                    <SelectItem value="Unmarried">Unmarried</SelectItem>
+                    <SelectItem value="Married">Married</SelectItem>
+                    <SelectItem value="Divorced">Divorced</SelectItem>
+                    <SelectItem value="Widowed">Widowed</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="base-salary">Base Salary (USD)</Label>
-                <Input
-                  id="base-salary"
-                  type="number"
-                  placeholder="Enter Base Salary"
-                  className="mt-1"
-                  value={baseSalary}
-                  onChange={(e) => setBaseSalary(e.target.value)}
-                  required
-                />
+                <Label htmlFor="blood-group">Blood Group</Label>
+                <Input id="blood-group" placeholder="eg. O+" className="mt-1" value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} />
+              </div>
+              
+              <div>
+                <Label htmlFor="guardian-name">Guardian's Name</Label>
+                <Input id="guardian-name" placeholder="eg. Name" className="mt-1" value={guardianName} onChange={(e) => setGuardianName(e.target.value)} />
               </div>
 
               <div>
-                <Label htmlFor="status">Status</Label>
-                <Select onValueChange={(value: any) => setStatus(value)} value={status}>
-                  <SelectTrigger id="status" className="mt-1">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Active">Active</SelectItem>
-                    <SelectItem value="On Leave">On Leave</SelectItem>
-                    <SelectItem value="Terminated">Terminated</SelectItem>
-                    <SelectItem value="Inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="emergency-contact-name">Emergency Contact Name</Label>
+                <Input id="emergency-contact-name" placeholder="Contact Name" className="mt-1" value={emergencyContactName} onChange={(e) => setEmergencyContactName(e.target.value)} />
+              </div>
+
+              <div>
+                <Label htmlFor="emergency-contact-relationship">Emergency Contact Relationship</Label>
+                <Input id="emergency-contact-relationship" placeholder="eg. Father" className="mt-1" value={emergencyContactRelationship} onChange={(e) => setEmergencyContactRelationship(e.target.value)} />
+              </div>
+              
+              <div>
+                <Label htmlFor="emergency-contact-mobile">Emergency Contact Mobile</Label>
+                <div className='flex items-center mt-1'>
+                  <Select value={emergencyContactMobileCountryCode} onValueChange={setEmergencyContactMobileCountryCode}>
+                    <SelectTrigger className="w-[80px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="+91">+91</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input id="emergency-contact-mobile" type="tel" placeholder="1234567890" className="flex-1" value={emergencyContactMobile} onChange={(e) => setEmergencyContactMobile(e.target.value)} />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="emergency-contact-address">Emergency Contact Address</Label>
+                <Input id="emergency-contact-address" placeholder="eg. XYZ Society, sector 101, Gurgaon" className="mt-1" value={emergencyContactAddress} onChange={(e) => setEmergencyContactAddress(e.target.value)} />
               </div>
 
             </div>
@@ -201,7 +293,7 @@ export default function EditEmployeePage() {
               disabled={!isFormValid || isSaving}
             >
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? 'Saving...' : 'Save Details'}
             </Button>
           </footer>
         </form>
