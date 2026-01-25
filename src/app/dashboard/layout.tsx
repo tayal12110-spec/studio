@@ -42,21 +42,25 @@ export default function DashboardLayout({
         <main className="flex-1 pb-20">{children}</main>
         <footer className="fixed bottom-0 z-10 w-full border-t bg-card">
           <nav className="grid grid-cols-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={cn(
-                  'flex flex-col items-center gap-1 py-2 text-sm font-medium',
-                  pathname === item.href
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                )}
-              >
-                <item.icon className="h-6 w-6" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive =
+                item.href === '/dashboard'
+                  ? pathname === item.href
+                  : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={cn(
+                    'flex flex-col items-center gap-1 py-2 text-sm font-medium',
+                    isActive ? 'text-primary' : 'text-muted-foreground'
+                  )}
+                >
+                  <item.icon className="h-6 w-6" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
           </nav>
         </footer>
       </div>

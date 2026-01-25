@@ -97,24 +97,24 @@ function AttendanceSummary() {
 
 function QuickActions() {
   const actions = [
-    { icon: ClipboardList, label: 'Pending Requests' },
-    { icon: UserPlus, label: 'Invite Staff' },
-    { icon: Megaphone, label: 'Announcements' },
-    { icon: BarChart3, label: 'Reports' },
+    { icon: ClipboardList, label: 'Pending Requests', href: '#' },
+    { icon: UserPlus, label: 'Invite Staff', href: '/dashboard/add-employee' },
+    { icon: Megaphone, label: 'Announcements', href: '#' },
+    { icon: BarChart3, label: 'Reports', href: '/dashboard/reports' },
   ];
   return (
     <div className="mx-4 grid grid-cols-4 gap-4 text-center">
       {actions.map((action) => (
-        <div key={action.label} className="flex flex-col items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-12 w-12 rounded-lg bg-card text-primary"
-          >
+        <Link
+          key={action.label}
+          href={action.href}
+          className="flex flex-col items-center gap-1 rounded-lg p-2 transition-colors hover:bg-muted"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-card text-primary">
             <action.icon className="h-6 w-6" />
-          </Button>
-          <p className="text-xs text-muted-foreground">{action.label}</p>
-        </div>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">{action.label}</p>
+        </Link>
       ))}
     </div>
   );
