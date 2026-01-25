@@ -27,6 +27,8 @@ import { Input } from '@/components/ui/input';
 import { type Employee } from './data';
 import Link from 'next/link';
 import { useEmployees } from './employee-context';
+import { useState } from 'react';
+import { PayrollDialog } from './employees/components/payroll-dialog';
 
 function Header() {
   return (
@@ -122,58 +124,88 @@ function QuickActions() {
 
 function EmployeeList() {
   const { employees, isLoading } = useEmployees();
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
+  const [isPayrollDialogOpen, setIsPayrollDialogOpen] = useState(false);
+
+  const handlePayClick = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setIsPayrollDialogOpen(true);
+  };
+
   return (
-    <div className="mt-4 bg-card p-4">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">
-          Staff on Payroll ({employees.length})
-        </h2>
-        <Link
-          href="/dashboard/employees"
-          className="text-sm font-semibold text-primary"
-        >
-          View All
-        </Link>
-      </div>
-      <div className="relative mb-4 flex items-center">
-        <Search className="absolute left-3 h-5 w-5 text-muted-foreground" />
-        <Input placeholder="Search employee" className="pl-10" />
-        <Button variant="ghost" size="icon" className="ml-2">
-          <SlidersHorizontal className="h-5 w-5" />
-        </Button>
-      </div>
-      <div className="space-y-4">
-        {isLoading ? (
-          <div className="flex justify-center items-center h-24">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : employees.length === 0 ? (
-          <p className="text-center text-muted-foreground">No employees found.</p>
-        ) : (
-          employees.map((employee: Employee) => (
-            <div
-              key={employee.id}
-              className="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0"
-            >
-              <div className="flex items-center gap-4">
-                <Avatar className="relative h-12 w-12">
-                  <AvatarFallback className="text-xl">
-                    {employee.avatar}
-                  </AvatarFallback>
-                  {employee.status === 'Inactive' && (
-                    <XCircle className="absolute bottom-0 right-0 h-5 w-5 fill-red-500 text-white" />
-                  )}
-                </Avatar>
-                <div>
-                  <p className="font-semibold">{employee.name}</p>
-                  <p className="text-sm text-muted-foreground">{employee.status}</p>
+    <>
+      <div className="mt-4 bg-card p-4">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">
+            Staff on Payroll ({employees.length})
+          </h2>
+          <Link
+            href="/dashboard/employees"
+            className="text-sm font-semibold text-primary"
+          >
+            View All
+          </Link>
+        </div>
+        <div className="relative mb-4 flex items-center">
+          <Search className="absolute left-3 h-5 w-5 text-muted-foreground" />
+          <Input placeholder="Search employee" className="pl-10" />
+          <Button variant="ghost" size="icon" className="ml-2">
+            <SlidersHorizontal className="h-5 w-5" />
+          </Button>
+        </div>
+        <div className="space-y-4">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-24">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : employees.length === 0 ? (
+            <p className="text-center text-muted-foreground">
+              No employees found.
+            </p>
+          ) : (
+            employees.map((employee: Employee) => (
+              <div
+                key={employee.id}
+                className="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0"
+              >
+                <Link href={`/dashboard/employees/${employee.id}`} className="flex items-center gap-4 group">
+                  <Avatar className="relative h-12 w-12">
+                    <AvatarFallback className="text-xl">
+                      {employee.avatar}
+                    </AvatarFallback>
+                    {employee.status === 'Inactive' && (
+                      <XCircle className="absolute bottom-0 right-0 h-5 w-5 fill-red-500 text-white" />
+                    )}
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold group-hover:underline">{employee.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {employee.status}
+                    </p>
+                  </div>
+                </Link>
+
+                <div className="flex items-center gap-2">
+                   <Button variant="outline" size="sm" asChild>
+                       <Link href={`/dashboard/employees/${employee.id}`}>View</Link>
+                   </Button>
+                   <Button size="sm" onClick={() => handlePayClick(employee)}>Pay</Button>
                 </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
-    </div>
+      {selectedEmployee && (
+        <PayrollDialog
+          isOpen={isPayrollDialogOpen}
+          setIsOpen={setIsPayrollDialogOpen}
+          employee={selectedEmployee}
+        />
+      )}
+    </>
   );
 }
 
