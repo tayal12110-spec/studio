@@ -216,22 +216,39 @@ export default function EmployeeDetailPage() {
                   )}
                 </div>
                 <div className="grid grid-cols-7 gap-2 text-center">
-                  {calendarDays.map((day, index) => (
-                    <div
-                      key={index}
-                      className={cn(
-                        'flex h-9 w-9 items-center justify-center rounded-md text-sm font-semibold',
-                        day.status === 'present' &&
-                          'bg-green-500 text-white',
-                        day.status === 'absent' && 'bg-red-500 text-white',
-                        day.status === 'future' &&
-                          'bg-gray-200 text-gray-500',
-                        day.status === 'empty' && 'bg-transparent'
-                      )}
-                    >
-                      {day.day}
-                    </div>
-                  ))}
+                  {calendarDays.map((day, index) => {
+                    if (day.day === null) {
+                      return <div key={index} className="h-9 w-9" />;
+                    }
+
+                    const dayDate = new Date(
+                      currentDate.getFullYear(),
+                      currentDate.getMonth(),
+                      day.day
+                    );
+                    const dateString = format(dayDate, 'yyyy-MM-dd');
+
+                    return (
+                      <Link
+                        key={index}
+                        href={`/dashboard/employees/${employeeId}/edit-attendance?date=${dateString}`}
+                        className="flex items-center justify-center rounded-md transition-colors hover:bg-muted"
+                      >
+                        <div
+                          className={cn(
+                            'flex h-9 w-9 items-center justify-center rounded-md text-sm font-semibold cursor-pointer',
+                            day.status === 'present' &&
+                              'bg-green-500 text-white',
+                            day.status === 'absent' && 'bg-red-500 text-white',
+                            day.status === 'future' &&
+                              'bg-gray-200 text-gray-500',
+                          )}
+                        >
+                          {day.day}
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
