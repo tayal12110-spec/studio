@@ -92,7 +92,9 @@ export default function CurrentEmploymentPage() {
         esiAccountNumber,
       };
 
-      updateDocumentNonBlocking(employeeRef, updatedData);
+      const finalData = Object.fromEntries(Object.entries(updatedData).filter(([_, v]) => v !== undefined));
+
+      updateDocumentNonBlocking(employeeRef, finalData);
 
       toast({
         title: 'Details Saved!',
