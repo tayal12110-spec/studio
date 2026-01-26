@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import { doc, DocumentReference } from 'firebase/firestore';
 import type { Employee } from '../../../data';
-import { ArrowLeft, Loader2, ShieldCheck, Edit } from 'lucide-react';
+import { ArrowLeft, Loader2, ShieldCheck, Edit, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -133,8 +133,8 @@ export default function BackgroundVerificationPage() {
                                   <p className="font-medium">{proof.label}</p>
                                   {value && <p className="text-sm text-muted-foreground">{value}</p>}
                               </div>
-                              <Button variant='outline' onClick={() => handleOpenDialog(proof)}>
-                                  {value ? <Edit className="h-4 w-4 md:mr-2" /> : null}
+                              <Button variant={value ? 'outline' : 'default'} size="sm" onClick={() => handleOpenDialog(proof)}>
+                                  {value ? <Edit className="h-4 w-4 md:mr-2" /> : <Plus className="h-4 w-4 md:mr-2" />}
                                   <span className="hidden md:inline">{value ? 'Edit' : 'Add'}</span>
                               </Button>
                           </div>
