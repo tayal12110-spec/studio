@@ -7,11 +7,37 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 
 export default function WorkTimingsPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [workType, setWorkType] = useState<'fixed' | 'flexible' | undefined>();
+  const [workType, setWorkType] = useState<'fixed' | 'flexible' | undefined>('fixed');
+
+  const [weekoffs, setWeekoffs] = useState({
+    mon: false,
+    tue: false,
+    wed: false,
+    thu: false,
+    fri: false,
+    sat: true,
+    sun: true,
+  });
+
+  const handleWeekoffChange = (day: keyof typeof weekoffs, checked: boolean) => {
+    setWeekoffs(prev => ({ ...prev, [day]: checked }));
+  };
+
+  const days: { key: keyof typeof weekoffs; label: string; required: boolean }[] = [
+    { key: 'mon', label: 'Mon', required: true },
+    { key: 'tue', label: 'Tue', required: true },
+    { key: 'wed', label: 'Wed', required: true },
+    { key: 'thu', label: 'Thu', required: true },
+    { key: 'fri', label: 'Fri', required: true },
+    { key: 'sat', label: 'Sat', required: false },
+    { key: 'sun', label: 'Sun', required: false },
+  ];
 
   const handleUpdate = () => {
     // Logic to save the work timings would go here
@@ -51,9 +77,47 @@ export default function WorkTimingsPage() {
             </RadioGroup>
           </div>
 
-          <div className="text-center text-muted-foreground">
-            <p>Select type to set Work Timings</p>
-          </div>
+          {workType === 'fixed' ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-[1fr_auto_2fr] items-center gap-x-4 px-1 pb-2 text-sm font-medium text-muted-foreground">
+                <span>Day</span>
+                <span>Weekoff</span>
+                <span>Shifts</span>
+              </div>
+              {days.map(day => (
+                <div key={day.key} className="grid grid-cols-[1fr_auto_2fr] items-center gap-x-4">
+                  <div className="flex items-center gap-1">
+                    {day.required && <span className="text-red-500">*</span>}
+                    <Label htmlFor={`weekoff-${day.key}`} className="font-medium">
+                      {day.label}
+                    </Label>
+                  </div>
+                  <Checkbox
+                    id={`weekoff-${day.key}`}
+                    checked={weekoffs[day.key]}
+                    onCheckedChange={(checked) => handleWeekoffChange(day.key, !!checked)}
+                  />
+                  <Input
+                    placeholder="Select Shift"
+                    value={
+                      weekoffs[day.key]
+                        ? day.key === 'sat'
+                          ? 'All saturdays week off'
+                          : day.key === 'sun'
+                          ? 'All sundays week off'
+                          : ''
+                        : ''
+                    }
+                    disabled={weekoffs[day.key]}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground pt-10">
+              <p>Select type to set Work Timings</p>
+            </div>
+          )}
         </div>
       </main>
 
