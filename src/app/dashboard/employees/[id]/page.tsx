@@ -184,7 +184,11 @@ export default function EmployeeDetailPage() {
         </div>
 
         <div className="my-4 space-y-2 px-4">
-          <DetailRow icon={CalendarDays} label="Attendance Details" />
+          <DetailRow 
+            icon={CalendarDays}
+            label="Attendance Details"
+            onClick={() => router.push(`/dashboard/employees/${employeeId}/attendance-details`)}
+          />
           <DetailRow icon={Wallet} label="Salary Details" />
           <DetailRow icon={Landmark} label="Bank Details">
             <Badge variant="destructive" className='bg-red-100 text-red-700'>Not Verified</Badge>
