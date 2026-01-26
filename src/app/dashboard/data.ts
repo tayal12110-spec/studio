@@ -26,6 +26,11 @@ export type Employee = {
   pfAccountNumber?: string;
   esiAccountNumber?: string;
   customFields?: Record<string, string>;
+  aadhaarNumber?: string;
+  panNumber?: string;
+  drivingLicenseNumber?: string;
+  voterIdNumber?: string;
+  uanNumber?: string;
 };
 
 export type AttendanceStatus = 'ABSENT' | 'HALF DAY' | 'PRESENT' | 'WEEK OFF' | 'HOLIDAY' | 'PAID LEAVE' | 'HALF DAY LEAVE' | 'UNPAID LEAVE';

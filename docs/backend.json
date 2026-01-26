@@ -134,6 +134,26 @@
           "additionalProperties": {
             "type": "string"
           }
+        },
+        "aadhaarNumber": {
+          "type": "string",
+          "description": "The employee's Aadhaar number."
+        },
+        "panNumber": {
+          "type": "string",
+          "description": "The employee's PAN number."
+        },
+        "drivingLicenseNumber": {
+          "type": "string",
+          "description": "The employee's driving license number."
+        },
+        "voterIdNumber": {
+          "type": "string",
+          "description": "The employee's Voter ID number."
+        },
+        "uanNumber": {
+          "type": "string",
+          "description": "The employee's Universal Account Number (UAN)."
         }
       },
       "required": [
