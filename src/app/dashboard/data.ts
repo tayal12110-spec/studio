@@ -25,6 +25,7 @@ export type Employee = {
   dateOfLeaving?: string; // YYYY-MM-DD
   pfAccountNumber?: string;
   esiAccountNumber?: string;
+  customFields?: Record<string, string>;
 };
 
 export type AttendanceStatus = 'ABSENT' | 'HALF DAY' | 'PRESENT' | 'WEEK OFF' | 'HOLIDAY' | 'PAID LEAVE' | 'HALF DAY LEAVE' | 'UNPAID LEAVE';

@@ -127,6 +127,13 @@
         "esiAccountNumber": {
           "type": "string",
           "description": "Employee State Insurance account number."
+        },
+        "customFields": {
+          "type": "object",
+          "description": "A map for storing custom employee data.",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       },
       "required": [

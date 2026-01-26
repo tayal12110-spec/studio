@@ -167,7 +167,11 @@ export default function EmployeeDetailPage() {
             icon={Briefcase}
             label="Current Employment"
           />
-          <DetailRow icon={ClipboardList} label="Custom Details">
+          <DetailRow
+            onClick={() => router.push(`/dashboard/employees/${employeeId}/custom-details`)}
+            icon={ClipboardList}
+            label="Custom Details"
+          >
             <Badge variant="destructive" className="bg-red-500 text-white">
               New
             </Badge>
