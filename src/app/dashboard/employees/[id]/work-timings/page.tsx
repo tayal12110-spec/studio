@@ -2,19 +2,24 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
+import { format, eachDayOfInterval, startOfMonth, endOfMonth } from 'date-fns';
 
 export default function WorkTimingsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [workType, setWorkType] = useState<'fixed' | 'flexible' | undefined>('fixed');
 
+  // State for Fixed schedule
   const [weekoffs, setWeekoffs] = useState({
     mon: false,
     tue: false,
@@ -25,11 +30,27 @@ export default function WorkTimingsPage() {
     sun: true,
   });
 
+  // State for Flexible schedule
+  const [month, setMonth] = useState(new Date(2026, 0, 1)); // January 2026 as per screenshot
+  const [flexibleDaySettings, setFlexibleDaySettings] = useState<Record<string, { weekoff: boolean }>>({});
+
+  const daysInMonth = eachDayOfInterval({
+    start: startOfMonth(month),
+    end: endOfMonth(month),
+  });
+
   const handleWeekoffChange = (day: keyof typeof weekoffs, checked: boolean) => {
     setWeekoffs(prev => ({ ...prev, [day]: checked }));
   };
 
-  const days: { key: keyof typeof weekoffs; label: string; required: boolean }[] = [
+  const handleFlexibleWeekoffChange = (date: string, checked: boolean) => {
+    setFlexibleDaySettings(prev => ({
+      ...prev,
+      [date]: { ...prev[date], weekoff: checked }
+    }));
+  };
+
+  const fixedDays: { key: keyof typeof weekoffs; label: string; required: boolean }[] = [
     { key: 'mon', label: 'Mon', required: true },
     { key: 'tue', label: 'Tue', required: true },
     { key: 'wed', label: 'Wed', required: true },
@@ -77,14 +98,14 @@ export default function WorkTimingsPage() {
             </RadioGroup>
           </div>
 
-          {workType === 'fixed' ? (
+          {workType === 'fixed' && (
             <div className="space-y-4">
               <div className="grid grid-cols-[1fr_auto_2fr] items-center gap-x-4 px-1 pb-2 text-sm font-medium text-muted-foreground">
                 <span>Day</span>
                 <span>Weekoff</span>
                 <span>Shifts</span>
               </div>
-              {days.map(day => (
+              {fixedDays.map(day => (
                 <div key={day.key} className="grid grid-cols-[1fr_auto_2fr] items-center gap-x-4">
                   <div className="flex items-center gap-1">
                     {day.required && <span className="text-red-500">*</span>}
@@ -113,7 +134,64 @@ export default function WorkTimingsPage() {
                 </div>
               ))}
             </div>
-          ) : (
+          )}
+
+          {workType === 'flexible' && (
+             <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                    <Label className="font-medium"><span className="text-red-500">*</span>Select Month</Label>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                        <Button
+                            variant={"outline"}
+                            className={cn(
+                            "w-[200px] justify-between text-left font-normal",
+                            !month && "text-muted-foreground"
+                            )}
+                        >
+                            {month ? format(month, "MMMM yyyy") : <span>Select month</span>}
+                            <CalendarIcon className="h-4 w-4" />
+                        </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                        <Calendar
+                            mode="single"
+                            selected={month}
+                            onSelect={(date) => date && setMonth(date)}
+                            initialFocus
+                        />
+                        </PopoverContent>
+                    </Popover>
+                </div>
+                <div className="grid grid-cols-[1fr_auto_2fr] items-center gap-x-4 px-1 pb-2 text-sm font-medium text-muted-foreground">
+                    <span>Day</span>
+                    <span>Weekoff</span>
+                    <span>Shifts</span>
+                </div>
+                {daysInMonth.map(day => {
+                  const dayKey = format(day, 'yyyy-MM-dd');
+                  const isWeekoff = flexibleDaySettings[dayKey]?.weekoff ?? false;
+                  return (
+                      <div key={dayKey} className="grid grid-cols-[1fr_auto_2fr] items-center gap-x-4">
+                          <div>
+                              <p className="font-medium">{format(day, 'MMM dd')}</p>
+                              <p className="text-xs text-muted-foreground">{format(day, 'E')}</p>
+                          </div>
+                          <Checkbox
+                              checked={isWeekoff}
+                              onCheckedChange={(checked) => handleFlexibleWeekoffChange(dayKey, !!checked)}
+                          />
+                          <Input
+                              placeholder="Select Shift"
+                              disabled={isWeekoff}
+                          />
+                      </div>
+                  )
+                })}
+            </div>
+          )}
+
+          {!workType && (
             <div className="text-center text-muted-foreground pt-10">
               <p>Select type to set Work Timings</p>
             </div>
