@@ -176,7 +176,11 @@ export default function EmployeeDetailPage() {
               New
             </Badge>
           </DetailRow>
-          <DetailRow icon={ShieldCheck} label="Background Verification" />
+          <DetailRow 
+            icon={ShieldCheck} 
+            label="Background Verification"
+            onClick={() => router.push(`/dashboard/employees/${employeeId}/background-verification`)}
+          />
         </div>
 
         <div className="my-4 space-y-2 px-4">
