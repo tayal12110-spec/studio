@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import { doc, DocumentReference } from 'firebase/firestore';
 import type { Employee } from '../../../data';
-import { ArrowLeft, Loader2, ShieldCheck, Edit, Plus } from 'lucide-react';
+import { ArrowLeft, Loader2, ShieldCheck, Edit, Plus, ImageUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -45,6 +46,11 @@ export default function BackgroundVerificationPage() {
   const [proofValue, setProofValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
+  const [isFaceVerifyDialogOpen, setIsFaceVerifyDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const employeeRef = useMemoFirebase(
     () =>
       firestore && employeeId
@@ -81,6 +87,48 @@ export default function BackgroundVerificationPage() {
       setIsDialogOpen(false);
     }, 500);
   };
+  
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+          setSelectedFile(file);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+              setPreviewUrl(reader.result as string);
+          };
+          reader.readAsDataURL(file);
+      }
+  };
+
+  const handleFaceVerify = () => {
+      if (!selectedFile) return;
+      setIsSaving(true);
+      
+      // Placeholder for actual verification logic
+      toast({
+          title: 'Verification in progress...',
+          description: 'The uploaded picture is being verified.',
+      });
+
+      setTimeout(() => {
+          setIsSaving(false);
+          setIsFaceVerifyDialogOpen(false);
+          setPreviewUrl(null);
+          setSelectedFile(null);
+      }, 1000);
+  };
+  
+  const onFaceDialogChange = (isOpen: boolean) => {
+      if (!isOpen) {
+          setPreviewUrl(null);
+          setSelectedFile(null);
+      }
+      setIsFaceVerifyDialogOpen(isOpen);
+  }
 
 
   if (isLoading) {
@@ -147,7 +195,7 @@ export default function BackgroundVerificationPage() {
                <CardContent className='p-3'>
                   <div className='flex items-center justify-between'>
                       <p>Face</p>
-                      <Button className='bg-blue-600 hover:bg-blue-700 text-white'>Verify</Button>
+                      <Button className='bg-blue-600 hover:bg-blue-700 text-white' onClick={() => setIsFaceVerifyDialogOpen(true)}>Verify</Button>
                   </div>
               </CardContent>
           </Card>
@@ -200,6 +248,50 @@ export default function BackgroundVerificationPage() {
                   <Button onClick={handleSaveProof} disabled={isSaving || !proofValue.trim()}>
                       {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       {isSaving ? 'Saving...' : 'Save'}
+                  </Button>
+              </DialogFooter>
+          </DialogContent>
+      </Dialog>
+
+      <Dialog open={isFaceVerifyDialogOpen} onOpenChange={onFaceDialogChange}>
+          <DialogContent>
+              <DialogHeader>
+                  <DialogTitle>Upload picture to Verify Face</DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
+                  accept="image/*"
+                />
+                <div
+                  className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted"
+                  onClick={handleUploadClick}
+                >
+                  {previewUrl ? (
+                    <Image src={previewUrl} alt="Preview" width={128} height={128} className="object-cover rounded-md aspect-square" />
+                  ) : (
+                    <>
+                      <ImageUp className="h-12 w-12 text-muted-foreground" />
+                      <p className="mt-2 text-sm text-muted-foreground">Upload a Picture</p>
+                    </>
+                  )}
+                </div>
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Note: We will verify identity by checking picture with government records.
+                </p>
+              </div>
+              <DialogFooter>
+                  <DialogClose asChild>
+                      <Button type="button" variant="outline">
+                          Cancel
+                      </Button>
+                  </DialogClose>
+                  <Button onClick={handleFaceVerify} disabled={isSaving || !selectedFile}>
+                      {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Verify
                   </Button>
               </DialogFooter>
           </DialogContent>
