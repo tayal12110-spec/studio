@@ -65,6 +65,9 @@ export default function BackgroundVerificationPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [isPastEmploymentDialogOpen, setIsPastEmploymentDialogOpen] = useState(false);
+  const [pastEmploymentValue, setPastEmploymentValue] = useState('');
 
   const employeeRef = useMemoFirebase(
     () =>
@@ -172,6 +175,32 @@ export default function BackgroundVerificationPage() {
       setIsFaceVerifyDialogOpen(isOpen);
   }
 
+  const handleOpenPastEmploymentDialog = () => {
+    setPastEmploymentValue(employee?.pastEmployment || '');
+    setIsPastEmploymentDialogOpen(true);
+  };
+
+  const handleSavePastEmployment = () => {
+    if (!employeeRef) return;
+    setIsSaving(true);
+
+    const updatedData = {
+        pastEmployment: pastEmploymentValue
+    };
+
+    updateDocumentNonBlocking(employeeRef, updatedData);
+
+    toast({
+      title: 'Past Employment Saved!',
+      description: `The past employment details have been saved.`,
+    });
+
+    setTimeout(() => {
+      setIsSaving(false);
+      setIsPastEmploymentDialogOpen(false);
+    }, 500);
+  };
+
 
   if (isLoading) {
     return (
@@ -264,6 +293,24 @@ export default function BackgroundVerificationPage() {
               </Card>
             )
           })}
+
+          <Card className='mb-4'>
+            <CardContent className='p-3'>
+                <div className='flex items-center justify-between'>
+                    <div>
+                        <p>Past Employment</p>
+                        {employee?.pastEmployment ? (
+                          <p className="text-sm text-muted-foreground truncate max-w-xs">{employee.pastEmployment}</p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">Not Added</p>
+                        )}
+                    </div>
+                    <Button variant={employee?.pastEmployment ? 'outline' : 'default'} onClick={handleOpenPastEmploymentDialog}>
+                      {employee?.pastEmployment ? 'Edit' : 'Add'}
+                    </Button>
+                </div>
+            </CardContent>
+          </Card>
         </main>
       </div>
 
@@ -370,6 +417,38 @@ export default function BackgroundVerificationPage() {
                   <Button onClick={handleFaceVerify} disabled={isSaving || !selectedFile}>
                       {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Verify
+                  </Button>
+              </DialogFooter>
+          </DialogContent>
+      </Dialog>
+
+      <Dialog open={isPastEmploymentDialogOpen} onOpenChange={setIsPastEmploymentDialogOpen}>
+          <DialogContent>
+              <DialogHeader>
+                  <DialogTitle>Add Past Employment</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                  <div className="space-y-2">
+                      <Label htmlFor="past-employment-value">
+                          Past Employment Details
+                      </Label>
+                      <Textarea
+                          id="past-employment-value"
+                          value={pastEmploymentValue}
+                          onChange={(e) => setPastEmploymentValue(e.target.value)}
+                          placeholder={`Enter past employment details`}
+                      />
+                  </div>
+              </div>
+              <DialogFooter>
+                  <DialogClose asChild>
+                      <Button type="button" variant="outline">
+                          Cancel
+                      </Button>
+                  </DialogClose>
+                  <Button onClick={handleSavePastEmployment} disabled={isSaving || !pastEmploymentValue.trim()}>
+                      {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {isSaving ? 'Saving...' : 'Save'}
                   </Button>
               </DialogFooter>
           </DialogContent>

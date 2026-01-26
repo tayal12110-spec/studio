@@ -162,6 +162,10 @@
         "permanentAddress": {
           "type": "string",
           "description": "The employee's permanent address."
+        },
+        "pastEmployment": {
+          "type": "string",
+          "description": "Details of the employee's past employment."
         }
       },
       "required": [
