@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -37,6 +37,8 @@ const DetailRow = ({
 
 export default function AttendanceDetailsPage() {
   const router = useRouter();
+  const params = useParams();
+  const employeeId = params.id as string;
 
   return (
     <div className="flex h-full flex-col bg-gray-50 dark:bg-gray-950">
@@ -49,7 +51,11 @@ export default function AttendanceDetailsPage() {
 
       <main className="flex-1 overflow-y-auto p-4">
         <div className="space-y-3">
-          <DetailRow label="Work Timings" hasNewBadge onClick={() => {}}>
+          <DetailRow
+            label="Work Timings"
+            hasNewBadge
+            onClick={() => router.push(`/dashboard/employees/${employeeId}/work-timings`)}
+          >
              <div className="flex items-center gap-1 text-red-600 dark:text-red-400">
                 <AlertCircle className="h-4 w-4" />
                 <span>Not Set</span>
