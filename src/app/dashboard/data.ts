@@ -33,7 +33,15 @@ export type Employee = {
   uanNumber?: string;
   currentAddress?: string;
   permanentAddress?: string;
-  pastEmployment?: string;
+  pastEmployment?: {
+    companyName: string;
+    designation: string;
+    joiningDate: string;
+    leavingDate: string;
+    currency?: string;
+    salary?: number;
+    companyGst?: string;
+  } | string; // string for backward compatibility
 };
 
 export type AttendanceStatus = 'ABSENT' | 'HALF DAY' | 'PRESENT' | 'WEEK OFF' | 'HOLIDAY' | 'PAID LEAVE' | 'HALF DAY LEAVE' | 'UNPAID LEAVE';

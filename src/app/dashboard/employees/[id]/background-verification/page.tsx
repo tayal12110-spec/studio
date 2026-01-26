@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import { doc, DocumentReference } from 'firebase/firestore';
 import type { Employee } from '../../../data';
-import { ArrowLeft, Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, ShieldCheck, AlertCircle, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -18,7 +18,12 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { format, parseISO, isValid } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 
 export default function BackgroundVerificationPage() {
@@ -31,7 +36,16 @@ export default function BackgroundVerificationPage() {
   const [isSaving, setIsSaving] = useState(false);
   
   const [isPastEmploymentDialogOpen, setIsPastEmploymentDialogOpen] = useState(false);
-  const [pastEmploymentValue, setPastEmploymentValue] = useState('');
+  
+  // Form state
+  const [companyName, setCompanyName] = useState('');
+  const [designation, setDesignation] = useState('');
+  const [joiningDate, setJoiningDate] = useState<Date | undefined>();
+  const [leavingDate, setLeavingDate] = useState<Date | undefined>();
+  const [currency, setCurrency] = useState('INR');
+  const [salary, setSalary] = useState('');
+  const [companyGst, setCompanyGst] = useState('');
+
 
   const employeeRef = useMemoFirebase(
     () =>
@@ -44,7 +58,24 @@ export default function BackgroundVerificationPage() {
   const { data: employee, isLoading } = useDoc<Employee>(employeeRef);
 
   const handleOpenPastEmploymentDialog = () => {
-    setPastEmploymentValue(employee?.pastEmployment || '');
+    if (employee?.pastEmployment && typeof employee.pastEmployment !== 'string') {
+        setCompanyName(employee.pastEmployment.companyName || '');
+        setDesignation(employee.pastEmployment.designation || '');
+        setJoiningDate(employee.pastEmployment.joiningDate && isValid(parseISO(employee.pastEmployment.joiningDate)) ? parseISO(employee.pastEmployment.joiningDate) : undefined);
+        setLeavingDate(employee.pastEmployment.leavingDate && isValid(parseISO(employee.pastEmployment.leavingDate)) ? parseISO(employee.pastEmployment.leavingDate) : undefined);
+        setCurrency(employee.pastEmployment.currency || 'INR');
+        setSalary(employee.pastEmployment.salary?.toString() || '');
+        setCompanyGst(employee.pastEmployment.companyGst || '');
+    } else {
+        // Reset form for adding new or for old string format
+        setCompanyName('');
+        setDesignation('');
+        setJoiningDate(undefined);
+        setLeavingDate(undefined);
+        setCurrency('INR');
+        setSalary('');
+        setCompanyGst('');
+    }
     setIsPastEmploymentDialogOpen(true);
   };
 
@@ -53,7 +84,15 @@ export default function BackgroundVerificationPage() {
     setIsSaving(true);
 
     const updatedData = {
-        pastEmployment: pastEmploymentValue
+        pastEmployment: {
+            companyName,
+            designation,
+            joiningDate: joiningDate ? format(joiningDate, 'yyyy-MM-dd') : '',
+            leavingDate: leavingDate ? format(leavingDate, 'yyyy-MM-dd') : '',
+            currency,
+            salary: salary ? Number(salary) : 0,
+            companyGst,
+        }
     };
 
     updateDocumentNonBlocking(employeeRef, updatedData);
@@ -68,6 +107,8 @@ export default function BackgroundVerificationPage() {
       setIsPastEmploymentDialogOpen(false);
     }, 500);
   };
+  
+  const isFormValid = companyName.trim() && joiningDate && leavingDate;
 
 
   if (isLoading) {
@@ -77,6 +118,10 @@ export default function BackgroundVerificationPage() {
       </div>
     );
   }
+  
+  const pastEmploymentDisplay = employee?.pastEmployment
+    ? (typeof employee.pastEmployment === 'string' ? employee.pastEmployment : employee.pastEmployment.companyName)
+    : null;
 
   return (
     <>
@@ -104,13 +149,13 @@ export default function BackgroundVerificationPage() {
 
             <Card className='mb-4'>
                 <CardContent className='p-4'>
-                    {employee?.pastEmployment ? (
+                    {pastEmploymentDisplay ? (
                         <>
                             <div className='flex items-center justify-between'>
                                 <p className='font-medium'>Past Employment</p>
                                 <Button variant='outline' onClick={handleOpenPastEmploymentDialog}>Edit</Button>
                             </div>
-                            <p className="text-sm text-muted-foreground mt-2 truncate max-w-xs">{employee.pastEmployment}</p>
+                            <p className="text-sm text-muted-foreground mt-2 truncate max-w-xs">{pastEmploymentDisplay}</p>
                         </>
                     ) : (
                         <div className='flex items-center justify-between'>
@@ -134,21 +179,74 @@ export default function BackgroundVerificationPage() {
       </div>
 
       <Dialog open={isPastEmploymentDialogOpen} onOpenChange={setIsPastEmploymentDialogOpen}>
-          <DialogContent>
+          <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                  <DialogTitle>Add Past Employment</DialogTitle>
+                  <DialogTitle>Past Employment Details</DialogTitle>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                  <div className="space-y-2">
-                      <Label htmlFor="past-employment-value">
-                          Past Employment Details
-                      </Label>
-                      <Textarea
-                          id="past-employment-value"
-                          value={pastEmploymentValue}
-                          onChange={(e) => setPastEmploymentValue(e.target.value)}
-                          placeholder={`Enter past employment details`}
-                      />
+              <div className="space-y-4 py-4">
+                  <div className="space-y-2 px-1">
+                      <Label htmlFor="company-name">Company Name <span className="text-red-500">*</span></Label>
+                      <Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+                  </div>
+                  <div className="space-y-2 px-1">
+                      <Label htmlFor="designation">Designation</Label>
+                      <Input id="designation" value={designation} onChange={(e) => setDesignation(e.target.value)} />
+                  </div>
+                   <div className="space-y-2 px-1">
+                        <Label htmlFor="joining-date">Joining Date <span className="text-red-500">*</span></Label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                            <Button
+                                variant={"outline"}
+                                className={cn("w-full justify-between text-left font-normal", !joiningDate && "text-muted-foreground")}
+                            >
+                                {joiningDate ? format(joiningDate, "dd/MM/yyyy") : <span>Select date</span>}
+                                <CalendarIcon className="h-4 w-4" />
+                            </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                            <Calendar mode="single" selected={joiningDate} onSelect={setJoiningDate} initialFocus />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                    <div className="space-y-2 px-1">
+                        <Label htmlFor="leaving-date">Leaving Date <span className="text-red-500">*</span></Label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                            <Button
+                                variant={"outline"}
+                                className={cn("w-full justify-between text-left font-normal", !leavingDate && "text-muted-foreground")}
+                            >
+                                {leavingDate ? format(leavingDate, "dd/MM/yyyy") : <span>Select date</span>}
+                                <CalendarIcon className="h-4 w-4" />
+                            </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                            <Calendar mode="single" selected={leavingDate} onSelect={setLeavingDate} initialFocus />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 px-1">
+                        <div className="space-y-2">
+                            <Label htmlFor="currency">Currency</Label>
+                            <Select onValueChange={setCurrency} value={currency}>
+                                <SelectTrigger id="currency">
+                                    <SelectValue placeholder="Select Currency" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="INR">INR</SelectItem>
+                                    <SelectItem value="USD">USD</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="salary">Salary</Label>
+                            <Input id="salary" type="number" value={salary} onChange={(e) => setSalary(e.target.value)} />
+                        </div>
+                    </div>
+                    <div className="space-y-2 px-1">
+                      <Label htmlFor="company-gst">Company GST</Label>
+                      <Input id="company-gst" value={companyGst} onChange={(e) => setCompanyGst(e.target.value)} />
                   </div>
               </div>
               <DialogFooter>
@@ -157,9 +255,9 @@ export default function BackgroundVerificationPage() {
                           Cancel
                       </Button>
                   </DialogClose>
-                  <Button onClick={handleSavePastEmployment} disabled={isSaving || !pastEmploymentValue.trim()}>
+                  <Button onClick={handleSavePastEmployment} disabled={isSaving || !isFormValid} className="bg-accent text-accent-foreground hover:bg-accent/90">
                       {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      {isSaving ? 'Saving...' : 'Save'}
+                      {isSaving ? 'Saving...' : 'Add'}
                   </Button>
               </DialogFooter>
           </DialogContent>

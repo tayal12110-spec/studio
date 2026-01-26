@@ -164,8 +164,33 @@
           "description": "The employee's permanent address."
         },
         "pastEmployment": {
-          "type": "string",
-          "description": "Details of the employee's past employment."
+          "type": "object",
+          "description": "Details of the employee's past employment.",
+          "properties": {
+            "companyName": {
+              "type": "string"
+            },
+            "designation": {
+              "type": "string"
+            },
+            "joiningDate": {
+              "type": "string",
+              "format": "date"
+            },
+            "leavingDate": {
+              "type": "string",
+              "format": "date"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "salary": {
+              "type": "number"
+            },
+            "companyGst": {
+              "type": "string"
+            }
+          }
         }
       },
       "required": [
