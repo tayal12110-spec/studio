@@ -154,6 +154,14 @@
         "uanNumber": {
           "type": "string",
           "description": "The employee's Universal Account Number (UAN)."
+        },
+        "currentAddress": {
+          "type": "string",
+          "description": "The employee's current address."
+        },
+        "permanentAddress": {
+          "type": "string",
+          "description": "The employee's permanent address."
         }
       },
       "required": [

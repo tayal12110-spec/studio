@@ -20,6 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
 
 type IdProof = {
     key: keyof Employee;
@@ -34,6 +35,16 @@ const idProofs: IdProof[] = [
     { key: 'uanNumber', label: 'UAN' },
 ];
 
+type AddressProof = {
+    key: 'currentAddress' | 'permanentAddress';
+    label: string;
+};
+
+const addressProofs: AddressProof[] = [
+    { key: 'currentAddress', label: 'Current Address' },
+    { key: 'permanentAddress', label: 'Permanent Address' },
+];
+
 export default function BackgroundVerificationPage() {
   const router = useRouter();
   const params = useParams();
@@ -45,6 +56,10 @@ export default function BackgroundVerificationPage() {
   const [currentProof, setCurrentProof] = useState<IdProof | null>(null);
   const [proofValue, setProofValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
+  const [currentAddressProof, setCurrentAddressProof] = useState<AddressProof | null>(null);
+  const [addressValue, setAddressValue] = useState('');
 
   const [isFaceVerifyDialogOpen, setIsFaceVerifyDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -85,6 +100,33 @@ export default function BackgroundVerificationPage() {
     setTimeout(() => {
       setIsSaving(false);
       setIsDialogOpen(false);
+    }, 500);
+  };
+
+  const handleOpenAddressDialog = (proof: AddressProof) => {
+    setCurrentAddressProof(proof);
+    setAddressValue((employee?.[proof.key] as string) || '');
+    setIsAddressDialogOpen(true);
+  };
+
+  const handleSaveAddress = () => {
+    if (!employeeRef || !currentAddressProof) return;
+    setIsSaving(true);
+
+    const updatedData = {
+        [currentAddressProof.key]: addressValue
+    };
+
+    updateDocumentNonBlocking(employeeRef, updatedData);
+
+    toast({
+      title: 'Address Saved!',
+      description: `The ${currentAddressProof.label} has been saved.`,
+    });
+
+    setTimeout(() => {
+      setIsSaving(false);
+      setIsAddressDialogOpen(false);
     }, 500);
   };
   
@@ -200,24 +242,28 @@ export default function BackgroundVerificationPage() {
               </CardContent>
           </Card>
 
-          <Card className='mb-4'>
-               <CardContent className='p-3'>
-                  <div className='flex items-center justify-between'>
-                      <p>Address</p>
-                      <Button variant='outline'>Add</Button>
-                  </div>
-              </CardContent>
-          </Card>
-          
-          <Card>
-               <CardContent className='p-3'>
-                  <div className='flex items-center justify-between'>
-                      <p>Past Employment</p>
-                      <Button variant='outline'>Add</Button>
-                  </div>
-              </CardContent>
-          </Card>
-
+          {addressProofs.map((proof) => {
+            const value = employee?.[proof.key] as string;
+            return (
+              <Card key={proof.key} className='mb-4'>
+                <CardContent className='p-3'>
+                    <div className='flex items-center justify-between'>
+                        <div>
+                            <p>{proof.label}</p>
+                            {value ? (
+                              <p className="text-sm text-muted-foreground truncate max-w-xs">{value}</p>
+                            ) : (
+                              <p className="text-sm text-muted-foreground">Not Added</p>
+                            )}
+                        </div>
+                        <Button variant={value ? 'outline' : 'default'} onClick={() => handleOpenAddressDialog(proof)}>
+                          {value ? 'Edit' : 'Add'}
+                        </Button>
+                    </div>
+                </CardContent>
+              </Card>
+            )
+          })}
         </main>
       </div>
 
@@ -246,6 +292,38 @@ export default function BackgroundVerificationPage() {
                       </Button>
                   </DialogClose>
                   <Button onClick={handleSaveProof} disabled={isSaving || !proofValue.trim()}>
+                      {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {isSaving ? 'Saving...' : 'Save'}
+                  </Button>
+              </DialogFooter>
+          </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isAddressDialogOpen} onOpenChange={setIsAddressDialogOpen}>
+          <DialogContent>
+              <DialogHeader>
+                  <DialogTitle>Add {currentAddressProof?.label}</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                  <div className="space-y-2">
+                      <Label htmlFor="address-value">
+                          {currentAddressProof?.label}
+                      </Label>
+                      <Textarea
+                          id="address-value"
+                          value={addressValue}
+                          onChange={(e) => setAddressValue(e.target.value)}
+                          placeholder={`Enter ${currentAddressProof?.label}`}
+                      />
+                  </div>
+              </div>
+              <DialogFooter>
+                  <DialogClose asChild>
+                      <Button type="button" variant="outline">
+                          Cancel
+                      </Button>
+                  </DialogClose>
+                  <Button onClick={handleSaveAddress} disabled={isSaving || !addressValue.trim()}>
                       {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       {isSaving ? 'Saving...' : 'Save'}
                   </Button>
