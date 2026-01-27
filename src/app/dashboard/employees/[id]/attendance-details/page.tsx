@@ -41,9 +41,9 @@ export default function AttendanceDetailsPage() {
   const employeeId = params.id as string;
 
   return (
-    <div className="flex h-full flex-col bg-gray-50 dark:bg-gray-950">
-      <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
-        <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => router.back()}>
+    <div className="flex h-full flex-col bg-background">
+      <header className="flex h-16 shrink-0 items-center border-b bg-primary px-4 text-primary-foreground">
+        <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => router.back()} className="hover:bg-primary-foreground/10">
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="ml-4 text-lg font-semibold">Attendance Details</h1>
