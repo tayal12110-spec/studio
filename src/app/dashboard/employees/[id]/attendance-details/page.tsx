@@ -18,7 +18,7 @@ const DetailRow = ({
   hasNewBadge?: boolean;
   onClick?: () => void;
 }) => {
-  const content = (
+  return (
     <Card onClick={onClick} className={onClick ? 'cursor-pointer' : ''}>
       <CardContent className="flex items-center justify-between p-4">
         <div className="flex items-center gap-2">
@@ -56,7 +56,7 @@ export default function AttendanceDetailsPage() {
             hasNewBadge
             onClick={() => router.push(`/dashboard/employees/${employeeId}/work-timings`)}
           >
-             <div className="flex items-center gap-1 text-red-600 dark:text-red-400">
+             <div className="flex items-center gap-1 text-destructive">
                 <AlertCircle className="h-4 w-4" />
                 <span>Not Set</span>
              </div>
