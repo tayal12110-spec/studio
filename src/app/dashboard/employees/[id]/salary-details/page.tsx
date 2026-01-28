@@ -90,6 +90,9 @@ export default function SalaryDetailsPage() {
   const [esiOption, setEsiOption] = useState<EsiOption>('none');
   const [currentEsiOption, setCurrentEsiOption] = useState<EsiOption>('none');
   const [esiLabel, setEsiLabel] = useState('Not Selected');
+  const [esiBasic, setEsiBasic] = useState(true);
+  const [esiIncentive, setEsiIncentive] = useState(false);
+  const [esiOvertime, setEsiOvertime] = useState(false);
 
   // Labour Welfare Fund State
   const [isLwfDialogOpen, setIsLwfDialogOpen] = useState(false);
@@ -626,14 +629,54 @@ export default function SalaryDetailsPage() {
                 None
               </Label>
             </div>
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="variable" id="esi-variable" />
-              <Label
-                htmlFor="esi-variable"
-                className="text-base font-normal"
-              >
-                3.25% Variable
-              </Label>
+            <div>
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="variable" id="esi-variable" />
+                <Label
+                  htmlFor="esi-variable"
+                  className="text-base font-normal"
+                >
+                  3.25% Variable
+                </Label>
+              </div>
+              {esiOption === 'variable' && (
+                <div className="space-y-4 pl-8 pt-4">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="esi-basic"
+                      checked={esiBasic}
+                      onCheckedChange={(c) => setEsiBasic(!!c)}
+                      disabled
+                    />
+                    <Label
+                      htmlFor="esi-basic"
+                      className="font-normal text-muted-foreground"
+                    >
+                      BASIC
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="esi-incentive"
+                      checked={esiIncentive}
+                      onCheckedChange={(c) => setEsiIncentive(!!c)}
+                    />
+                    <Label htmlFor="esi-incentive" className="font-normal">
+                      Incentive
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="esi-overtime"
+                      checked={esiOvertime}
+                      onCheckedChange={(c) => setEsiOvertime(!!c)}
+                    />
+                    <Label htmlFor="esi-overtime" className="font-normal">
+                      Overtime
+                    </Label>
+                  </div>
+                </div>
+              )}
             </div>
           </RadioGroup>
           <DialogFooter>
