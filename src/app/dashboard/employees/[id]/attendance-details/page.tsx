@@ -23,7 +23,7 @@ const DetailRow = ({
       <CardContent className="flex items-center justify-between p-4">
         <div className="flex items-center gap-2">
           <span className="font-medium">{label}</span>
-          {hasNewBadge && <Badge variant="destructive">New</Badge>}
+          {hasNewBadge && <Badge variant="destructive" className='bg-red-100 text-red-700'>New</Badge>}
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           {children}
@@ -62,7 +62,7 @@ export default function AttendanceDetailsPage() {
              </div>
           </DetailRow>
 
-          <DetailRow label="Attendance Modes" hasNewBadge onClick={() => {}} />
+          <DetailRow label="Attendance Modes" hasNewBadge onClick={() => router.push(`/dashboard/employees/${employeeId}/attendance-modes`)} />
 
           <DetailRow label="Automation Rules" hasNewBadge onClick={() => {}} />
 
