@@ -28,6 +28,7 @@ import {
   Camera,
   Loader2,
   FileDown,
+  Calendar as CalendarIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -48,9 +49,22 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const DetailRow = ({
   icon,
@@ -101,6 +115,10 @@ export default function EmployeeDetailPage() {
   const [selectedPermission, setSelectedPermission] =
     useState<Employee['permission']>('Employee');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [isInactiveDialogOpen, setIsInactiveDialogOpen] = useState(false);
+  const [dateOfLeaving, setDateOfLeaving] = useState<Date | undefined>(
+    new Date()
+  );
 
   useEffect(() => {
     if (employee) {
@@ -131,6 +149,27 @@ export default function EmployeeDetailPage() {
         checked ? 'now' : 'no longer'
       } receive notifications.`,
     });
+  };
+
+  const handleDeactivate = () => {
+    if (!employeeRef || !dateOfLeaving) {
+      toast({
+        variant: 'destructive',
+        title: 'Date of leaving is required',
+      });
+      return;
+    }
+
+    updateDocumentNonBlocking(employeeRef, {
+      status: 'Inactive',
+      dateOfLeaving: format(dateOfLeaving, 'yyyy-MM-dd'),
+    });
+
+    toast({
+      title: 'Employee Deactivated',
+      description: `${employee?.name} has been marked as inactive.`,
+    });
+    setIsInactiveDialogOpen(false);
   };
   
   const permissionDescriptions: Record<string, string> = {
@@ -315,6 +354,7 @@ export default function EmployeeDetailPage() {
             <Button
               variant="outline"
               className="w-full justify-center bg-card text-foreground"
+              onClick={() => setIsInactiveDialogOpen(true)}
             >
               <UserX className="mr-2 h-4 w-4" /> Make Inactive
             </Button>
@@ -377,6 +417,64 @@ export default function EmployeeDetailPage() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
+
+      <Dialog open={isInactiveDialogOpen} onOpenChange={setIsInactiveDialogOpen}>
+        <DialogContent className="sm:max-w-sm p-0">
+          <DialogHeader className="p-6 pb-4">
+            <DialogTitle className="text-xl font-bold text-center">
+              Mark as Inactive
+            </DialogTitle>
+            <DialogDescription className="text-center text-muted-foreground pt-2">
+              Deactivate employee if they left the company. All data is 100%
+              backed up.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-6 pb-6 space-y-2">
+            <Label htmlFor="date-of-leaving">Date of Leaving *</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date-of-leaving"
+                  variant={'outline'}
+                  className={cn(
+                    'w-full justify-start text-left font-normal',
+                    !dateOfLeaving && 'text-muted-foreground'
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateOfLeaving ? (
+                    format(dateOfLeaving, 'dd MMM yyyy')
+                  ) : (
+                    <span>Select date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={dateOfLeaving}
+                  onSelect={setDateOfLeaving}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <DialogFooter className="flex-col gap-2 p-4 pt-0">
+            <Button
+              onClick={handleDeactivate}
+              className="w-full h-11 bg-accent text-accent-foreground hover:bg-accent/90"
+              disabled={!dateOfLeaving}
+            >
+              Deactivate
+            </Button>
+            <DialogClose asChild>
+              <Button type="button" variant="ghost" className="w-full">
+                Cancel
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
