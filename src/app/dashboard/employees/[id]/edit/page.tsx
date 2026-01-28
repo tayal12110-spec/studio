@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation';
 import {
   ArrowLeft,
   Loader2,
-  FileText,
   Calendar as CalendarIcon,
   BookUser,
 } from 'lucide-react';
@@ -151,17 +150,13 @@ export default function PersonalDetailsPage() {
   return (
     <>
       <div className="flex h-full flex-col">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b bg-card px-4">
+        <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
           <div className='flex items-center'>
             <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => router.back()}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <h1 className="ml-4 text-lg font-semibold">Personal Details</h1>
           </div>
-          <Button variant='outline'>
-            <FileText className='mr-2 h-4 w-4' />
-            Biodata
-          </Button>
         </header>
 
         <form onSubmit={handleSaveDetails} className="flex flex-1 flex-col overflow-hidden">

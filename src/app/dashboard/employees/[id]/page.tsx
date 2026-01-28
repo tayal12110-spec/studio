@@ -29,7 +29,6 @@ import {
   Loader2,
   FileDown,
   Calendar as CalendarIcon,
-  Edit,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -229,10 +228,10 @@ export default function EmployeeDetailPage() {
             </Link>
             <h1 className="font-semibold">{employee.name}</h1>
           </div>
-          <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
+          <Button asChild className="bg-green-500 text-white hover:bg-green-600">
             <Link href={`/dashboard/employees/${employeeId}/edit`}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
+              <FileText className="mr-2 h-4 w-4" />
+              Biodata
             </Link>
           </Button>
         </header>
