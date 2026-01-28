@@ -41,7 +41,7 @@ export default function AttendanceDetailsPage() {
   const employeeId = params.id as string;
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <div className="flex h-full flex-col bg-slate-50 dark:bg-background">
       <header className="flex h-16 shrink-0 items-center border-b bg-primary px-4 text-primary-foreground">
         <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => router.back()} className="hover:bg-primary-foreground/10">
           <ArrowLeft className="h-5 w-5" />
@@ -64,7 +64,7 @@ export default function AttendanceDetailsPage() {
 
           <DetailRow label="Attendance Modes" hasNewBadge onClick={() => router.push(`/dashboard/employees/${employeeId}/attendance-modes`)} />
 
-          <DetailRow label="Automation Rules" hasNewBadge onClick={() => {}} />
+          <DetailRow label="Automation Rules" hasNewBadge onClick={() => router.push(`/dashboard/employees/${employeeId}/automation-rules`)} />
 
           <DetailRow label="Staff can view own attendance">
             <Switch defaultChecked />
