@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,7 @@ export default function ReimbursementRequestsPage() {
   const employeeId = params.id as string;
   const firestore = useFirestore();
 
-  const [activeFilter, setActiveFilter] = useState<StatusFilter>('Pending');
+  const [activeFilter, setActiveFilter] = useState<StatusFilter>('Approved');
 
   const employeeRef = useMemoFirebase(
     () => (firestore && employeeId ? doc(firestore, 'employees', employeeId) : null),
@@ -39,11 +39,16 @@ export default function ReimbursementRequestsPage() {
         return reimbursementColRef;
     }
     return query(reimbursementColRef, where('status', '==', activeFilter));
-  }, [reimbursementColRef, activeFilter]);
+  }, [reimbursementColRef, activeFilter]) as Query | null;
 
   const { data: requests, isLoading: isLoadingRequests } = useCollection<ReimbursementRequest>(reimbursementQuery);
 
   const isLoading = isLoadingEmployee || isLoadingRequests;
+  
+  const totalReimbursements = useMemo(() => {
+    if (!requests) return 0;
+    return requests.reduce((sum, req) => sum + req.amount, 0);
+  }, [requests]);
 
   return (
     <div className="flex h-full flex-col bg-slate-50 dark:bg-background">
@@ -75,6 +80,13 @@ export default function ReimbursementRequestsPage() {
                 </Button>
             ))}
             </div>
+        </div>
+
+        <div className="px-4 py-2 flex justify-between items-center">
+            <p className="text-sm font-medium text-muted-foreground">TOTAL REIMBURSEMENTS</p>
+            <p className="text-lg font-bold">
+                {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(totalReimbursements)}
+            </p>
         </div>
         
         {isLoading ? (
