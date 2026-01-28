@@ -32,7 +32,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useDoc, updateDocumentNonBlocking } from '@/firebase';
+import {
+  useDoc,
+  updateDocumentNonBlocking,
+  deleteDocumentNonBlocking,
+} from '@/firebase';
 import { doc, DocumentReference } from 'firebase/firestore';
 import { useFirestore, useMemoFirebase } from '@/firebase';
 import type { Employee } from '../../data';
@@ -58,6 +62,17 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -138,7 +153,7 @@ export default function EmployeeDetailPage() {
     });
     setIsPermissionSheetOpen(false);
   };
-  
+
   const handleNotificationToggle = (checked: boolean) => {
     if (!employeeRef || !employee) return;
     setNotificationsEnabled(checked);
@@ -171,10 +186,21 @@ export default function EmployeeDetailPage() {
     });
     setIsInactiveDialogOpen(false);
   };
-  
+
+  const handleDelete = () => {
+    if (!employeeRef || !employee) return;
+    deleteDocumentNonBlocking(employeeRef);
+    toast({
+      title: 'Employee Deleted',
+      description: `${employee.name} has been permanently deleted.`,
+    });
+    router.push('/dashboard/employees');
+  };
+
   const permissionDescriptions: Record<string, string> = {
     Employee: 'Employee : Can mark their own attendance only.',
-    'Attendance Manager': 'Attendance Manager: Can mark attendance for other staff.',
+    'Attendance Manager':
+      'Attendance Manager: Can mark attendance for other staff.',
     'Branch Admin': 'Branch Admin: Has all access for this branch.',
   };
 
@@ -260,14 +286,18 @@ export default function EmployeeDetailPage() {
             />
             <DetailRow
               onClick={() =>
-                router.push(`/dashboard/employees/${employeeId}/current-employment`)
+                router.push(
+                  `/dashboard/employees/${employeeId}/current-employment`
+                )
               }
               icon={Briefcase}
               label="Current Employment"
             />
             <DetailRow
               onClick={() =>
-                router.push(`/dashboard/employees/${employeeId}/custom-details`)
+                router.push(
+                  `/dashboard/employees/${employeeId}/custom-details`
+                )
               }
               icon={ClipboardList}
               label="Custom Details"
@@ -292,14 +322,18 @@ export default function EmployeeDetailPage() {
               icon={CalendarDays}
               label="Attendance Details"
               onClick={() =>
-                router.push(`/dashboard/employees/${employeeId}/attendance-details`)
+                router.push(
+                  `/dashboard/employees/${employeeId}/attendance-details`
+                )
               }
             />
             <DetailRow
               icon={Wallet}
               label="Salary Details"
               onClick={() =>
-                router.push(`/dashboard/employees/${employeeId}/salary-details`)
+                router.push(
+                  `/dashboard/employees/${employeeId}/salary-details`
+                )
               }
             />
             <DetailRow
@@ -310,7 +344,10 @@ export default function EmployeeDetailPage() {
               }
             >
               {!(employee.accountNumber || employee.upiId) && (
-                <Badge variant="destructive" className="bg-red-100 text-red-700">
+                <Badge
+                  variant="destructive"
+                  className="bg-red-100 text-red-700"
+                >
                   Not Added
                 </Badge>
               )}
@@ -324,24 +361,56 @@ export default function EmployeeDetailPage() {
                 {employee.permission || 'Employee'}
               </span>
             </DetailRow>
-            <DetailRow 
-              icon={Clock} 
+            <DetailRow
+              icon={Clock}
               label="Penalty &amp; Overtime"
-              onClick={() => router.push(`/dashboard/employees/${employeeId}/penalty-overtime`)}
+              onClick={() =>
+                router.push(
+                  `/dashboard/employees/${employeeId}/penalty-overtime`
+                )
+              }
             />
           </div>
 
           <div className="space-y-2 px-4">
-            <DetailRow icon={BookUser} label="Leave Balances &amp; Policy" onClick={() => router.push(`/dashboard/employees/${employeeId}/leave-balances-policy`)} />
-            <DetailRow icon={FileText} label="Documents" onClick={() => router.push(`/dashboard/employees/${employeeId}/documents`)} />
+            <DetailRow
+              icon={BookUser}
+              label="Leave Balances &amp; Policy"
+              onClick={() =>
+                router.push(
+                  `/dashboard/employees/${employeeId}/leave-balances-policy`
+                )
+              }
+            />
+            <DetailRow
+              icon={FileText}
+              label="Documents"
+              onClick={() =>
+                router.push(`/dashboard/employees/${employeeId}/documents`)
+              }
+            />
             <DetailRow icon={Bell} label="Notifications">
               <Switch
                 checked={notificationsEnabled}
                 onCheckedChange={handleNotificationToggle}
               />
             </DetailRow>
-            <DetailRow icon={Mail} label="Requests" onClick={() => router.push(`/dashboard/employees/${employeeId}/requests`)} />
-            <DetailRow icon={Settings2} label="Additional Settings" onClick={() => router.push(`/dashboard/employees/${employeeId}/additional-settings`)} />
+            <DetailRow
+              icon={Mail}
+              label="Requests"
+              onClick={() =>
+                router.push(`/dashboard/employees/${employeeId}/requests`)
+              }
+            />
+            <DetailRow
+              icon={Settings2}
+              label="Additional Settings"
+              onClick={() =>
+                router.push(
+                  `/dashboard/employees/${employeeId}/additional-settings`
+                )
+              }
+            />
           </div>
 
           <div className="mt-8 space-y-3 px-4">
@@ -358,20 +427,45 @@ export default function EmployeeDetailPage() {
             >
               <UserX className="mr-2 h-4 w-4" /> Make Inactive
             </Button>
-            <Button variant="destructive" className="w-full justify-center">
-              <Trash2 className="mr-2 h-4 w-4" /> Delete Staff
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="w-full justify-center">
+                  <Trash2 className="mr-2 h-4 w-4" /> Delete Staff
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This employee will be deleted permanently. Data cannot be
+                    recovered.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    YES, DELETE
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </main>
       </div>
 
-      <Sheet open={isPermissionSheetOpen} onOpenChange={setIsPermissionSheetOpen}>
+      <Sheet
+        open={isPermissionSheetOpen}
+        onOpenChange={setIsPermissionSheetOpen}
+      >
         <SheetContent
           side="bottom"
-          className="rounded-t-lg sm:max-w-lg mx-auto w-full p-0"
+          className="mx-auto w-full rounded-t-lg p-0 sm:max-w-lg"
         >
           <div className="p-6">
-            <SheetHeader className="text-left mb-4">
+            <SheetHeader className="mb-4 text-left">
               <SheetTitle className="text-xl font-semibold">
                 Select Permission
               </SheetTitle>
@@ -383,34 +477,43 @@ export default function EmployeeDetailPage() {
             >
               <div className="flex items-center space-x-3 rounded-lg border p-4">
                 <RadioGroupItem value="Employee" id="r1" />
-                <Label htmlFor="r1" className="font-normal text-base w-full cursor-pointer">
+                <Label
+                  htmlFor="r1"
+                  className="w-full cursor-pointer text-base font-normal"
+                >
                   Employee
                 </Label>
               </div>
               <div className="flex items-center space-x-3 rounded-lg border p-4">
                 <RadioGroupItem value="Attendance Manager" id="r2" />
-                <Label htmlFor="r2" className="font-normal text-base w-full cursor-pointer">
+                <Label
+                  htmlFor="r2"
+                  className="w-full cursor-pointer text-base font-normal"
+                >
                   Attendance Manager
                 </Label>
               </div>
               <div className="flex items-center space-x-3 rounded-lg border p-4">
                 <RadioGroupItem value="Branch Admin" id="r3" />
-                <Label htmlFor="r3" className="font-normal text-base w-full cursor-pointer">
+                <Label
+                  htmlFor="r3"
+                  className="w-full cursor-pointer text-base font-normal"
+                >
                   Branch Admin
                 </Label>
               </div>
             </RadioGroup>
 
             {selectedPermission && (
-              <div className="mt-6 rounded-lg bg-green-100 dark:bg-green-900/20 p-3 text-sm text-green-800 dark:text-green-200">
+              <div className="mt-6 rounded-lg bg-green-100 p-3 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-200">
                 {permissionDescriptions[selectedPermission]}
               </div>
             )}
           </div>
-          <SheetFooter className="p-4 bg-card border-t">
+          <SheetFooter className="border-t bg-card p-4">
             <Button
               onClick={handlePermissionSave}
-              className="w-full h-12 bg-accent text-accent-foreground hover:bg-accent/90"
+              className="h-12 w-full bg-accent text-accent-foreground hover:bg-accent/90"
             >
               Update Permission
             </Button>
@@ -418,18 +521,21 @@ export default function EmployeeDetailPage() {
         </SheetContent>
       </Sheet>
 
-      <Dialog open={isInactiveDialogOpen} onOpenChange={setIsInactiveDialogOpen}>
-        <DialogContent className="sm:max-w-sm p-0">
+      <Dialog
+        open={isInactiveDialogOpen}
+        onOpenChange={setIsInactiveDialogOpen}
+      >
+        <DialogContent className="p-0 sm:max-w-sm">
           <DialogHeader className="p-6 pb-4">
-            <DialogTitle className="text-xl font-bold text-center">
+            <DialogTitle className="text-center text-xl font-bold">
               Mark as Inactive
             </DialogTitle>
-            <DialogDescription className="text-center text-muted-foreground pt-2">
+            <DialogDescription className="pt-2 text-center text-muted-foreground">
               Deactivate employee if they left the company. All data is 100%
               backed up.
             </DialogDescription>
           </DialogHeader>
-          <div className="px-6 pb-6 space-y-2">
+          <div className="space-y-2 px-6 pb-6">
             <Label htmlFor="date-of-leaving">Date of Leaving *</Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -462,7 +568,7 @@ export default function EmployeeDetailPage() {
           <DialogFooter className="flex-col gap-2 p-4 pt-0">
             <Button
               onClick={handleDeactivate}
-              className="w-full h-11 bg-accent text-accent-foreground hover:bg-accent/90"
+              className="h-11 w-full bg-accent text-accent-foreground hover:bg-accent/90"
               disabled={!dateOfLeaving}
             >
               Deactivate
