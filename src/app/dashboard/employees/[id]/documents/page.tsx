@@ -37,13 +37,19 @@ export default function DocumentsPage() {
   const { data: employee, isLoading: isLoadingEmployee } = useDoc<Employee>(employeeRef);
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [docType, setDocType] = useState('Aadhaar');
 
   const handleNext = () => {
     setIsAddDialogOpen(false);
-    // In a real app, this would lead to the next step of the upload process.
-    console.log('Selected document type:', docType);
+    setIsUploadDialogOpen(true);
   };
+
+  const handleUploadOption = () => {
+    // In a real app, this would trigger the native file picker or camera.
+    console.log('Selected an upload option.');
+    setIsUploadDialogOpen(false);
+  }
 
   // This will be expanded later to show the list of documents
   const renderContent = () => {
@@ -116,6 +122,19 @@ export default function DocumentsPage() {
               <Button type="button" variant="link" className="font-normal text-muted-foreground h-auto">Close</Button>
             </DialogClose>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <DialogContent className="sm:max-w-xs p-0">
+            <DialogHeader className="p-6 pb-4">
+                <DialogTitle className="text-lg font-semibold">Upload {docType}</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col text-base">
+                <button onClick={handleUploadOption} className="text-left px-6 py-4 hover:bg-muted">Take a picture</button>
+                <button onClick={handleUploadOption} className="text-left px-6 py-4 hover:bg-muted">Choose from gallery</button>
+                <button onClick={handleUploadOption} className="text-left px-6 py-4 hover:bg-muted">Choose Document</button>
+            </div>
         </DialogContent>
       </Dialog>
     </>
