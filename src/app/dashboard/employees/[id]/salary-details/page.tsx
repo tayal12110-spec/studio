@@ -79,10 +79,10 @@ export default function SalaryDetailsPage() {
 
   // Employee PF State
   const [isPfDialogOpen, setIsPfDialogOpen] = useState(false);
-  const [pfOption, setPfOption] = useState<ContributionOption>('variable');
+  const [pfOption, setPfOption] = useState<ContributionOption>('none');
   const [currentPfOption, setCurrentPfOption] =
-    useState<ContributionOption>('variable');
-  const [pfLabel, setPfLabel] = useState('12.0% Variable');
+    useState<ContributionOption>('none');
+  const [pfLabel, setPfLabel] = useState('Not Selected');
   const [pfLimitBasic, setPfLimitBasic] = useState(true);
   const [pfLimitIncentive, setPfLimitIncentive] = useState(false);
   const [pfLimitOvertime, setPfLimitOvertime] = useState(false);
@@ -108,6 +108,13 @@ export default function SalaryDetailsPage() {
   const [esiIncentive, setEsiIncentive] = useState(false);
   const [esiOvertime, setEsiOvertime] = useState(false);
 
+  // Employee ESI State
+  const [isEmployeeEsiDialogOpen, setIsEmployeeEsiDialogOpen] = useState(false);
+  const [employeeEsiOption, setEmployeeEsiOption] = useState<EsiOption>('none');
+  const [currentEmployeeEsiOption, setCurrentEmployeeEsiOption] =
+    useState<EsiOption>('none');
+  const [employeeEsiLabel, setEmployeeEsiLabel] = useState('Not Selected');
+
   // Labour Welfare Fund State
   const [isLwfDialogOpen, setIsLwfDialogOpen] = useState(false);
   const [lwfState, setLwfState] = useState('Not Selected');
@@ -127,6 +134,12 @@ export default function SalaryDetailsPage() {
     return 0;
   }
 
+  const calculateEmployeeEsiContribution = (base: string, option: EsiOption) => {
+    const salary = parseFloat(base) || 0;
+    if (option === 'variable') return salary * 0.0075;
+    return 0;
+  };
+
   const pfAmount = useMemo(
     () => calculateContribution(basicSalary, currentPfOption),
     [basicSalary, currentPfOption]
@@ -138,6 +151,10 @@ export default function SalaryDetailsPage() {
   const esiAmount = useMemo(
     () => calculateEsiContribution(basicSalary, currentEsiOption),
     [basicSalary, currentEsiOption]
+  );
+  const employeeEsiAmount = useMemo(
+    () => calculateEmployeeEsiContribution(basicSalary, currentEmployeeEsiOption),
+    [basicSalary, currentEmployeeEsiOption]
   );
   const lwfAmount = useMemo(() => {
     // Placeholder, actual calculation would depend on state-specific LWF rules
@@ -154,6 +171,11 @@ export default function SalaryDetailsPage() {
     if (option === 'variable') return '3.25% Variable';
     return 'Not Selected';
   }
+  
+  const getLabelForEmployeeEsiOption = (option: EsiOption) => {
+    if (option === 'variable') return '0.75% Variable';
+    return 'Not Selected';
+  };
 
   const handlePfSave = () => {
     setCurrentPfOption(pfOption);
@@ -171,6 +193,12 @@ export default function SalaryDetailsPage() {
     setCurrentEsiOption(esiOption);
     setEsiLabel(getLabelForEsiOption(esiOption));
     setIsEsiDialogOpen(false);
+  };
+  
+  const handleEmployeeEsiSave = () => {
+    setCurrentEmployeeEsiOption(employeeEsiOption);
+    setEmployeeEsiLabel(getLabelForEmployeeEsiOption(employeeEsiOption));
+    setIsEmployeeEsiDialogOpen(false);
   };
 
   const handleLwfSave = () => {
@@ -425,16 +453,16 @@ export default function SalaryDetailsPage() {
                 })}
               </ContributionRow>
 
-              <ContributionRow label="Employee ESI">
-                <Select defaultValue="not-selected">
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Not Selected" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="not-selected">Not Selected</SelectItem>
-                  </SelectContent>
-                </Select>
+              <ContributionRow
+                label="Employee ESI"
+                amount={`₹ ${employeeEsiAmount.toFixed(2)}`}
+              >
+                {renderContributionButton(employeeEsiLabel, () => {
+                  setEmployeeEsiOption(currentEmployeeEsiOption);
+                  setIsEmployeeEsiDialogOpen(true);
+                })}
               </ContributionRow>
+
 
               <ContributionRow label="Professional Tax">
                 <Select defaultValue="not-selected">
@@ -833,6 +861,45 @@ export default function SalaryDetailsPage() {
           <DialogFooter>
             <Button
               onClick={handleLwfSave}
+              className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEmployeeEsiDialogOpen} onOpenChange={setIsEmployeeEsiDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manage ESI</DialogTitle>
+          </DialogHeader>
+          <RadioGroup
+            value={employeeEsiOption}
+            onValueChange={(val) => setEmployeeEsiOption(val as EsiOption)}
+            className="space-y-3 py-4"
+          >
+            <div className="flex items-center space-x-3">
+              <RadioGroupItem value="none" id="employee-esi-none" />
+              <Label htmlFor="employee-esi-none" className="text-base font-normal">
+                None
+              </Label>
+            </div>
+            <div>
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="variable" id="employee-esi-variable" />
+                <Label
+                  htmlFor="employee-esi-variable"
+                  className="text-base font-normal"
+                >
+                  0.75% Variable
+                </Label>
+              </div>
+            </div>
+          </RadioGroup>
+          <DialogFooter>
+            <Button
+              onClick={handleEmployeeEsiSave}
               className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
             >
               Save
