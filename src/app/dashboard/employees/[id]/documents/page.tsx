@@ -2,11 +2,18 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Plus, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, Loader2, FileText, MoreVertical, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc, DocumentReference } from 'firebase/firestore';
-import type { Employee } from '../../../data';
+import {
+  useDoc,
+  useFirestore,
+  useMemoFirebase,
+  useCollection,
+  addDocumentNonBlocking,
+  deleteDocumentNonBlocking
+} from '@/firebase';
+import { doc, DocumentReference, collection, CollectionReference } from 'firebase/firestore';
+import type { Employee, Document } from '../../../data';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +31,14 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent } from '@/components/ui/card';
+import { format } from 'date-fns';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function DocumentsPage() {
   const router = useRouter();
@@ -32,6 +47,7 @@ export default function DocumentsPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const employeeRef = useMemoFirebase(
     () => (firestore && employeeId ? doc(firestore, 'employees', employeeId) : null),
@@ -39,6 +55,13 @@ export default function DocumentsPage() {
   ) as DocumentReference<Employee> | null;
 
   const { data: employee, isLoading: isLoadingEmployee } = useDoc<Employee>(employeeRef);
+
+  const documentsColRef = useMemoFirebase(
+    () => (firestore && employeeId ? collection(firestore, 'employees', employeeId, 'documents') : null),
+    [firestore, employeeId]
+  ) as CollectionReference | null;
+
+  const { data: documents, isLoading: isLoadingDocuments } = useCollection<Document>(documentsColRef);
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -105,26 +128,101 @@ export default function DocumentsPage() {
   }
 
   const handleCapture = () => {
-    // In a real app, this would capture the frame and process it.
-    toast({
-        title: "Image Captured!",
-        description: "The document image has been captured (simulation)."
-    });
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (video && canvas && documentsColRef) {
+        const context = canvas.getContext('2d');
+        if (context) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+            const fileUrl = canvas.toDataURL('image/jpeg');
+            
+            const newDocument: Omit<Document, 'id'> = {
+                employeeId: employeeId,
+                name: docType,
+                fileUrl: fileUrl,
+                createdAt: new Date().toISOString(),
+            };
+
+            addDocumentNonBlocking(documentsColRef, newDocument);
+
+            toast({
+                title: "Document Saved!",
+                description: `A new document "${docType}" has been saved.`,
+            });
+        }
+    } else {
+         toast({
+            variant: 'destructive',
+            title: "Save failed",
+            description: "Could not save the document.",
+        });
+    }
     setIsCameraViewOpen(false);
   };
 
-  // This will be expanded later to show the list of documents
+  const handleDelete = (docId: string) => {
+    if (documentsColRef) {
+      deleteDocumentNonBlocking(doc(documentsColRef, docId));
+      toast({
+        variant: 'destructive',
+        title: 'Document Deleted',
+      });
+    }
+  };
+
   const renderContent = () => {
+      if (isLoadingEmployee || isLoadingDocuments) {
+          return (
+            <div className="flex flex-1 items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          );
+      }
+      if (!documents || documents.length === 0) {
+        return (
+            <div className="flex flex-1 flex-col items-center justify-center p-6 text-center">
+            <div className="space-y-4">
+                <h2 className="text-xl font-semibold">No documents found</h2>
+                <p className="text-muted-foreground">
+                You can add documents here like
+                <br />
+                Aadhaar, PAN etc.
+                </p>
+            </div>
+            </div>
+        );
+      }
       return (
-        <div className="flex flex-1 flex-col items-center justify-center p-6 text-center">
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">No documents found</h2>
-            <p className="text-muted-foreground">
-              You can add documents here like
-              <br />
-              Aadhaar, PAN etc.
-            </p>
-          </div>
+        <div className="p-4 space-y-3">
+          {documents.map((docItem) => (
+            <Card key={docItem.id}>
+              <CardContent className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-4">
+                  <FileText className="h-6 w-6 text-muted-foreground" />
+                  <div>
+                    <p className="font-semibold">{docItem.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Added on {format(new Date(docItem.createdAt), "dd MMM yyyy")}
+                    </p>
+                  </div>
+                </div>
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleDelete(docItem.id)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       );
   };
@@ -142,6 +240,7 @@ export default function DocumentsPage() {
             <main className="flex flex-1 flex-col items-center justify-center p-4">
                  <div className="w-full max-w-md aspect-[4/3] rounded-lg overflow-hidden bg-gray-900 flex items-center justify-center relative">
                     <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                    <canvas ref={canvasRef} className="hidden" />
                     {hasCameraPermission === null && <Loader2 className="h-8 w-8 animate-spin text-white absolute" />}
                 </div>
                  {hasCameraPermission === false && (
@@ -175,11 +274,7 @@ export default function DocumentsPage() {
         </header>
 
         <main className="flex-1 overflow-y-auto">
-          {isLoadingEmployee ? (
-             <div className="flex flex-1 items-center justify-center">
-               <Loader2 className="h-8 w-8 animate-spin" />
-             </div>
-          ) : renderContent()}
+          {renderContent()}
         </main>
         
         <footer className="shrink-0 border-t bg-card p-4">
