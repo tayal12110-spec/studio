@@ -125,6 +125,10 @@ export default function SalaryDetailsPage() {
   const [profTaxState, setProfTaxState] = useState('Not Selected');
   const [currentProfTaxState, setCurrentProfTaxState] = useState('Not Selected');
 
+  // Labour Welfare Fund (Deduction) State
+  const [isLwfDeductionDialogOpen, setIsLwfDeductionDialogOpen] = useState(false);
+  const [lwfDeductionState, setLwfDeductionState] = useState('Not Selected');
+  const [currentLwfDeductionState, setCurrentLwfDeductionState] = useState('Not Selected');
 
   const calculateContribution = (base: string, option: ContributionOption) => {
     const salary = parseFloat(base) || 0;
@@ -170,6 +174,11 @@ export default function SalaryDetailsPage() {
     // Placeholder logic for professional tax
     return currentProfTaxState !== 'Not Selected' ? 200.00 : 0.00;
   }, [currentProfTaxState]);
+
+  const lwfDeductionAmount = useMemo(() => {
+    // Placeholder, actual calculation would depend on state-specific LWF rules
+    return currentLwfDeductionState !== 'Not Selected' ? 25.00 : 0.00;
+  }, [currentLwfDeductionState]);
 
   const getLabelForOption = (option: ContributionOption) => {
     if (option === 'limit') return '₹1800 Limit';
@@ -219,6 +228,11 @@ export default function SalaryDetailsPage() {
   const handleProfTaxSave = () => {
     setCurrentProfTaxState(profTaxState);
     setIsProfTaxDialogOpen(false);
+  };
+  
+  const handleLwfDeductionSave = () => {
+    setCurrentLwfDeductionState(lwfDeductionState);
+    setIsLwfDeductionDialogOpen(false);
   };
 
   const handleUpdateSalary = () => {
@@ -489,15 +503,14 @@ export default function SalaryDetailsPage() {
                 })}
               </ContributionRow>
 
-              <ContributionRow label="Labour Welfare Fund">
-                <Select defaultValue="not-selected">
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Not Selected" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="not-selected">Not Selected</SelectItem>
-                  </SelectContent>
-                </Select>
+              <ContributionRow
+                label="Labour Welfare Fund"
+                amount={`₹ ${lwfDeductionAmount.toFixed(2)}`}
+              >
+                {renderContributionButton(currentLwfDeductionState, () => {
+                  setLwfDeductionState(currentLwfDeductionState);
+                  setIsLwfDeductionDialogOpen(true);
+                })}
               </ContributionRow>
 
               <Button
@@ -871,6 +884,39 @@ export default function SalaryDetailsPage() {
           <DialogFooter>
             <Button
               onClick={handleProfTaxSave}
+              className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isLwfDeductionDialogOpen} onOpenChange={setIsLwfDeductionDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Labour Welfare Fund</DialogTitle>
+            <p className="text-sm text-muted-foreground pt-1">Select State</p>
+          </DialogHeader>
+          <ScrollArea className="h-72 pr-4">
+              <RadioGroup
+                value={lwfDeductionState}
+                onValueChange={setLwfDeductionState}
+                className="space-y-1 py-2"
+              >
+                {indianStates.map((state) => (
+                    <div key={`deduction-lwf-${state}`} className="flex items-center space-x-3 p-2 has-[:checked]:bg-muted/80 rounded-md">
+                        <RadioGroupItem value={state} id={`deduction-lwf-${state}`} />
+                        <Label htmlFor={`deduction-lwf-${state}`} className="text-base font-normal w-full cursor-pointer">
+                            {state}
+                        </Label>
+                    </div>
+                ))}
+              </RadioGroup>
+          </ScrollArea>
+          <DialogFooter>
+            <Button
+              onClick={handleLwfDeductionSave}
               className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
             >
               Save
