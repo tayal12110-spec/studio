@@ -64,7 +64,10 @@ export default function WorkTimingsPage() {
 
   // State for Flexible schedule
   const [month, setMonth] = useState(new Date(2026, 0, 1)); // January 2026 as per screenshot
-  const [flexibleDaySettings, setFlexibleDaySettings] = useState<Record<string, { weekoff: boolean }>>({});
+  const [flexibleDaySettings, setFlexibleDaySettings] = useState<Record<string, { weekoff: boolean }>>({
+    '2026-01-01': { weekoff: true },
+    '2026-01-02': { weekoff: true },
+  });
 
   // Dialog State
   const [isShiftDialogOpen, setIsShiftDialogOpen] = useState(false);
@@ -75,20 +78,23 @@ export default function WorkTimingsPage() {
 
   useEffect(() => {
     // This effect synchronizes the main "weekoff" checkbox with the individual week settings.
-    const newWeekoffs: Record<DayKey, boolean> = {} as Record<DayKey, boolean>;
+    if (workType !== 'fixed') return;
+    const newWeekoffs: Partial<Record<DayKey, boolean>> = {};
+    let changed = false;
     
     for (const dayKey in weekSettings) {
       const key = dayKey as DayKey;
       const allWeeksOff = weekSettings[key].every(w => w);
-      newWeekoffs[key] = allWeeksOff;
+      if (weekoffs[key] !== allWeeksOff) {
+          newWeekoffs[key] = allWeeksOff;
+          changed = true;
+      }
     }
 
-    // Only update state if the derived state is different from the current state.
-    // This prevents an infinite loop.
-    if (JSON.stringify(weekoffs) !== JSON.stringify(newWeekoffs)) {
-        setWeekoffs(newWeekoffs);
+    if (changed) {
+        setWeekoffs(prev => ({...prev, ...newWeekoffs}));
     }
-  }, [weekSettings, weekoffs]);
+  }, [weekSettings, workType, weekoffs]);
 
 
   const handleWeekoffChange = (day: DayKey, checked: boolean) => {
@@ -268,6 +274,8 @@ export default function WorkTimingsPage() {
                             />
                             <Input
                                 placeholder="Select Shift"
+                                value={isWeekoff ? 'Week off' : ''}
+                                readOnly
                                 disabled={isWeekoff}
                             />
                         </div>
