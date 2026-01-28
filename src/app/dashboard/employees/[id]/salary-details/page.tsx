@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -62,32 +62,33 @@ export default function SalaryDetailsPage() {
 
   // State for PF Dialog
   const [isPfDialogOpen, setIsPfDialogOpen] = useState(false);
-  const [pfOption, setPfOption] = useState('none'); // 'none', 'limit', 'variable'
-  const [currentPfOption, setCurrentPfOption] = useState('none');
+  const [pfOption, setPfOption] = useState('variable'); // 'none', 'limit', 'variable'
+  const [currentPfOption, setCurrentPfOption] = useState('variable');
+  const [pfLabel, setPfLabel] = useState('12.0% Variable');
 
-  const [pfAmount, setPfAmount] = useState(0);
-  const [pfLabel, setPfLabel] = useState('Not Selected');
+  const pfAmount = useMemo(() => {
+    const salary = parseFloat(basicSalary) || 0;
+    if (currentPfOption === 'limit') {
+      return 1800;
+    }
+    if (currentPfOption === 'variable') {
+      return salary * 0.12;
+    }
+    return 0;
+  }, [basicSalary, currentPfOption]);
 
   const handlePfSave = () => {
-    const salary = parseFloat(basicSalary);
-    let newAmount = 0;
     let newLabel = 'Not Selected';
 
-    setCurrentPfOption(pfOption);
-
     if (pfOption === 'limit') {
-      newAmount = 1800;
       newLabel = '₹1800 Limit';
     } else if (pfOption === 'variable') {
-      newAmount = salary * 0.12;
-      newLabel = `12.0% Variable`;
+      newLabel = '12.0% Variable';
     } else {
-      // 'none'
-      newAmount = 0;
       newLabel = 'None';
     }
 
-    setPfAmount(newAmount);
+    setCurrentPfOption(pfOption);
     setPfLabel(newLabel);
     setIsPfDialogOpen(false);
   };
