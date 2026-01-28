@@ -7,6 +7,21 @@ import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, DocumentReference } from 'firebase/firestore';
 import type { Employee } from '../../../data';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function DocumentsPage() {
   const router = useRouter();
@@ -22,6 +37,13 @@ export default function DocumentsPage() {
   const { data: employee, isLoading: isLoadingEmployee } = useDoc<Employee>(employeeRef);
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [docType, setDocType] = useState('Aadhaar');
+
+  const handleNext = () => {
+    setIsAddDialogOpen(false);
+    // In a real app, this would lead to the next step of the upload process.
+    console.log('Selected document type:', docType);
+  };
 
   // This will be expanded later to show the list of documents
   const renderContent = () => {
@@ -67,7 +89,35 @@ export default function DocumentsPage() {
         </footer>
       </div>
       
-      {/* TODO: Implement Add Document Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-xs">
+          <DialogHeader>
+            <DialogTitle className="text-center text-lg font-semibold">Please select document type</DialogTitle>
+          </DialogHeader>
+          <div className="pt-4">
+            <Select onValueChange={setDocType} defaultValue={docType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Aadhaar">Aadhaar</SelectItem>
+                <SelectItem value="PAN Card">PAN Card</SelectItem>
+                <SelectItem value="Voter ID">Voter ID</SelectItem>
+                <SelectItem value="Driving License">Driving License</SelectItem>
+                <SelectItem value="Passport">Passport</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter className="flex-col items-center pt-4 gap-2">
+            <Button onClick={handleNext} className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90">
+              Next
+            </Button>
+            <DialogClose asChild>
+              <Button type="button" variant="link" className="font-normal text-muted-foreground h-auto">Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
