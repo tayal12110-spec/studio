@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,12 +22,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export default function DocumentsPage() {
   const router = useRouter();
   const params = useParams();
   const employeeId = params.id as string;
   const firestore = useFirestore();
+  const { toast } = useToast();
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const employeeRef = useMemoFirebase(
     () => (firestore && employeeId ? doc(firestore, 'employees', employeeId) : null),
@@ -39,17 +43,75 @@ export default function DocumentsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [docType, setDocType] = useState('Aadhaar');
+  const [isCameraViewOpen, setIsCameraViewOpen] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!isCameraViewOpen) {
+        if (videoRef.current && videoRef.current.srcObject) {
+            const stream = videoRef.current.srcObject as MediaStream;
+            stream.getTracks().forEach(track => track.stop());
+        }
+        return;
+    }
+
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setHasCameraPermission(true);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to use this app.',
+        });
+      }
+    };
+
+    getCameraPermission();
+
+    return () => {
+        if (videoRef.current && videoRef.current.srcObject) {
+            const stream = videoRef.current.srcObject as MediaStream;
+            stream.getTracks().forEach(track => track.stop());
+        }
+    }
+  }, [isCameraViewOpen, toast]);
+
 
   const handleNext = () => {
     setIsAddDialogOpen(false);
     setIsUploadDialogOpen(true);
   };
 
-  const handleUploadOption = () => {
-    // In a real app, this would trigger the native file picker or camera.
-    console.log('Selected an upload option.');
+  const handleUploadOption = (option: 'camera' | 'gallery' | 'document') => {
     setIsUploadDialogOpen(false);
+    if (option === 'camera') {
+        setIsCameraViewOpen(true);
+    } else {
+        // In a real app, this would trigger the native file picker.
+        console.log(`Selected an upload option: ${option}`);
+        toast({
+            title: "Feature not implemented",
+            description: `Choosing from ${option} is not yet implemented.`,
+        });
+    }
   }
+
+  const handleCapture = () => {
+    // In a real app, this would capture the frame and process it.
+    toast({
+        title: "Image Captured!",
+        description: "The document image has been captured (simulation)."
+    });
+    setIsCameraViewOpen(false);
+  };
 
   // This will be expanded later to show the list of documents
   const renderContent = () => {
@@ -66,6 +128,39 @@ export default function DocumentsPage() {
         </div>
       );
   };
+
+  if (isCameraViewOpen) {
+    return (
+        <div className="flex h-full flex-col bg-black">
+            <header className="flex h-16 shrink-0 items-center justify-between px-4 text-white">
+                <Button variant="ghost" size="icon" onClick={() => setIsCameraViewOpen(false)}>
+                    <ArrowLeft className="h-5 w-5" />
+                </Button>
+                 <h1 className="text-lg font-semibold">Take a picture of {docType}</h1>
+                 <div></div>
+            </header>
+            <main className="flex flex-1 flex-col items-center justify-center p-4">
+                 <div className="w-full max-w-md aspect-[4/3] rounded-lg overflow-hidden bg-gray-900 flex items-center justify-center relative">
+                    <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                    {hasCameraPermission === null && <Loader2 className="h-8 w-8 animate-spin text-white absolute" />}
+                </div>
+                 {hasCameraPermission === false && (
+                    <Alert variant="destructive" className="mt-4 bg-gray-900 border-red-500/50 text-white">
+                        <AlertTitle>Camera Access Required</AlertTitle>
+                        <AlertDescription className="text-gray-300">
+                            Please allow camera access in your browser settings to use this feature.
+                        </AlertDescription>
+                    </Alert>
+                )}
+            </main>
+            <footer className="shrink-0 p-4 flex justify-center">
+                 <Button size="icon" className="h-20 w-20 rounded-full border-4 border-white bg-transparent hover:bg-white/20" onClick={handleCapture} disabled={hasCameraPermission !== true}>
+                    <div className="h-16 w-16 rounded-full bg-white"></div>
+                 </Button>
+            </footer>
+        </div>
+    )
+}
 
   return (
     <>
@@ -131,9 +226,9 @@ export default function DocumentsPage() {
                 <DialogTitle className="text-lg font-semibold">Upload {docType}</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col text-base">
-                <button onClick={handleUploadOption} className="text-left px-6 py-4 hover:bg-muted">Take a picture</button>
-                <button onClick={handleUploadOption} className="text-left px-6 py-4 hover:bg-muted">Choose from gallery</button>
-                <button onClick={handleUploadOption} className="text-left px-6 py-4 hover:bg-muted">Choose Document</button>
+                <button onClick={() => handleUploadOption('camera')} className="text-left px-6 py-4 hover:bg-muted">Take a picture</button>
+                <button onClick={() => handleUploadOption('gallery')} className="text-left px-6 py-4 hover:bg-muted">Choose from gallery</button>
+                <button onClick={() => handleUploadOption('document')} className="text-left px-6 py-4 hover:bg-muted">Choose Document</button>
             </div>
         </DialogContent>
       </Dialog>
