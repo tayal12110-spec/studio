@@ -132,6 +132,10 @@ export default function SalaryDetailsPage() {
 
   // Add Deduction Dialog State
   const [isAddDeductionDialogOpen, setIsAddDeductionDialogOpen] = useState(false);
+  const [addDeductionView, setAddDeductionView] = useState<'list' | 'form'>('list');
+  const [deductionName, setDeductionName] = useState('');
+  const [deductionAmount, setDeductionAmount] = useState('');
+  const [isDeductionFixed, setIsDeductionFixed] = useState(false);
 
   const calculateContribution = (base: string, option: ContributionOption) => {
     const salary = parseFloat(base) || 0;
@@ -257,6 +261,22 @@ export default function SalaryDetailsPage() {
       <ChevronDown className="h-4 w-4 opacity-50" />
     </Button>
   );
+
+  const handleAddDeductionDialogClose = (open: boolean) => {
+    setIsAddDeductionDialogOpen(open);
+    if (!open) {
+      setAddDeductionView('list');
+      setDeductionName('');
+      setDeductionAmount('');
+      setIsDeductionFixed(false);
+    }
+  };
+
+  const handleAddDeduction = () => {
+    toast({ title: 'Deduction added (not saved yet)' });
+    setAddDeductionView('list');
+  }
+
 
   return (
     <>
@@ -614,7 +634,7 @@ export default function SalaryDetailsPage() {
                   12.0% Variable
                 </Label>
               </div>
-               {(pfOption === 'variable') && (
+               {pfOption === 'variable' && (
                 <div className="space-y-4 pl-8 pt-4">
                   <div className="flex items-center space-x-3">
                     <Checkbox
@@ -966,24 +986,59 @@ export default function SalaryDetailsPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isAddDeductionDialogOpen} onOpenChange={setIsAddDeductionDialogOpen}>
+      <Dialog open={isAddDeductionDialogOpen} onOpenChange={handleAddDeductionDialogClose}>
         <DialogContent className="sm:max-w-md">
             <DialogHeader className="flex-row items-center justify-between">
                 <DialogTitle>Add Deductions</DialogTitle>
-                <Button variant="outline" size="sm">Add Custom</Button>
-            </DialogHeader>
-            <div className="py-12 text-center">
-                <p className="text-lg font-semibold">Please add custom items</p>
-                <p className="text-sm text-muted-foreground">Click on "Add Custom" Button</p>
-            </div>
-            <DialogFooter>
-                <Button
-                  onClick={() => setIsAddDeductionDialogOpen(false)}
-                  className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setAddDeductionView(prev => prev === 'list' ? 'form' : 'list')}
                 >
-                  Save
+                  {addDeductionView === 'list' ? 'Add Custom' : 'Select Items'}
                 </Button>
-            </DialogFooter>
+            </DialogHeader>
+            {addDeductionView === 'list' ? (
+              <>
+                <div className="py-12 text-center">
+                    <p className="text-lg font-semibold">Please add custom items</p>
+                    <p className="text-sm text-muted-foreground">Click on "Add Custom" Button</p>
+                </div>
+                <DialogFooter>
+                    <Button
+                      onClick={() => setIsAddDeductionDialogOpen(false)}
+                      className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+                    >
+                      Save
+                    </Button>
+                </DialogFooter>
+              </>
+            ) : (
+              <>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="deduction-name">Name</Label>
+                    <Input id="deduction-name" placeholder="Name" value={deductionName} onChange={(e) => setDeductionName(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="deduction-amount">Amount</Label>
+                    <Input id="deduction-amount" placeholder="Amount" type="number" value={deductionAmount} onChange={(e) => setDeductionAmount(e.target.value)} />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="deduction-fixed" checked={isDeductionFixed} onCheckedChange={(checked) => setIsDeductionFixed(!!checked)} />
+                    <Label htmlFor="deduction-fixed" className="font-normal">Fixed</Label>
+                  </div>
+                </div>
+                <DialogFooter>
+                    <Button
+                      onClick={handleAddDeduction}
+                      className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+                    >
+                      Add Deduction
+                    </Button>
+                </DialogFooter>
+              </>
+            )}
         </DialogContent>
       </Dialog>
     </>
