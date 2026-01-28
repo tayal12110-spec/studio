@@ -308,6 +308,14 @@
         "notificationsEnabled": {
           "type": "boolean",
           "description": "Indicates if notifications are enabled for the employee."
+        },
+        "canUseLocationTracking": {
+          "type": "boolean",
+          "description": "Indicates if the employee can use location tracking."
+        },
+        "canUseCrmLite": {
+          "type": "boolean",
+          "description": "Indicates if the employee can use CRM Lite."
         }
       },
       "required": [

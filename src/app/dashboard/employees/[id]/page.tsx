@@ -302,7 +302,7 @@ export default function EmployeeDetailPage() {
               />
             </DetailRow>
             <DetailRow icon={Mail} label="Requests" onClick={() => router.push(`/dashboard/employees/${employeeId}/requests`)} />
-            <DetailRow icon={Settings2} label="Additional Settings" />
+            <DetailRow icon={Settings2} label="Additional Settings" onClick={() => router.push(`/dashboard/employees/${employeeId}/additional-settings`)} />
           </div>
 
           <div className="mt-8 space-y-3 px-4">

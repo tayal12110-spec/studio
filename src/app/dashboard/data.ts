@@ -75,6 +75,8 @@ export type Employee = {
     casual: number;
   };
   notificationsEnabled?: boolean;
+  canUseLocationTracking?: boolean;
+  canUseCrmLite?: boolean;
 };
 
 export type AttendanceStatus = 'ABSENT' | 'HALF DAY' | 'PRESENT' | 'WEEK OFF' | 'HOLIDAY' | 'PAID LEAVE' | 'HALF DAY LEAVE' | 'UNPAID LEAVE';
