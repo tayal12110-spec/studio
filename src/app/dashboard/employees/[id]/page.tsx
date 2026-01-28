@@ -301,7 +301,7 @@ export default function EmployeeDetailPage() {
                 onCheckedChange={handleNotificationToggle}
               />
             </DetailRow>
-            <DetailRow icon={Mail} label="Requests" />
+            <DetailRow icon={Mail} label="Requests" onClick={() => router.push(`/dashboard/employees/${employeeId}/requests`)} />
             <DetailRow icon={Settings2} label="Additional Settings" />
           </div>
 
