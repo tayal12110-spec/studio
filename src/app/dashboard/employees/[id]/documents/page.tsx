@@ -102,7 +102,7 @@ export default function DocumentsPage() {
         }
       };
     }
-  }, [isCameraViewOpen, toast]);
+  }, [isCameraViewOpen]);
 
 
   const handleNext = () => {
