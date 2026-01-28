@@ -384,7 +384,7 @@ export default function SalaryDetailsPage() {
 
               <Button
                 variant="outline"
-                className="w-full border-accent text-accent-foreground hover:bg-accent/10 hover:text-accent-foreground"
+                className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent"
               >
                 + Add Allowances
               </Button>
@@ -492,7 +492,6 @@ export default function SalaryDetailsPage() {
                 })}
               </ContributionRow>
 
-
               <ContributionRow
                 label="Professional Tax"
                 amount={`₹ ${profTaxAmount.toFixed(2)}`}
@@ -515,7 +514,7 @@ export default function SalaryDetailsPage() {
 
               <Button
                 variant="outline"
-                className="w-full border-accent text-accent-foreground hover:bg-accent/10 hover:text-accent-foreground"
+                className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent"
               >
                 + Add Deductions
               </Button>
