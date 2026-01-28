@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, ChevronRight, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -52,14 +52,9 @@ export default function LeaveBalancesPolicyPage() {
           <DetailRow
             label="Leave Policy"
             onClick={() => {
-              // Placeholder for future navigation
+              router.push(`/dashboard/employees/${employeeId}/leave-policy`);
             }}
-          >
-             <div className="flex items-center gap-1 text-destructive">
-                <AlertCircle className="h-4 w-4" />
-                <span>Not Set</span>
-             </div>
-          </DetailRow>
+          />
         </div>
       </main>
     </div>
