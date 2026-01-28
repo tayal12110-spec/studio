@@ -36,6 +36,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const ContributionRow = ({
   label,
@@ -59,6 +60,15 @@ const ContributionRow = ({
 
 type ContributionOption = 'none' | 'limit' | 'variable';
 type EsiOption = 'none' | 'variable';
+
+const indianStates = [
+    'Not Selected', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar',
+    'Chhattisgarh', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh',
+    'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra',
+    'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
+    'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
+    'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
+];
 
 export default function SalaryDetailsPage() {
   const router = useRouter();
@@ -100,10 +110,9 @@ export default function SalaryDetailsPage() {
 
   // Labour Welfare Fund State
   const [isLwfDialogOpen, setIsLwfDialogOpen] = useState(false);
-  const [lwfOption, setLwfOption] = useState<ContributionOption>('none');
-  const [currentLwfOption, setCurrentLwfOption] =
-    useState<ContributionOption>('none');
-  const [lwfLabel, setLwfLabel] = useState('Not Selected');
+  const [lwfState, setLwfState] = useState('Not Selected');
+  const [currentLwfState, setCurrentLwfState] = useState('Not Selected');
+
 
   const calculateContribution = (base: string, option: ContributionOption) => {
     const salary = parseFloat(base) || 0;
@@ -130,10 +139,10 @@ export default function SalaryDetailsPage() {
     () => calculateEsiContribution(basicSalary, currentEsiOption),
     [basicSalary, currentEsiOption]
   );
-  const lwfAmount = useMemo(
-    () => calculateContribution(basicSalary, currentLwfOption),
-    [basicSalary, currentLwfOption]
-  );
+  const lwfAmount = useMemo(() => {
+    // Placeholder, actual calculation would depend on state-specific LWF rules
+    return currentLwfState !== 'Not Selected' ? 0.00 : 0.00;
+  }, [currentLwfState]);
 
   const getLabelForOption = (option: ContributionOption) => {
     if (option === 'limit') return '₹1800 Limit';
@@ -165,8 +174,7 @@ export default function SalaryDetailsPage() {
   };
 
   const handleLwfSave = () => {
-    setCurrentLwfOption(lwfOption);
-    setLwfLabel(getLabelForOption(lwfOption));
+    setCurrentLwfState(lwfState);
     setIsLwfDialogOpen(false);
   };
 
@@ -177,58 +185,6 @@ export default function SalaryDetailsPage() {
     });
     router.back();
   };
-
-  const renderContributionDialog = (
-    isOpen: boolean,
-    setIsOpen: (open: boolean) => void,
-    title: string,
-    value: ContributionOption,
-    onValueChange: (value: ContributionOption) => void,
-    onSave: () => void
-  ) => (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
-        <RadioGroup
-          value={value}
-          onValueChange={(val) => onValueChange(val as ContributionOption)}
-          className="space-y-3 py-4"
-        >
-          <div className="flex items-center space-x-3">
-            <RadioGroupItem value="none" id={`${title}-none`} />
-            <Label htmlFor={`${title}-none`} className="text-base font-normal">
-              None
-            </Label>
-          </div>
-          <div className="flex items-center space-x-3">
-            <RadioGroupItem value="limit" id={`${title}-limit`} />
-            <Label htmlFor={`${title}-limit`} className="text-base font-normal">
-              ₹1800 Limit
-            </Label>
-          </div>
-          <div className="flex items-center space-x-3">
-            <RadioGroupItem value="variable" id={`${title}-variable`} />
-            <Label
-              htmlFor={`${title}-variable`}
-              className="text-base font-normal"
-            >
-              12.0% Variable
-            </Label>
-          </div>
-        </RadioGroup>
-        <DialogFooter>
-          <Button
-            onClick={onSave}
-            className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
-          >
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
 
   const renderContributionButton = (label: string, onClick: () => void) => (
     <Button
@@ -438,8 +394,8 @@ export default function SalaryDetailsPage() {
                 label="Labour Welfare Fund"
                 amount={`₹ ${lwfAmount.toFixed(2)}`}
               >
-                {renderContributionButton(lwfLabel, () => {
-                  setLwfOption(currentLwfOption);
+                {renderContributionButton(currentLwfState, () => {
+                  setLwfState(currentLwfState);
                   setIsLwfDialogOpen(true);
                 })}
               </ContributionRow>
@@ -713,6 +669,7 @@ export default function SalaryDetailsPage() {
                 </div>
               )}
             </div>
+            <div>
             <div className="flex items-center space-x-3">
               <RadioGroupItem value="variable" id="employer-pf-variable" />
               <Label
@@ -722,6 +679,45 @@ export default function SalaryDetailsPage() {
                 12.0% Variable
               </Label>
             </div>
+            {employerPfOption === 'variable' && (
+                <div className="space-y-4 pl-8 pt-4">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="employer-pf-variable-basic"
+                      checked={employerPfLimitBasic}
+                      onCheckedChange={(c) => setEmployerPfLimitBasic(!!c)}
+                      disabled
+                    />
+                    <Label
+                      htmlFor="employer-pf-variable-basic"
+                      className="font-normal text-muted-foreground"
+                    >
+                      BASIC
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="employer-pf-variable-incentive"
+                      checked={employerPfLimitIncentive}
+                      onCheckedChange={(c) => setEmployerPfLimitIncentive(!!c)}
+                    />
+                    <Label htmlFor="employer-pf-variable-incentive" className="font-normal">
+                      Incentive
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="employer-pf-variable-overtime"
+                      checked={employerPfLimitOvertime}
+                      onCheckedChange={(c) => setEmployerPfLimitOvertime(!!c)}
+                    />
+                    <Label htmlFor="employer-pf-variable-overtime" className="font-normal">
+                      Overtime
+                    </Label>
+                  </div>
+                </div>
+              )}
+              </div>
           </RadioGroup>
           <DialogFooter>
             <Button
@@ -812,14 +808,38 @@ export default function SalaryDetailsPage() {
         </DialogContent>
       </Dialog>
       
-      {renderContributionDialog(
-        isLwfDialogOpen,
-        setIsLwfDialogOpen,
-        'Manage Labour Welfare Fund',
-        lwfOption,
-        setLwfOption,
-        handleLwfSave
-      )}
+      <Dialog open={isLwfDialogOpen} onOpenChange={setIsLwfDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Labour Welfare Fund</DialogTitle>
+            <p className="text-sm text-muted-foreground pt-1">Select State</p>
+          </DialogHeader>
+          <ScrollArea className="h-72 pr-4">
+              <RadioGroup
+                value={lwfState}
+                onValueChange={setLwfState}
+                className="space-y-1 py-2"
+              >
+                {indianStates.map((state) => (
+                    <div key={state} className="flex items-center space-x-3 p-2 has-[:checked]:bg-muted/80 rounded-md">
+                        <RadioGroupItem value={state} id={`lwf-${state}`} />
+                        <Label htmlFor={`lwf-${state}`} className="text-base font-normal w-full cursor-pointer">
+                            {state}
+                        </Label>
+                    </div>
+                ))}
+              </RadioGroup>
+          </ScrollArea>
+          <DialogFooter>
+            <Button
+              onClick={handleLwfSave}
+              className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
