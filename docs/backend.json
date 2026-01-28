@@ -289,6 +289,21 @@
               }
             }
           }
+        },
+        "leaveBalances": {
+          "type": "object",
+          "description": "Remaining leave balances for the employee.",
+          "properties": {
+            "privileged": {
+              "type": "number"
+            },
+            "sick": {
+              "type": "number"
+            },
+            "casual": {
+              "type": "number"
+            }
+          }
         }
       },
       "required": [

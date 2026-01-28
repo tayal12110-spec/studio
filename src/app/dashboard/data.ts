@@ -69,6 +69,11 @@ export type Employee = {
       gracePeriod?: string;
     };
   };
+  leaveBalances?: {
+    privileged: number;
+    sick: number;
+    casual: number;
+  };
 };
 
 export type AttendanceStatus = 'ABSENT' | 'HALF DAY' | 'PRESENT' | 'WEEK OFF' | 'HOLIDAY' | 'PAID LEAVE' | 'HALF DAY LEAVE' | 'UNPAID LEAVE';
