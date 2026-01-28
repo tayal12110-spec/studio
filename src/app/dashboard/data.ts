@@ -104,3 +104,12 @@ export type LeaveRequest = {
     status: 'Pending' | 'Approved' | 'Rejected';
     createdAt: string; // ISO string
 }
+
+export type ReimbursementRequest = {
+    id: string; // Firestore document ID
+    employeeId: string;
+    amount: number;
+    reason?: string;
+    status: 'Pending' | 'Approved' | 'Rejected';
+    createdAt: string; // ISO string
+};

@@ -56,7 +56,7 @@ export default function EmployeeRequestsPage() {
           <DetailRow
             label="Reimbursement Requests"
             hasNewBadge
-            // onClick={() => router.push(`/dashboard/employees/${employeeId}/reimbursement-requests`)}
+            onClick={() => router.push(`/dashboard/employees/${employeeId}/reimbursement-requests`)}
           />
         </div>
       </main>

@@ -458,6 +458,40 @@
         "status",
         "createdAt"
       ]
+    },
+    "ReimbursementRequest": {
+      "title": "Reimbursement Request",
+      "type": "object",
+      "description": "Represents a reimbursement request from an employee.",
+      "properties": {
+        "employeeId": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Pending",
+            "Approved",
+            "Rejected"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "employeeId",
+        "amount",
+        "status",
+        "createdAt"
+      ]
     }
   },
   "auth": {
@@ -496,6 +530,12 @@
         "$ref": "#/backend/entities/LeaveRequest"
       },
       "description": "Stores leave requests for each employee."
+    },
+    "/employees/{employeeId}/reimbursementRequests/{reimbursementRequestId}": {
+      "schema": {
+        "$ref": "#/backend/entities/ReimbursementRequest"
+      },
+      "description": "Stores reimbursement requests for each employee."
     }
   }
 }
