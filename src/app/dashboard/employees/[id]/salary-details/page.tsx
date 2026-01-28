@@ -586,11 +586,51 @@ export default function SalaryDetailsPage() {
                 </div>
               )}
             </div>
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="variable" id="pf-variable" />
-              <Label htmlFor="pf-variable" className="text-base font-normal">
-                12.0% Variable
-              </Label>
+            <div>
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="variable" id="pf-variable" />
+                <Label htmlFor="pf-variable" className="text-base font-normal">
+                  12.0% Variable
+                </Label>
+              </div>
+              {pfOption === 'variable' && (
+                <div className="space-y-4 pl-8 pt-4">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="basic-var"
+                      checked={pfLimitBasic}
+                      onCheckedChange={(c) => setPfLimitBasic(!!c)}
+                      disabled
+                    />
+                    <Label
+                      htmlFor="basic-var"
+                      className="font-normal text-muted-foreground"
+                    >
+                      BASIC
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="incentive-var"
+                      checked={pfLimitIncentive}
+                      onCheckedChange={(c) => setPfLimitIncentive(!!c)}
+                    />
+                    <Label htmlFor="incentive-var" className="font-normal">
+                      Incentive
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="overtime-var"
+                      checked={pfLimitOvertime}
+                      onCheckedChange={(c) => setPfLimitOvertime(!!c)}
+                    />
+                    <Label htmlFor="overtime-var" className="font-normal">
+                      Overtime
+                    </Label>
+                  </div>
+                </div>
+              )}
             </div>
           </RadioGroup>
           <DialogFooter>
