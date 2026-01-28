@@ -2,7 +2,11 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
+import {
+  ArrowLeft,
+  Calendar as CalendarIcon,
+  ChevronDown,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -53,6 +57,8 @@ const ContributionRow = ({
   </div>
 );
 
+type ContributionOption = 'none' | 'limit' | 'variable';
+
 export default function SalaryDetailsPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -60,35 +66,72 @@ export default function SalaryDetailsPage() {
   const [salaryType, setSalaryType] = useState('per-month');
   const [basicSalary, setBasicSalary] = useState('9800.00');
 
-  // State for PF Dialog
+  // Employee PF State
   const [isPfDialogOpen, setIsPfDialogOpen] = useState(false);
-  const [pfOption, setPfOption] = useState<'none' | 'limit' | 'variable'>('none');
-  const [currentPfOption, setCurrentPfOption] = useState<'none' | 'limit' | 'variable'>('none');
+  const [pfOption, setPfOption] = useState<ContributionOption>('none');
+  const [currentPfOption, setCurrentPfOption] = useState<ContributionOption>('none');
   const [pfLabel, setPfLabel] = useState('Not Selected');
 
-  const pfAmount = useMemo(() => {
-    const salary = parseFloat(basicSalary) || 0;
-    if (currentPfOption === 'limit') {
-      return 1800;
-    }
-    if (currentPfOption === 'variable') {
-      return salary * 0.12;
-    }
+  // Employer PF State
+  const [isEmployerPfDialogOpen, setIsEmployerPfDialogOpen] = useState(false);
+  const [employerPfOption, setEmployerPfOption] = useState<ContributionOption>('none');
+  const [currentEmployerPfOption, setCurrentEmployerPfOption] = useState<ContributionOption>('none');
+  const [employerPfLabel, setEmployerPfLabel] = useState('Not Selected');
+  
+  // Employer ESI State
+  const [isEsiDialogOpen, setIsEsiDialogOpen] = useState(false);
+  const [esiOption, setEsiOption] = useState<ContributionOption>('none');
+  const [currentEsiOption, setCurrentEsiOption] = useState<ContributionOption>('none');
+  const [esiLabel, setEsiLabel] = useState('Not Selected');
+
+  // Labour Welfare Fund State
+  const [isLwfDialogOpen, setIsLwfDialogOpen] = useState(false);
+  const [lwfOption, setLwfOption] = useState<ContributionOption>('none');
+  const [currentLwfOption, setCurrentLwfOption] = useState<ContributionOption>('none');
+  const [lwfLabel, setLwfLabel] = useState('Not Selected');
+
+
+  const calculateContribution = (base: string, option: ContributionOption) => {
+    const salary = parseFloat(base) || 0;
+    if (option === 'limit') return 1800;
+    if (option === 'variable') return salary * 0.12;
     return 0;
-  }, [basicSalary, currentPfOption]);
+  }
+
+  const pfAmount = useMemo(() => calculateContribution(basicSalary, currentPfOption), [basicSalary, currentPfOption]);
+  const employerPfAmount = useMemo(() => calculateContribution(basicSalary, currentEmployerPfOption), [basicSalary, currentEmployerPfOption]);
+  const esiAmount = useMemo(() => calculateContribution(basicSalary, currentEsiOption), [basicSalary, currentEsiOption]);
+  const lwfAmount = useMemo(() => calculateContribution(basicSalary, currentLwfOption), [basicSalary, currentLwfOption]);
+
+
+  const getLabelForOption = (option: ContributionOption) => {
+    if (option === 'limit') return '₹1800 Limit';
+    if (option === 'variable') return '12.0% Variable';
+    return 'Not Selected';
+  }
 
   const handlePfSave = () => {
-    let newLabel = 'Not Selected';
-
-    if (pfOption === 'limit') {
-      newLabel = '₹1800 Limit';
-    } else if (pfOption === 'variable') {
-      newLabel = '12.0% Variable';
-    }
-
     setCurrentPfOption(pfOption);
-    setPfLabel(newLabel);
+    setPfLabel(getLabelForOption(pfOption));
     setIsPfDialogOpen(false);
+  };
+
+  const handleEmployerPfSave = () => {
+    setCurrentEmployerPfOption(employerPfOption);
+    setEmployerPfLabel(getLabelForOption(employerPfOption));
+    setIsEmployerPfDialogOpen(false);
+  };
+  
+  const handleEsiSave = () => {
+    setCurrentEsiOption(esiOption);
+    setEsiLabel(getLabelForOption(esiOption));
+    setIsEsiDialogOpen(false);
+  };
+
+  const handleLwfSave = () => {
+    setCurrentLwfOption(lwfOption);
+    setLwfLabel(getLabelForOption(lwfOption));
+    setIsLwfDialogOpen(false);
   };
 
   const handleUpdateSalary = () => {
@@ -98,6 +141,57 @@ export default function SalaryDetailsPage() {
     });
     router.back();
   };
+  
+  const renderContributionDialog = (
+    isOpen: boolean,
+    setIsOpen: (open: boolean) => void,
+    title: string,
+    value: ContributionOption,
+    onValueChange: (value: ContributionOption) => void,
+    onSave: () => void,
+  ) => (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+          </DialogHeader>
+          <RadioGroup
+            value={value}
+            onValueChange={(val) => onValueChange(val as ContributionOption)}
+            className="space-y-3 py-4"
+          >
+            <div className="flex items-center space-x-3">
+              <RadioGroupItem value="none" id={`${title}-none`} />
+              <Label htmlFor={`${title}-none`} className="text-base font-normal">None</Label>
+            </div>
+            <div className="flex items-center space-x-3">
+              <RadioGroupItem value="limit" id={`${title}-limit`} />
+              <Label htmlFor={`${title}-limit`} className="text-base font-normal">₹1800 Limit</Label>
+            </div>
+            <div className="flex items-center space-x-3">
+              <RadioGroupItem value="variable" id={`${title}-variable`} />
+              <Label htmlFor={`${title}-variable`} className="text-base font-normal">12.0% Variable</Label>
+            </div>
+          </RadioGroup>
+          <DialogFooter>
+            <Button onClick={onSave} className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90">Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+  );
+
+  const renderContributionButton = (label: string, onClick: () => void) => (
+     <Button
+        type="button"
+        variant="outline"
+        className="w-full justify-between text-left font-normal"
+        onClick={onClick}
+      >
+        <span>{label}</span>
+        <ChevronDown className="h-4 w-4 opacity-50" />
+      </Button>
+  );
+
 
   return (
     <>
@@ -233,15 +327,11 @@ export default function SalaryDetailsPage() {
 
             <div className="space-y-6">
               <h3 className="text-lg font-semibold">Employer Contribution</h3>
-              <ContributionRow label="Employer PF">
-                <Select defaultValue="not-selected">
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Not Selected" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="not-selected">Not Selected</SelectItem>
-                  </SelectContent>
-                </Select>
+              <ContributionRow label="Employer PF" amount={`₹ ${employerPfAmount.toFixed(2)}`}>
+                 {renderContributionButton(employerPfLabel, () => {
+                    setEmployerPfOption(currentEmployerPfOption);
+                    setIsEmployerPfDialogOpen(true);
+                 })}
               </ContributionRow>
               <div className="space-y-3 pl-4">
                 <div className="flex items-center space-x-2">
@@ -269,15 +359,11 @@ export default function SalaryDetailsPage() {
 
               <Separator />
 
-              <ContributionRow label="Employer ESI">
-                <Select defaultValue="not-selected">
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Not Selected" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="not-selected">Not Selected</SelectItem>
-                  </SelectContent>
-                </Select>
+              <ContributionRow label="Employer ESI" amount={`₹ ${esiAmount.toFixed(2)}`}>
+                {renderContributionButton(esiLabel, () => {
+                    setEsiOption(currentEsiOption);
+                    setIsEsiDialogOpen(true);
+                })}
               </ContributionRow>
               <div className="pl-4">
                 <div className="flex items-center space-x-2">
@@ -293,15 +379,11 @@ export default function SalaryDetailsPage() {
 
               <Separator />
 
-              <ContributionRow label="Labour Welfare Fund">
-                <Select defaultValue="not-selected">
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Not Selected" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="not-selected">Not Selected</SelectItem>
-                  </SelectContent>
-                </Select>
+              <ContributionRow label="Labour Welfare Fund" amount={`₹ ${lwfAmount.toFixed(2)}`}>
+                {renderContributionButton(lwfLabel, () => {
+                    setLwfOption(currentLwfOption);
+                    setIsLwfDialogOpen(true);
+                })}
               </ContributionRow>
               <div className="pl-4">
                 <div className="flex items-center space-x-2">
@@ -323,17 +405,10 @@ export default function SalaryDetailsPage() {
                 label="Employee PF"
                 amount={`₹ ${pfAmount.toFixed(2)}`}
               >
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal"
-                  onClick={() => {
+                {renderContributionButton(pfLabel, () => {
                     setPfOption(currentPfOption);
                     setIsPfDialogOpen(true);
-                  }}
-                >
-                  {pfLabel}
-                </Button>
+                })}
               </ContributionRow>
 
               <ContributionRow label="Employee ESI">
@@ -394,45 +469,11 @@ export default function SalaryDetailsPage() {
           </div>
         </footer>
       </div>
-      <Dialog open={isPfDialogOpen} onOpenChange={setIsPfDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Manage PF</DialogTitle>
-          </DialogHeader>
-          <RadioGroup
-            value={pfOption}
-            onValueChange={(value) => setPfOption(value as 'none' | 'limit' | 'variable')}
-            className="space-y-3 py-4"
-          >
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="none" id="pf-none" />
-              <Label htmlFor="pf-none" className="text-base font-normal">
-                None
-              </Label>
-            </div>
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="limit" id="pf-limit" />
-              <Label htmlFor="pf-limit" className="text-base font-normal">
-                ₹1800 Limit
-              </Label>
-            </div>
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="variable" id="pf-variable" />
-              <Label htmlFor="pf-variable" className="text-base font-normal">
-                12.0% Variable
-              </Label>
-            </div>
-          </RadioGroup>
-          <DialogFooter>
-            <Button
-              onClick={handlePfSave}
-              className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
-            >
-              Save
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      
+      {renderContributionDialog(isPfDialogOpen, setIsPfDialogOpen, "Manage PF", pfOption, setPfOption, handlePfSave)}
+      {renderContributionDialog(isEmployerPfDialogOpen, setIsEmployerPfDialogOpen, "Manage Employer PF", employerPfOption, setEmployerPfOption, handleEmployerPfSave)}
+      {renderContributionDialog(isEsiDialogOpen, setIsEsiDialogOpen, "Manage Employer ESI", esiOption, setEsiOption, handleEsiSave)}
+      {renderContributionDialog(isLwfDialogOpen, setIsLwfDialogOpen, "Manage Labour Welfare Fund", lwfOption, setLwfOption, handleLwfSave)}
     </>
   );
 }
