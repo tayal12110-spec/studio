@@ -19,7 +19,7 @@ export default function ReimbursementRequestsPage() {
   const employeeId = params.id as string;
   const firestore = useFirestore();
 
-  const [activeFilter, setActiveFilter] = useState<StatusFilter>('Approved');
+  const [activeFilter, setActiveFilter] = useState<StatusFilter>('Rejected');
 
   const employeeRef = useMemoFirebase(
     () => (firestore && employeeId ? doc(firestore, 'employees', employeeId) : null),
