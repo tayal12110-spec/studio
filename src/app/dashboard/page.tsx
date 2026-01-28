@@ -189,7 +189,7 @@ function EmployeeList() {
 
                 <div className="flex items-center gap-2">
                    <Button variant="outline" size="sm" asChild>
-                       <Link href={`/dashboard/employees/${employee.id}`}>View</Link>
+                       <Link href={`/dashboard/employees/${employee.id}/attendance`}>View</Link>
                    </Button>
                    <Button size="sm" onClick={() => handlePayClick(employee)}>Pay</Button>
                 </div>
