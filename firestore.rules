@@ -19,17 +19,17 @@ service cloud.firestore {
       allow read, write: if isSignedIn();
     }
 
-    match /employees/{employeeId}/attendance/{document=**} {
+    match /employees/{employeeId}/attendance/{date} {
       allow read, write: if isSignedIn();
     }
 
-    match /employees/{employeeId}/documents/{document=**} {
+    match /employees/{employeeId}/documents/{documentId} {
       allow read, write: if isSignedIn();
     }
-    match /employees/{employeeId}/leaveRequests/{document=**} {
+    match /employees/{employeeId}/leaveRequests/{leaveRequestId} {
       allow read, write: if isSignedIn();
     }
-    match /employees/{employeeId}/reimbursementRequests/{document=**} {
+    match /employees/{employeeId}/reimbursementRequests/{reimbursementRequestId} {
       allow read, write: if isSignedIn();
     }
   }
