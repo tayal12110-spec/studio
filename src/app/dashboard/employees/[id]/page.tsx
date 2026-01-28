@@ -277,7 +277,7 @@ export default function EmployeeDetailPage() {
           </div>
 
           <div className="space-y-2 px-4">
-            <DetailRow icon={BookUser} label="Leave Balances &amp; Policy" />
+            <DetailRow icon={BookUser} label="Leave Balances &amp; Policy" onClick={() => router.push(`/dashboard/employees/${employeeId}/leave-balances-policy`)} />
             <DetailRow icon={FileText} label="Documents" />
             <DetailRow icon={Bell} label="Notifications">
               <Switch defaultChecked />
