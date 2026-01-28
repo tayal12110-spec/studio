@@ -93,3 +93,14 @@ export type Document = {
   fileUrl: string;
   createdAt: string; // ISO string
 };
+
+export type LeaveRequest = {
+    id: string; // Firestore document ID
+    employeeId: string;
+    leaveType: 'Privileged' | 'Sick' | 'Casual';
+    startDate: string; // ISO String
+    endDate: string; // ISO String
+    reason?: string;
+    status: 'Pending' | 'Approved' | 'Rejected';
+    createdAt: string; // ISO string
+}

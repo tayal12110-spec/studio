@@ -409,6 +409,55 @@
         "fileUrl",
         "createdAt"
       ]
+    },
+    "LeaveRequest": {
+      "title": "Leave Request",
+      "type": "object",
+      "description": "Represents a leave request from an employee.",
+      "properties": {
+        "employeeId": {
+          "type": "string"
+        },
+        "leaveType": {
+          "type": "string",
+          "enum": [
+            "Privileged",
+            "Sick",
+            "Casual"
+          ]
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Pending",
+            "Approved",
+            "Rejected"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "employeeId",
+        "leaveType",
+        "startDate",
+        "endDate",
+        "status",
+        "createdAt"
+      ]
     }
   },
   "auth": {
@@ -441,6 +490,12 @@
         "$ref": "#/backend/entities/Document"
       },
       "description": "Stores uploaded documents for each employee."
+    },
+    "/employees/{employeeId}/leaveRequests/{leaveRequestId}": {
+      "schema": {
+        "$ref": "#/backend/entities/LeaveRequest"
+      },
+      "description": "Stores leave requests for each employee."
     }
   }
 }

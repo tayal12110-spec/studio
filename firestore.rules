@@ -26,5 +26,8 @@ service cloud.firestore {
     match /employees/{employeeId}/documents/{documentId} {
       allow read, write: if isSignedIn();
     }
+    match /employees/{employeeId}/leaveRequests/{leaveRequestId} {
+      allow read, write: if isSignedIn();
+    }
   }
 }

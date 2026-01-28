@@ -51,7 +51,7 @@ export default function EmployeeRequestsPage() {
         <div className="space-y-3">
           <DetailRow
             label="Leave Requests"
-            // onClick={() => router.push(`/dashboard/employees/${employeeId}/leave-requests`)}
+            onClick={() => router.push(`/dashboard/employees/${employeeId}/leave-requests`)}
           />
           <DetailRow
             label="Reimbursement Requests"
