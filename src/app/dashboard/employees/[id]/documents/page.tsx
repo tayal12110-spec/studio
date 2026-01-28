@@ -73,29 +73,37 @@ export default function DocumentsPage() {
 
   useEffect(() => {
     if (isCameraViewOpen) {
+      let isComponentMounted = true;
       const getCameraPermission = async () => {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          streamRef.current = stream;
-          setHasCameraPermission(true);
+          if (isComponentMounted) {
+            streamRef.current = stream;
+            setHasCameraPermission(true);
 
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
+            if (videoRef.current) {
+              videoRef.current.srcObject = stream;
+            }
+          } else {
+            stream.getTracks().forEach(track => track.stop());
           }
         } catch (error) {
           console.error('Error accessing camera:', error);
-          setHasCameraPermission(false);
-          toast({
-            variant: 'destructive',
-            title: 'Camera Access Denied',
-            description: 'Please enable camera permissions in your browser settings to use this app.',
-          });
+          if (isComponentMounted) {
+            setHasCameraPermission(false);
+            toast({
+              variant: 'destructive',
+              title: 'Camera Access Denied',
+              description: 'Please enable camera permissions in your browser settings to use this app.',
+            });
+          }
         }
       };
 
       getCameraPermission();
 
       return () => {
+        isComponentMounted = false;
         // Safely capture the current stream and stop its tracks.
         const currentStream = streamRef.current;
         if (currentStream) {
@@ -104,7 +112,7 @@ export default function DocumentsPage() {
         streamRef.current = null;
       };
     }
-  }, [isCameraViewOpen]);
+  }, [isCameraViewOpen, toast]);
 
 
   const handleNext = () => {
@@ -197,7 +205,8 @@ export default function DocumentsPage() {
 
   const handleDelete = (docId: string) => {
     if (documentsColRef) {
-      deleteDocumentNonBlocking(doc(documentsColRef, docId));
+      const docRefToDelete = doc(documentsColRef, docId);
+      deleteDocumentNonBlocking(docRefToDelete);
       toast({
         variant: 'destructive',
         title: 'Document Deleted',
