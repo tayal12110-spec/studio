@@ -84,3 +84,11 @@ export type Attendance = {
   status: AttendanceStatus;
   note?: string;
 };
+
+export type Document = {
+  id: string; // Firestore document ID
+  employeeId: string;
+  name: string;
+  fileUrl: string;
+  createdAt: string; // ISO string
+};

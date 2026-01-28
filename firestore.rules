@@ -21,6 +21,10 @@ service cloud.firestore {
       match /attendance/{date} {
         allow read, write: if isSignedIn();
       }
+
+      match /documents/{documentId} {
+        allow read, write: if isSignedIn();
+      }
     }
   }
 }

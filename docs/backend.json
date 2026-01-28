@@ -374,6 +374,37 @@
         "date",
         "status"
       ]
+    },
+    "Document": {
+      "title": "Document",
+      "type": "object",
+      "description": "Represents a document uploaded for an employee.",
+      "properties": {
+        "employeeId": {
+          "type": "string",
+          "description": "The ID of the employee this document belongs to."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the document (e.g., 'Aadhaar Card')."
+        },
+        "fileUrl": {
+          "type": "string",
+          "description": "The URL of the uploaded document file.",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the document was uploaded."
+        }
+      },
+      "required": [
+        "employeeId",
+        "name",
+        "fileUrl",
+        "createdAt"
+      ]
     }
   },
   "auth": {
@@ -400,6 +431,12 @@
         "$ref": "#/backend/entities/Attendance"
       },
       "description": "Stores daily attendance records for each employee. The document ID is the date in 'YYYY-MM-DD' format."
+    },
+    "/employees/{employeeId}/documents/{documentId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Document"
+      },
+      "description": "Stores uploaded documents for each employee."
     }
   }
 }
