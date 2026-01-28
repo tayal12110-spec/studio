@@ -79,10 +79,10 @@ export default function SalaryDetailsPage() {
 
   // Employee PF State
   const [isPfDialogOpen, setIsPfDialogOpen] = useState(false);
-  const [pfOption, setPfOption] = useState<ContributionOption>('none');
+  const [pfOption, setPfOption] = useState<ContributionOption>('variable');
   const [currentPfOption, setCurrentPfOption] =
-    useState<ContributionOption>('none');
-  const [pfLabel, setPfLabel] = useState('Not Selected');
+    useState<ContributionOption>('variable');
+  const [pfLabel, setPfLabel] = useState('12.0% Variable');
   const [pfLimitBasic, setPfLimitBasic] = useState(true);
   const [pfLimitIncentive, setPfLimitIncentive] = useState(false);
   const [pfLimitOvertime, setPfLimitOvertime] = useState(false);
@@ -119,6 +119,11 @@ export default function SalaryDetailsPage() {
   const [isLwfDialogOpen, setIsLwfDialogOpen] = useState(false);
   const [lwfState, setLwfState] = useState('Not Selected');
   const [currentLwfState, setCurrentLwfState] = useState('Not Selected');
+
+  // Professional Tax State
+  const [isProfTaxDialogOpen, setIsProfTaxDialogOpen] = useState(false);
+  const [profTaxState, setProfTaxState] = useState('Not Selected');
+  const [currentProfTaxState, setCurrentProfTaxState] = useState('Not Selected');
 
 
   const calculateContribution = (base: string, option: ContributionOption) => {
@@ -160,6 +165,11 @@ export default function SalaryDetailsPage() {
     // Placeholder, actual calculation would depend on state-specific LWF rules
     return currentLwfState !== 'Not Selected' ? 0.00 : 0.00;
   }, [currentLwfState]);
+
+  const profTaxAmount = useMemo(() => {
+    // Placeholder logic for professional tax
+    return currentProfTaxState !== 'Not Selected' ? 200.00 : 0.00;
+  }, [currentProfTaxState]);
 
   const getLabelForOption = (option: ContributionOption) => {
     if (option === 'limit') return '₹1800 Limit';
@@ -204,6 +214,11 @@ export default function SalaryDetailsPage() {
   const handleLwfSave = () => {
     setCurrentLwfState(lwfState);
     setIsLwfDialogOpen(false);
+  };
+  
+  const handleProfTaxSave = () => {
+    setCurrentProfTaxState(profTaxState);
+    setIsProfTaxDialogOpen(false);
   };
 
   const handleUpdateSalary = () => {
@@ -464,15 +479,14 @@ export default function SalaryDetailsPage() {
               </ContributionRow>
 
 
-              <ContributionRow label="Professional Tax">
-                <Select defaultValue="not-selected">
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Not Selected" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="not-selected">Not Selected</SelectItem>
-                  </SelectContent>
-                </Select>
+              <ContributionRow
+                label="Professional Tax"
+                amount={`₹ ${profTaxAmount.toFixed(2)}`}
+              >
+                {renderContributionButton(currentProfTaxState, () => {
+                  setProfTaxState(currentProfTaxState);
+                  setIsProfTaxDialogOpen(true);
+                })}
               </ContributionRow>
 
               <ContributionRow label="Labour Welfare Fund">
@@ -535,7 +549,7 @@ export default function SalaryDetailsPage() {
                   ₹1800 Limit
                 </Label>
               </div>
-              {pfOption === 'limit' && (
+              {(pfOption === 'limit' || pfOption === 'variable') && (
                 <div className="space-y-4 pl-8 pt-4">
                   <div className="flex items-center space-x-3">
                     <Checkbox
@@ -584,44 +598,6 @@ export default function SalaryDetailsPage() {
                   12.0% Variable
                 </Label>
               </div>
-              {pfOption === 'variable' && (
-                 <div className="space-y-4 pl-8 pt-4">
-                 <div className="flex items-center space-x-3">
-                   <Checkbox
-                     id="pf-variable-basic"
-                     checked={pfLimitBasic}
-                     onCheckedChange={(c) => setPfLimitBasic(!!c)}
-                     disabled
-                   />
-                   <Label
-                     htmlFor="pf-variable-basic"
-                     className="font-normal text-muted-foreground"
-                   >
-                     BASIC
-                   </Label>
-                 </div>
-                 <div className="flex items-center space-x-3">
-                   <Checkbox
-                     id="pf-variable-incentive"
-                     checked={pfLimitIncentive}
-                     onCheckedChange={(c) => setPfLimitIncentive(!!c)}
-                   />
-                   <Label htmlFor="pf-variable-incentive" className="font-normal">
-                     Incentive
-                   </Label>
-                 </div>
-                 <div className="flex items-center space-x-3">
-                   <Checkbox
-                     id="pf-variable-overtime"
-                     checked={pfLimitOvertime}
-                     onCheckedChange={(c) => setPfLimitOvertime(!!c)}
-                   />
-                   <Label htmlFor="pf-variable-overtime" className="font-normal">
-                     Overtime
-                   </Label>
-                 </div>
-               </div>
-              )}
             </div>
           </RadioGroup>
           <DialogFooter>
@@ -658,7 +634,7 @@ export default function SalaryDetailsPage() {
                   ₹1800 Limit
                 </Label>
               </div>
-              {employerPfOption === 'limit' && (
+              {(employerPfOption === 'limit' || employerPfOption === 'variable') && (
                 <div className="space-y-4 pl-8 pt-4">
                   <div className="flex items-center space-x-3">
                     <Checkbox
@@ -707,44 +683,6 @@ export default function SalaryDetailsPage() {
                 12.0% Variable
               </Label>
             </div>
-            {employerPfOption === 'variable' && (
-                <div className="space-y-4 pl-8 pt-4">
-                  <div className="flex items-center space-x-3">
-                    <Checkbox
-                      id="employer-pf-variable-basic"
-                      checked={employerPfLimitBasic}
-                      onCheckedChange={(c) => setEmployerPfLimitBasic(!!c)}
-                      disabled
-                    />
-                    <Label
-                      htmlFor="employer-pf-variable-basic"
-                      className="font-normal text-muted-foreground"
-                    >
-                      BASIC
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Checkbox
-                      id="employer-pf-variable-incentive"
-                      checked={employerPfLimitIncentive}
-                      onCheckedChange={(c) => setEmployerPfLimitIncentive(!!c)}
-                    />
-                    <Label htmlFor="employer-pf-variable-incentive" className="font-normal">
-                      Incentive
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Checkbox
-                      id="employer-pf-variable-overtime"
-                      checked={employerPfLimitOvertime}
-                      onCheckedChange={(c) => setEmployerPfLimitOvertime(!!c)}
-                    />
-                    <Label htmlFor="employer-pf-variable-overtime" className="font-normal">
-                      Overtime
-                    </Label>
-                  </div>
-                </div>
-              )}
               </div>
           </RadioGroup>
           <DialogFooter>
@@ -900,6 +838,39 @@ export default function SalaryDetailsPage() {
           <DialogFooter>
             <Button
               onClick={handleEmployeeEsiSave}
+              className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isProfTaxDialogOpen} onOpenChange={setIsProfTaxDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Professional Tax</DialogTitle>
+            <p className="text-sm text-muted-foreground pt-1">Select State</p>
+          </DialogHeader>
+          <ScrollArea className="h-72 pr-4">
+              <RadioGroup
+                value={profTaxState}
+                onValueChange={setProfTaxState}
+                className="space-y-1 py-2"
+              >
+                {indianStates.map((state) => (
+                    <div key={state} className="flex items-center space-x-3 p-2 has-[:checked]:bg-muted/80 rounded-md">
+                        <RadioGroupItem value={state} id={`ptax-${state}`} />
+                        <Label htmlFor={`ptax-${state}`} className="text-base font-normal w-full cursor-pointer">
+                            {state}
+                        </Label>
+                    </div>
+                ))}
+              </RadioGroup>
+          </ScrollArea>
+          <DialogFooter>
+            <Button
+              onClick={handleProfTaxSave}
               className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
             >
               Save
