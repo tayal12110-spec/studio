@@ -58,6 +58,7 @@ const ContributionRow = ({
 );
 
 type ContributionOption = 'none' | 'limit' | 'variable';
+type EsiOption = 'none' | 'variable';
 
 export default function SalaryDetailsPage() {
   const router = useRouter();
@@ -68,48 +69,73 @@ export default function SalaryDetailsPage() {
 
   // Employee PF State
   const [isPfDialogOpen, setIsPfDialogOpen] = useState(false);
-  const [pfOption, setPfOption] = useState<ContributionOption>('none');
-  const [currentPfOption, setCurrentPfOption] = useState<ContributionOption>('none');
-  const [pfLabel, setPfLabel] = useState('Not Selected');
+  const [pfOption, setPfOption] = useState<ContributionOption>('variable');
+  const [currentPfOption, setCurrentPfOption] =
+    useState<ContributionOption>('variable');
+  const [pfLabel, setPfLabel] = useState('12.0% Variable');
   const [pfLimitBasic, setPfLimitBasic] = useState(true);
   const [pfLimitIncentive, setPfLimitIncentive] = useState(false);
   const [pfLimitOvertime, setPfLimitOvertime] = useState(false);
 
   // Employer PF State
   const [isEmployerPfDialogOpen, setIsEmployerPfDialogOpen] = useState(false);
-  const [employerPfOption, setEmployerPfOption] = useState<ContributionOption>('none');
-  const [currentEmployerPfOption, setCurrentEmployerPfOption] = useState<ContributionOption>('none');
+  const [employerPfOption, setEmployerPfOption] =
+    useState<ContributionOption>('none');
+  const [currentEmployerPfOption, setCurrentEmployerPfOption] =
+    useState<ContributionOption>('none');
   const [employerPfLabel, setEmployerPfLabel] = useState('Not Selected');
-  
+
   // Employer ESI State
   const [isEsiDialogOpen, setIsEsiDialogOpen] = useState(false);
-  const [esiOption, setEsiOption] = useState<ContributionOption>('none');
-  const [currentEsiOption, setCurrentEsiOption] = useState<ContributionOption>('none');
+  const [esiOption, setEsiOption] = useState<EsiOption>('none');
+  const [currentEsiOption, setCurrentEsiOption] = useState<EsiOption>('none');
   const [esiLabel, setEsiLabel] = useState('Not Selected');
 
   // Labour Welfare Fund State
   const [isLwfDialogOpen, setIsLwfDialogOpen] = useState(false);
   const [lwfOption, setLwfOption] = useState<ContributionOption>('none');
-  const [currentLwfOption, setCurrentLwfOption] = useState<ContributionOption>('none');
+  const [currentLwfOption, setCurrentLwfOption] =
+    useState<ContributionOption>('none');
   const [lwfLabel, setLwfLabel] = useState('Not Selected');
-
 
   const calculateContribution = (base: string, option: ContributionOption) => {
     const salary = parseFloat(base) || 0;
     if (option === 'limit') return 1800;
     if (option === 'variable') return salary * 0.12;
     return 0;
+  };
+
+  const calculateEsiContribution = (base: string, option: EsiOption) => {
+    const salary = parseFloat(base) || 0;
+    if (option === 'variable') return salary * 0.0325;
+    return 0;
   }
 
-  const pfAmount = useMemo(() => calculateContribution(basicSalary, currentPfOption), [basicSalary, currentPfOption]);
-  const employerPfAmount = useMemo(() => calculateContribution(basicSalary, currentEmployerPfOption), [basicSalary, currentEmployerPfOption]);
-  const esiAmount = useMemo(() => calculateContribution(basicSalary, currentEsiOption), [basicSalary, currentEsiOption]);
-  const lwfAmount = useMemo(() => calculateContribution(basicSalary, currentLwfOption), [basicSalary, currentLwfOption]);
-
+  const pfAmount = useMemo(
+    () => calculateContribution(basicSalary, currentPfOption),
+    [basicSalary, currentPfOption]
+  );
+  const employerPfAmount = useMemo(
+    () => calculateContribution(basicSalary, currentEmployerPfOption),
+    [basicSalary, currentEmployerPfOption]
+  );
+  const esiAmount = useMemo(
+    () => calculateEsiContribution(basicSalary, currentEsiOption),
+    [basicSalary, currentEsiOption]
+  );
+  const lwfAmount = useMemo(
+    () => calculateContribution(basicSalary, currentLwfOption),
+    [basicSalary, currentLwfOption]
+  );
 
   const getLabelForOption = (option: ContributionOption) => {
     if (option === 'limit') return '₹1800 Limit';
     if (option === 'variable') return '12.0% Variable';
+    return 'Not Selected';
+  };
+
+  const getLabelForEsiOption = (option: EsiOption) => {
+    if (option === 'variable') return '3.25% Variable';
     return 'Not Selected';
   }
 
@@ -124,10 +150,10 @@ export default function SalaryDetailsPage() {
     setEmployerPfLabel(getLabelForOption(employerPfOption));
     setIsEmployerPfDialogOpen(false);
   };
-  
+
   const handleEsiSave = () => {
     setCurrentEsiOption(esiOption);
-    setEsiLabel(getLabelForOption(esiOption));
+    setEsiLabel(getLabelForEsiOption(esiOption));
     setIsEsiDialogOpen(false);
   };
 
@@ -144,57 +170,70 @@ export default function SalaryDetailsPage() {
     });
     router.back();
   };
-  
+
   const renderContributionDialog = (
     isOpen: boolean,
     setIsOpen: (open: boolean) => void,
     title: string,
     value: ContributionOption,
     onValueChange: (value: ContributionOption) => void,
-    onSave: () => void,
+    onSave: () => void
   ) => (
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
-          </DialogHeader>
-          <RadioGroup
-            value={value}
-            onValueChange={(val) => onValueChange(val as ContributionOption)}
-            className="space-y-3 py-4"
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <RadioGroup
+          value={value}
+          onValueChange={(val) => onValueChange(val as ContributionOption)}
+          className="space-y-3 py-4"
+        >
+          <div className="flex items-center space-x-3">
+            <RadioGroupItem value="none" id={`${title}-none`} />
+            <Label htmlFor={`${title}-none`} className="text-base font-normal">
+              None
+            </Label>
+          </div>
+          <div className="flex items-center space-x-3">
+            <RadioGroupItem value="limit" id={`${title}-limit`} />
+            <Label htmlFor={`${title}-limit`} className="text-base font-normal">
+              ₹1800 Limit
+            </Label>
+          </div>
+          <div className="flex items-center space-x-3">
+            <RadioGroupItem value="variable" id={`${title}-variable`} />
+            <Label
+              htmlFor={`${title}-variable`}
+              className="text-base font-normal"
+            >
+              12.0% Variable
+            </Label>
+          </div>
+        </RadioGroup>
+        <DialogFooter>
+          <Button
+            onClick={onSave}
+            className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
           >
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="none" id={`${title}-none`} />
-              <Label htmlFor={`${title}-none`} className="text-base font-normal">None</Label>
-            </div>
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="limit" id={`${title}-limit`} />
-              <Label htmlFor={`${title}-limit`} className="text-base font-normal">₹1800 Limit</Label>
-            </div>
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="variable" id={`${title}-variable`} />
-              <Label htmlFor={`${title}-variable`} className="text-base font-normal">12.0% Variable</Label>
-            </div>
-          </RadioGroup>
-          <DialogFooter>
-            <Button onClick={onSave} className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90">Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 
   const renderContributionButton = (label: string, onClick: () => void) => (
-     <Button
-        type="button"
-        variant="outline"
-        className="w-full justify-between text-left font-normal"
-        onClick={onClick}
-      >
-        <span>{label}</span>
-        <ChevronDown className="h-4 w-4 opacity-50" />
-      </Button>
+    <Button
+      type="button"
+      variant="outline"
+      className="w-full justify-between text-left font-normal"
+      onClick={onClick}
+    >
+      <span>{label}</span>
+      <ChevronDown className="h-4 w-4 opacity-50" />
+    </Button>
   );
-
 
   return (
     <>
@@ -213,7 +252,10 @@ export default function SalaryDetailsPage() {
               Edit Salary for {format(month, 'MMM yyyy')}
             </h1>
           </div>
-          <Button variant="link" className="text-base font-semibold text-primary">
+          <Button
+            variant="link"
+            className="text-base font-semibold text-primary"
+          >
             History
           </Button>
         </header>
@@ -330,11 +372,14 @@ export default function SalaryDetailsPage() {
 
             <div className="space-y-6">
               <h3 className="text-lg font-semibold">Employer Contribution</h3>
-              <ContributionRow label="Employer PF" amount={`₹ ${employerPfAmount.toFixed(2)}`}>
-                 {renderContributionButton(employerPfLabel, () => {
-                    setEmployerPfOption(currentEmployerPfOption);
-                    setIsEmployerPfDialogOpen(true);
-                 })}
+              <ContributionRow
+                label="Employer PF"
+                amount={`₹ ${employerPfAmount.toFixed(2)}`}
+              >
+                {renderContributionButton(employerPfLabel, () => {
+                  setEmployerPfOption(currentEmployerPfOption);
+                  setIsEmployerPfDialogOpen(true);
+                })}
               </ContributionRow>
               <div className="space-y-3 pl-4">
                 <div className="flex items-center space-x-2">
@@ -382,10 +427,13 @@ export default function SalaryDetailsPage() {
 
               <Separator />
 
-              <ContributionRow label="Labour Welfare Fund" amount={`₹ ${lwfAmount.toFixed(2)}`}>
+              <ContributionRow
+                label="Labour Welfare Fund"
+                amount={`₹ ${lwfAmount.toFixed(2)}`}
+              >
                 {renderContributionButton(lwfLabel, () => {
-                    setLwfOption(currentLwfOption);
-                    setIsLwfDialogOpen(true);
+                  setLwfOption(currentLwfOption);
+                  setIsLwfDialogOpen(true);
                 })}
               </ContributionRow>
               <div className="pl-4">
@@ -409,8 +457,8 @@ export default function SalaryDetailsPage() {
                 amount={`₹ ${pfAmount.toFixed(2)}`}
               >
                 {renderContributionButton(pfLabel, () => {
-                    setPfOption(currentPfOption);
-                    setIsPfDialogOpen(true);
+                  setPfOption(currentPfOption);
+                  setIsPfDialogOpen(true);
                 })}
               </ContributionRow>
 
@@ -472,7 +520,7 @@ export default function SalaryDetailsPage() {
           </div>
         </footer>
       </div>
-      
+
       <Dialog open={isPfDialogOpen} onOpenChange={setIsPfDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -485,44 +533,128 @@ export default function SalaryDetailsPage() {
           >
             <div className="flex items-center space-x-3">
               <RadioGroupItem value="none" id="pf-none" />
-              <Label htmlFor="pf-none" className="text-base font-normal">None</Label>
+              <Label htmlFor="pf-none" className="text-base font-normal">
+                None
+              </Label>
             </div>
             <div>
-                <div className="flex items-center space-x-3">
-                  <RadioGroupItem value="limit" id="pf-limit" />
-                  <Label htmlFor="pf-limit" className="text-base font-normal">₹1800 Limit</Label>
-                </div>
-                {pfOption === 'limit' && (
-                  <div className="pl-8 pt-4 space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <Checkbox id="basic" checked={pfLimitBasic} onCheckedChange={(c) => setPfLimitBasic(!!c)} disabled/>
-                      <Label htmlFor="basic" className="font-normal text-muted-foreground" >BASIC</Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Checkbox id="incentive" checked={pfLimitIncentive} onCheckedChange={(c) => setPfLimitIncentive(!!c)}/>
-                      <Label htmlFor="incentive" className="font-normal">Incentive</Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Checkbox id="overtime" checked={pfLimitOvertime} onCheckedChange={(c) => setPfLimitOvertime(!!c)} />
-                      <Label htmlFor="overtime" className="font-normal">Overtime</Label>
-                    </div>
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="limit" id="pf-limit" />
+                <Label htmlFor="pf-limit" className="text-base font-normal">
+                  ₹1800 Limit
+                </Label>
+              </div>
+              {pfOption === 'limit' && (
+                <div className="space-y-4 pl-8 pt-4">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="basic"
+                      checked={pfLimitBasic}
+                      onCheckedChange={(c) => setPfLimitBasic(!!c)}
+                      disabled
+                    />
+                    <Label
+                      htmlFor="basic"
+                      className="font-normal text-muted-foreground"
+                    >
+                      BASIC
+                    </Label>
                   </div>
-                )}
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="incentive"
+                      checked={pfLimitIncentive}
+                      onCheckedChange={(c) => setPfLimitIncentive(!!c)}
+                    />
+                    <Label htmlFor="incentive" className="font-normal">
+                      Incentive
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="overtime"
+                      checked={pfLimitOvertime}
+                      onCheckedChange={(c) => setPfLimitOvertime(!!c)}
+                    />
+                    <Label htmlFor="overtime" className="font-normal">
+                      Overtime
+                    </Label>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex items-center space-x-3">
               <RadioGroupItem value="variable" id="pf-variable" />
-              <Label htmlFor="pf-variable" className="text-base font-normal">12.0% Variable</Label>
+              <Label htmlFor="pf-variable" className="text-base font-normal">
+                12.0% Variable
+              </Label>
             </div>
           </RadioGroup>
           <DialogFooter>
-            <Button onClick={handlePfSave} className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90">Save</Button>
+            <Button
+              onClick={handlePfSave}
+              className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+            >
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {renderContributionDialog(isEmployerPfDialogOpen, setIsEmployerPfDialogOpen, "Manage Employer PF", employerPfOption, setEmployerPfOption, handleEmployerPfSave)}
-      {renderContributionDialog(isEsiDialogOpen, setIsEsiDialogOpen, "Manage Employer ESI", esiOption, setEsiOption, handleEsiSave)}
-      {renderContributionDialog(isLwfDialogOpen, setIsLwfDialogOpen, "Manage Labour Welfare Fund", lwfOption, setLwfOption, handleLwfSave)}
+      {renderContributionDialog(
+        isEmployerPfDialogOpen,
+        setIsEmployerPfDialogOpen,
+        'Manage Employer PF',
+        employerPfOption,
+        setEmployerPfOption,
+        handleEmployerPfSave
+      )}
+
+      <Dialog open={isEsiDialogOpen} onOpenChange={setIsEsiDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manage ESI</DialogTitle>
+          </DialogHeader>
+          <RadioGroup
+            value={esiOption}
+            onValueChange={(val) => setEsiOption(val as EsiOption)}
+            className="space-y-3 py-4"
+          >
+            <div className="flex items-center space-x-3">
+              <RadioGroupItem value="none" id="esi-none" />
+              <Label htmlFor="esi-none" className="text-base font-normal">
+                None
+              </Label>
+            </div>
+            <div className="flex items-center space-x-3">
+              <RadioGroupItem value="variable" id="esi-variable" />
+              <Label
+                htmlFor="esi-variable"
+                className="text-base font-normal"
+              >
+                3.25% Variable
+              </Label>
+            </div>
+          </RadioGroup>
+          <DialogFooter>
+            <Button
+              onClick={handleEsiSave}
+              className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {renderContributionDialog(
+        isLwfDialogOpen,
+        setIsLwfDialogOpen,
+        'Manage Labour Welfare Fund',
+        lwfOption,
+        setLwfOption,
+        handleLwfSave
+      )}
     </>
   );
 }
