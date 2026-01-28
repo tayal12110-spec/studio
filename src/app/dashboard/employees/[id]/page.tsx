@@ -176,22 +176,30 @@ export default function EmployeeDetailPage() {
               New
             </Badge>
           </DetailRow>
-          <DetailRow 
-            icon={ShieldCheck} 
+          <DetailRow
+            icon={ShieldCheck}
             label="Background Verification"
             onClick={() => router.push(`/dashboard/employees/${employeeId}/background-verification`)}
           />
         </div>
 
         <div className="my-4 space-y-2 px-4">
-          <DetailRow 
+          <DetailRow
             icon={CalendarDays}
             label="Attendance Details"
             onClick={() => router.push(`/dashboard/employees/${employeeId}/attendance-details`)}
           />
-          <DetailRow icon={Wallet} label="Salary Details" />
+          <DetailRow
+            icon={Wallet}
+            label="Salary Details"
+            onClick={() =>
+              router.push(`/dashboard/employees/${employeeId}/salary-details`)
+            }
+          />
           <DetailRow icon={Landmark} label="Bank Details">
-            <Badge variant="destructive" className='bg-red-100 text-red-700'>Not Verified</Badge>
+            <Badge variant="destructive" className="bg-red-100 text-red-700">
+              Not Verified
+            </Badge>
           </DetailRow>
           <DetailRow icon={UserCog} label="User Permission">
             <span className="text-sm text-muted-foreground">Employee</span>
