@@ -81,8 +81,8 @@ export default function SalaryDetailsPage() {
   const [isPfDialogOpen, setIsPfDialogOpen] = useState(false);
   const [pfOption, setPfOption] = useState<ContributionOption>('variable');
   const [currentPfOption, setCurrentPfOption] =
-    useState<ContributionOption>('variable');
-  const [pfLabel, setPfLabel] = useState('12.0% Variable');
+    useState<ContributionOption>('none');
+  const [pfLabel, setPfLabel] = useState('Not Selected');
   const [pfLimitBasic, setPfLimitBasic] = useState(true);
   const [pfLimitIncentive, setPfLimitIncentive] = useState(false);
   const [pfLimitOvertime, setPfLimitOvertime] = useState(false);
@@ -129,6 +129,9 @@ export default function SalaryDetailsPage() {
   const [isLwfDeductionDialogOpen, setIsLwfDeductionDialogOpen] = useState(false);
   const [lwfDeductionState, setLwfDeductionState] = useState('Not Selected');
   const [currentLwfDeductionState, setCurrentLwfDeductionState] = useState('Not Selected');
+
+  // Add Deduction Dialog State
+  const [isAddDeductionDialogOpen, setIsAddDeductionDialogOpen] = useState(false);
 
   const calculateContribution = (base: string, option: ContributionOption) => {
     const salary = parseFloat(base) || 0;
@@ -515,6 +518,7 @@ export default function SalaryDetailsPage() {
               <Button
                 variant="outline"
                 className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent"
+                onClick={() => setIsAddDeductionDialogOpen(true)}
               >
                 + Add Deductions
               </Button>
@@ -610,6 +614,44 @@ export default function SalaryDetailsPage() {
                   12.0% Variable
                 </Label>
               </div>
+               {(pfOption === 'variable') && (
+                <div className="space-y-4 pl-8 pt-4">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="pf-variable-basic"
+                      checked={pfLimitBasic}
+                      onCheckedChange={(c) => setPfLimitBasic(!!c)}
+                      disabled
+                    />
+                    <Label
+                      htmlFor="pf-variable-basic"
+                      className="font-normal text-muted-foreground"
+                    >
+                      BASIC
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="pf-variable-incentive"
+                      checked={pfLimitIncentive}
+                      onCheckedChange={(c) => setPfLimitIncentive(!!c)}
+                    />
+                    <Label htmlFor="pf-variable-incentive" className="font-normal">
+                      Incentive
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="pf-variable-overtime"
+                      checked={pfLimitOvertime}
+                      onCheckedChange={(c) => setPfLimitOvertime(!!c)}
+                    />
+                    <Label htmlFor="pf-variable-overtime" className="font-normal">
+                      Overtime
+                    </Label>
+                  </div>
+                </div>
+              )}
             </div>
           </RadioGroup>
           <DialogFooter>
@@ -921,6 +963,27 @@ export default function SalaryDetailsPage() {
               Save
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isAddDeductionDialogOpen} onOpenChange={setIsAddDeductionDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+            <DialogHeader className="flex-row items-center justify-between">
+                <DialogTitle>Add Deductions</DialogTitle>
+                <Button variant="outline" size="sm">Add Custom</Button>
+            </DialogHeader>
+            <div className="py-12 text-center">
+                <p className="text-lg font-semibold">Please add custom items</p>
+                <p className="text-sm text-muted-foreground">Click on "Add Custom" Button</p>
+            </div>
+            <DialogFooter>
+                <Button
+                  onClick={() => setIsAddDeductionDialogOpen(false)}
+                  className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+                >
+                  Save
+                </Button>
+            </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
