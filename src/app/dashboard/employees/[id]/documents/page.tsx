@@ -96,10 +96,12 @@ export default function DocumentsPage() {
       getCameraPermission();
 
       return () => {
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach(track => track.stop());
-          streamRef.current = null;
+        // Safely capture the current stream and stop its tracks.
+        const currentStream = streamRef.current;
+        if (currentStream) {
+          currentStream.getTracks().forEach(track => track.stop());
         }
+        streamRef.current = null;
       };
     }
   }, [isCameraViewOpen]);
