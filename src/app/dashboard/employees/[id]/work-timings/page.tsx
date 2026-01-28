@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -73,8 +73,25 @@ export default function WorkTimingsPage() {
   
   const allWeeksInDialog = dialogWeeks.every(w => w);
 
+  useEffect(() => {
+    // This effect synchronizes the main "weekoff" checkbox with the individual week settings.
+    const newWeekoffs: Record<DayKey, boolean> = {} as Record<DayKey, boolean>;
+    
+    for (const dayKey in weekSettings) {
+      const key = dayKey as DayKey;
+      const allWeeksOff = weekSettings[key].every(w => w);
+      newWeekoffs[key] = allWeeksOff;
+    }
+
+    // Only update state if the derived state is different from the current state.
+    // This prevents an infinite loop.
+    if (JSON.stringify(weekoffs) !== JSON.stringify(newWeekoffs)) {
+        setWeekoffs(newWeekoffs);
+    }
+  }, [weekSettings, weekoffs]);
+
+
   const handleWeekoffChange = (day: DayKey, checked: boolean) => {
-    setWeekoffs(prev => ({ ...prev, [day]: checked }));
     setWeekSettings(prev => ({ ...prev, [day]: Array(5).fill(checked) }));
   };
 
@@ -97,28 +114,28 @@ export default function WorkTimingsPage() {
   const handleConfirmWeekOffs = () => {
     if (editingDay) {
       setWeekSettings(prev => ({...prev, [editingDay.key]: dialogWeeks }));
-      const allWeeksAreOff = dialogWeeks.every(w => w);
-      setWeekoffs(prev => ({...prev, [editingDay.key]: allWeeksAreOff }));
     }
     setIsShiftDialogOpen(false);
   }
 
   const getShiftText = (dayKey: DayKey) => {
-    if (weekoffs[dayKey]) {
+    const specificWeekOffs = weekSettings[dayKey];
+    const allWeeksAreOff = specificWeekOffs.every(w => w);
+    const noWeeksAreOff = specificWeekOffs.every(w => !w);
+
+    if (allWeeksAreOff) {
       if (dayKey === 'sat') return 'All saturdays week off';
       if (dayKey === 'sun') return 'All sundays week off';
       return 'Week off';
     }
-
-    const specificWeekOffs = weekSettings[dayKey];
-    const weekIndices = specificWeekOffs.map((isOff, i) => isOff ? i + 1 : -1).filter(i => i > -1);
-
-    if (weekIndices.length > 0 && weekIndices.length < 5) {
-        const ordinals: {[key: number]: string} = {1: 'st', 2: 'nd', 3: 'rd'};
-        return weekIndices.map(i => `${i}${ordinals[i] || 'th'}`).join(', ') + ` week off`;
+    
+    if (noWeeksAreOff) {
+        return 'Select Shift';
     }
 
-    return 'Select Shift';
+    const weekIndices = specificWeekOffs.map((isOff, i) => isOff ? i + 1 : -1).filter(i => i > -1);
+    const ordinals: {[key: number]: string} = {1: 'st', 2: 'nd', 3: 'rd'};
+    return weekIndices.map(i => `${i}${ordinals[i] || 'th'}`).join(', ') + ` week off`;
   };
 
   const daysInMonth = eachDayOfInterval({
@@ -196,7 +213,6 @@ export default function WorkTimingsPage() {
                       variant="outline"
                       className="w-full justify-start text-left font-normal"
                       onClick={() => handleShiftClick(day)}
-                      disabled={weekoffs[day.key]}
                     >
                       {getShiftText(day.key)}
                     </Button>
