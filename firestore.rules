@@ -17,14 +17,14 @@ service cloud.firestore {
 
     match /employees/{employeeId} {
       allow read, write: if isSignedIn();
+    }
 
-      match /attendance/{date} {
-        allow read, write: if isSignedIn();
-      }
+    match /employees/{employeeId}/attendance/{date} {
+      allow read, write: if isSignedIn();
+    }
 
-      match /documents/{documentId} {
-        allow read, write: if isSignedIn();
-      }
+    match /employees/{employeeId}/documents/{documentId} {
+      allow read, write: if isSignedIn();
     }
   }
 }
