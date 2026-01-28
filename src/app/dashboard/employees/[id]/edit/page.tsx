@@ -31,6 +31,8 @@ import { doc, DocumentReference } from 'firebase/firestore';
 import type { Employee } from '../../../data';
 import { format, parseISO, isValid } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Link from 'next/link';
 
 export default function PersonalDetailsPage() {
   const router = useRouter();
@@ -132,7 +134,7 @@ export default function PersonalDetailsPage() {
 
       setTimeout(() => {
         setIsSaving(false);
-        router.back();
+        router.push(`/dashboard/employees/${employeeId}`);
       }, 500);
     }
   };
@@ -152,12 +154,29 @@ export default function PersonalDetailsPage() {
       <div className="flex h-full flex-col">
         <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
           <div className='flex items-center'>
-            <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => router.back()}>
+            <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => router.push(`/dashboard/employees/${employeeId}`)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="ml-4 text-lg font-semibold">Personal Details</h1>
+            <h1 className="ml-4 text-lg font-semibold">Edit Employee</h1>
           </div>
         </header>
+
+        <Tabs defaultValue="personal" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 rounded-none bg-card">
+                <TabsTrigger value="personal" asChild className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                    <Link href={`/dashboard/employees/${employeeId}/edit`}>Personal</Link>
+                </TabsTrigger>
+                <TabsTrigger value="employment" asChild className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                    <Link href={`/dashboard/employees/${employeeId}/current-employment`}>Employment</Link>
+                </TabsTrigger>
+                <TabsTrigger value="salary" asChild className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                    <Link href={`/dashboard/employees/${employeeId}/salary-details`}>Salary</Link>
+                </TabsTrigger>
+                <TabsTrigger value="bank" asChild className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                    <Link href={`/dashboard/employees/${employeeId}/bank-details`}>Bank</Link>
+                </TabsTrigger>
+            </TabsList>
+        </Tabs>
 
         <form onSubmit={handleSaveDetails} className="flex flex-1 flex-col overflow-hidden">
           <main className="flex-1 overflow-y-auto p-6">
