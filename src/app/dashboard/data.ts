@@ -74,6 +74,7 @@ export type Employee = {
     sick: number;
     casual: number;
   };
+  notificationsEnabled?: boolean;
 };
 
 export type AttendanceStatus = 'ABSENT' | 'HALF DAY' | 'PRESENT' | 'WEEK OFF' | 'HOLIDAY' | 'PAID LEAVE' | 'HALF DAY LEAVE' | 'UNPAID LEAVE';

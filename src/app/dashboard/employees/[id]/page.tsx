@@ -100,12 +100,16 @@ export default function EmployeeDetailPage() {
   const [isPermissionSheetOpen, setIsPermissionSheetOpen] = useState(false);
   const [selectedPermission, setSelectedPermission] =
     useState<Employee['permission']>('Employee');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   useEffect(() => {
-    if (employee?.permission) {
-      setSelectedPermission(employee.permission);
+    if (employee) {
+      if (employee.permission) {
+        setSelectedPermission(employee.permission);
+      }
+      setNotificationsEnabled(employee.notificationsEnabled ?? true);
     }
-  }, [employee, isPermissionSheetOpen]);
+  }, [employee]);
 
   const handlePermissionSave = () => {
     if (!employeeRef || !employee) return;
@@ -115,6 +119,18 @@ export default function EmployeeDetailPage() {
       description: `${employee.name}'s permission has been set to ${selectedPermission}.`,
     });
     setIsPermissionSheetOpen(false);
+  };
+  
+  const handleNotificationToggle = (checked: boolean) => {
+    if (!employeeRef || !employee) return;
+    setNotificationsEnabled(checked);
+    updateDocumentNonBlocking(employeeRef, { notificationsEnabled: checked });
+    toast({
+      title: 'Notifications Updated',
+      description: `${employee.name} will ${
+        checked ? 'now' : 'no longer'
+      } receive notifications.`,
+    });
   };
   
   const permissionDescriptions: Record<string, string> = {
@@ -280,7 +296,10 @@ export default function EmployeeDetailPage() {
             <DetailRow icon={BookUser} label="Leave Balances &amp; Policy" onClick={() => router.push(`/dashboard/employees/${employeeId}/leave-balances-policy`)} />
             <DetailRow icon={FileText} label="Documents" onClick={() => router.push(`/dashboard/employees/${employeeId}/documents`)} />
             <DetailRow icon={Bell} label="Notifications">
-              <Switch defaultChecked />
+              <Switch
+                checked={notificationsEnabled}
+                onCheckedChange={handleNotificationToggle}
+              />
             </DetailRow>
             <DetailRow icon={Mail} label="Requests" />
             <DetailRow icon={Settings2} label="Additional Settings" />
