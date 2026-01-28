@@ -158,7 +158,7 @@ export default function BankDetailsPage() {
             </div>
           ) : (
              <div>
-                <Label htmlFor="upi-id">UPI ID</Label>
+                <Label htmlFor="upi-id">Staff UPI ID</Label>
                 <Input id="upi-id" placeholder="Enter UPI ID" className="mt-1" value={upiId} onChange={(e) => setUpiId(e.target.value)} required />
               </div>
           )}
