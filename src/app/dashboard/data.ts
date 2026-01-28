@@ -33,6 +33,7 @@ export type Employee = {
   uanNumber?: string;
   currentAddress?: string;
   permanentAddress?: string;
+  canViewOwnAttendance?: boolean;
   pastEmployment?: {
     companyName: string;
     designation: string;

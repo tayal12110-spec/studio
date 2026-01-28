@@ -163,6 +163,10 @@
           "type": "string",
           "description": "The employee's permanent address."
         },
+        "canViewOwnAttendance": {
+          "type": "boolean",
+          "description": "Indicates if the employee can view their own attendance."
+        },
         "pastEmployment": {
           "type": "object",
           "description": "Details of the employee's past employment.",
