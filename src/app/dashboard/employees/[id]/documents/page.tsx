@@ -49,6 +49,7 @@ export default function DocumentsPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const employeeRef = useMemoFirebase(
     () => (firestore && employeeId ? doc(firestore, 'employees', employeeId) : null),
@@ -71,40 +72,35 @@ export default function DocumentsPage() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (!isCameraViewOpen) {
-        if (videoRef.current && videoRef.current.srcObject) {
-            const stream = videoRef.current.srcObject as MediaStream;
-            stream.getTracks().forEach(track => track.stop());
+    if (isCameraViewOpen) {
+      const getCameraPermission = async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          streamRef.current = stream;
+          setHasCameraPermission(true);
+
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        } catch (error) {
+          console.error('Error accessing camera:', error);
+          setHasCameraPermission(false);
+          toast({
+            variant: 'destructive',
+            title: 'Camera Access Denied',
+            description: 'Please enable camera permissions in your browser settings to use this app.',
+          });
         }
-        return;
-    }
+      };
 
-    const getCameraPermission = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        setHasCameraPermission(true);
+      getCameraPermission();
 
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+      return () => {
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
         }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Access Denied',
-          description: 'Please enable camera permissions in your browser settings to use this app.',
-        });
-      }
-    };
-
-    getCameraPermission();
-
-    return () => {
-        if (videoRef.current && videoRef.current.srcObject) {
-            const stream = videoRef.current.srcObject as MediaStream;
-            stream.getTracks().forEach(track => track.stop());
-        }
+      };
     }
   }, [isCameraViewOpen, toast]);
 
