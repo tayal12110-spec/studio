@@ -551,13 +551,13 @@ export default function SalaryDetailsPage() {
                 <div className="space-y-4 pl-8 pt-4">
                   <div className="flex items-center space-x-3">
                     <Checkbox
-                      id="basic"
+                      id="pf-limit-basic"
                       checked={pfLimitBasic}
                       onCheckedChange={(c) => setPfLimitBasic(!!c)}
                       disabled
                     />
                     <Label
-                      htmlFor="basic"
+                      htmlFor="pf-limit-basic"
                       className="font-normal text-muted-foreground"
                     >
                       BASIC
@@ -565,21 +565,21 @@ export default function SalaryDetailsPage() {
                   </div>
                   <div className="flex items-center space-x-3">
                     <Checkbox
-                      id="incentive"
+                      id="pf-limit-incentive"
                       checked={pfLimitIncentive}
                       onCheckedChange={(c) => setPfLimitIncentive(!!c)}
                     />
-                    <Label htmlFor="incentive" className="font-normal">
+                    <Label htmlFor="pf-limit-incentive" className="font-normal">
                       Incentive
                     </Label>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Checkbox
-                      id="overtime"
+                      id="pf-limit-overtime"
                       checked={pfLimitOvertime}
                       onCheckedChange={(c) => setPfLimitOvertime(!!c)}
                     />
-                    <Label htmlFor="overtime" className="font-normal">
+                    <Label htmlFor="pf-limit-overtime" className="font-normal">
                       Overtime
                     </Label>
                   </div>
@@ -589,7 +589,10 @@ export default function SalaryDetailsPage() {
             <div>
               <div className="flex items-center space-x-3">
                 <RadioGroupItem value="variable" id="pf-variable" />
-                <Label htmlFor="pf-variable" className="text-base font-normal">
+                <Label
+                  htmlFor="pf-variable"
+                  className="text-base font-normal"
+                >
                   12.0% Variable
                 </Label>
               </div>
@@ -597,13 +600,13 @@ export default function SalaryDetailsPage() {
                 <div className="space-y-4 pl-8 pt-4">
                   <div className="flex items-center space-x-3">
                     <Checkbox
-                      id="basic-var"
+                      id="pf-variable-basic"
                       checked={pfLimitBasic}
                       onCheckedChange={(c) => setPfLimitBasic(!!c)}
                       disabled
                     />
                     <Label
-                      htmlFor="basic-var"
+                      htmlFor="pf-variable-basic"
                       className="font-normal text-muted-foreground"
                     >
                       BASIC
@@ -611,21 +614,21 @@ export default function SalaryDetailsPage() {
                   </div>
                   <div className="flex items-center space-x-3">
                     <Checkbox
-                      id="incentive-var"
+                      id="pf-variable-incentive"
                       checked={pfLimitIncentive}
                       onCheckedChange={(c) => setPfLimitIncentive(!!c)}
                     />
-                    <Label htmlFor="incentive-var" className="font-normal">
+                    <Label htmlFor="pf-variable-incentive" className="font-normal">
                       Incentive
                     </Label>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Checkbox
-                      id="overtime-var"
+                      id="pf-variable-overtime"
                       checked={pfLimitOvertime}
                       onCheckedChange={(c) => setPfLimitOvertime(!!c)}
                     />
-                    <Label htmlFor="overtime-var" className="font-normal">
+                    <Label htmlFor="pf-variable-overtime" className="font-normal">
                       Overtime
                     </Label>
                   </div>
