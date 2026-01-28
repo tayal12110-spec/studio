@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Plus, Loader2, FileText, MoreVertical, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -48,6 +48,7 @@ export default function DocumentsPage() {
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const employeeRef = useMemoFirebase(
     () => (firestore && employeeId ? doc(firestore, 'employees', employeeId) : null),
@@ -118,14 +119,48 @@ export default function DocumentsPage() {
     if (option === 'camera') {
         setIsCameraViewOpen(true);
     } else {
-        // In a real app, this would trigger the native file picker.
-        console.log(`Selected an upload option: ${option}`);
-        toast({
-            title: "Feature not implemented",
-            description: `Choosing from ${option} is not yet implemented.`,
-        });
+        if (fileInputRef.current) {
+            const accept = option === 'gallery' ? 'image/*' : 'application/pdf,image/*';
+            fileInputRef.current.accept = accept;
+            fileInputRef.current.click();
+        }
     }
   }
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && documentsColRef) {
+      const reader = new FileReader();
+      reader.onload = (loadEvent) => {
+        const fileUrl = loadEvent.target?.result as string;
+        
+        const newDocument: Omit<Document, 'id'> = {
+            employeeId: employeeId,
+            name: docType,
+            fileUrl: fileUrl,
+            createdAt: new Date().toISOString(),
+        };
+
+        addDocumentNonBlocking(documentsColRef, newDocument);
+
+        toast({
+            title: "Document Saved!",
+            description: `A new document "${docType}" has been saved.`,
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+         toast({
+            variant: 'destructive',
+            title: "Save failed",
+            description: "Could not save the document.",
+        });
+    }
+    // Reset file input
+    if (event.target) {
+        event.target.value = '';
+    }
+  };
 
   const handleCapture = () => {
     const video = videoRef.current;
@@ -263,6 +298,12 @@ export default function DocumentsPage() {
 
   return (
     <>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+      />
       <div className="flex h-full flex-col bg-slate-50 dark:bg-background">
         <header className="flex h-16 shrink-0 items-center border-b bg-primary px-4 text-primary-foreground">
           <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => router.back()} className="hover:bg-primary-foreground/10">
