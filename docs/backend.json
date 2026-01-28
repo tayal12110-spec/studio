@@ -215,6 +215,15 @@
         "upiId": {
           "type": "string",
           "description": "The UPI ID of the employee."
+        },
+        "permission": {
+          "type": "string",
+          "description": "The user role or permission level for the employee.",
+          "enum": [
+            "Employee",
+            "Attendance Manager",
+            "Branch Admin"
+          ]
         }
       },
       "required": [

@@ -48,6 +48,7 @@ export type Employee = {
   bankName?: string;
   ifscCode?: string;
   upiId?: string;
+  permission?: 'Employee' | 'Attendance Manager' | 'Branch Admin';
 };
 
 export type AttendanceStatus = 'ABSENT' | 'HALF DAY' | 'PRESENT' | 'WEEK OFF' | 'HOLIDAY' | 'PAID LEAVE' | 'HALF DAY LEAVE' | 'UNPAID LEAVE';

@@ -43,6 +43,7 @@ export default function AddEmployeePage() {
       baseSalary: Number(baseSalary),
       status: 'Active',
       avatar: staffName.charAt(0).toUpperCase() || 'N',
+      permission: 'Employee',
     };
     addEmployee(newEmployee);
     toast({
