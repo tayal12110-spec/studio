@@ -79,31 +79,35 @@ export default function WorkTimingsPage() {
   useEffect(() => {
     // This effect synchronizes the main "weekoff" checkbox with the individual week settings.
     if (workType !== 'fixed') return;
-    const newWeekoffs: Partial<Record<DayKey, boolean>> = {};
+
+    const newWeekSettings = { ...weekSettings };
     let changed = false;
-    
-    for (const dayKey in weekSettings) {
-      const key = dayKey as DayKey;
-      const allWeeksOff = weekSettings[key].every(w => w);
-      if (weekoffs[key] !== allWeeksOff) {
-          newWeekoffs[key] = allWeeksOff;
-          changed = true;
-      }
+
+    for (const dayKey in weekoffs) {
+        const key = dayKey as DayKey;
+        const allWeeksOff = weekSettings[key].every(w => w);
+        if (weekoffs[key] && !allWeeksOff) {
+            newWeekSettings[key] = Array(5).fill(true);
+            changed = true;
+        } else if (!weekoffs[key] && allWeeksOff) {
+            newWeekSettings[key] = Array(5).fill(false);
+            changed = true;
+        }
     }
 
     if (changed) {
-        setWeekoffs(prev => ({...prev, ...newWeekoffs}));
+        setWeekSettings(newWeekSettings);
     }
-  }, [weekSettings, workType, weekoffs]);
+  }, [weekoffs, weekSettings, workType]);
 
 
   const handleWeekoffChange = (day: DayKey, checked: boolean) => {
-    setWeekSettings(prev => ({ ...prev, [day]: Array(5).fill(checked) }));
+      setWeekoffs(prev => ({...prev, [day]: checked}));
   };
 
   const handleShiftClick = (day: { key: DayKey; label: string; fullName: string; }) => {
     setEditingDay(day);
-    setDialogWeeks(weekSettings[day.key]);
+    setDialogWeeks([...weekSettings[day.key]]);
     setIsShiftDialogOpen(true);
   };
   
@@ -119,7 +123,13 @@ export default function WorkTimingsPage() {
 
   const handleConfirmWeekOffs = () => {
     if (editingDay) {
-      setWeekSettings(prev => ({...prev, [editingDay.key]: dialogWeeks }));
+        const newWeekSettings = {...weekSettings, [editingDay.key]: dialogWeeks };
+        setWeekSettings(newWeekSettings);
+
+        const allAreOff = dialogWeeks.every(w => w);
+        if (weekoffs[editingDay.key] !== allAreOff) {
+            setWeekoffs(prev => ({...prev, [editingDay.key]: allAreOff}));
+        }
     }
     setIsShiftDialogOpen(false);
   }
@@ -277,6 +287,7 @@ export default function WorkTimingsPage() {
                                 value={isWeekoff ? 'Week off' : ''}
                                 readOnly
                                 disabled={isWeekoff}
+                                className={cn(isWeekoff && 'text-destructive font-semibold disabled:opacity-100')}
                             />
                         </div>
                     )
