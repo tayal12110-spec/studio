@@ -84,6 +84,10 @@ export default function SalaryDetailsPage() {
   const [currentEmployerPfOption, setCurrentEmployerPfOption] =
     useState<ContributionOption>('none');
   const [employerPfLabel, setEmployerPfLabel] = useState('Not Selected');
+  const [employerPfLimitBasic, setEmployerPfLimitBasic] = useState(true);
+  const [employerPfLimitIncentive, setEmployerPfLimitIncentive] = useState(false);
+  const [employerPfLimitOvertime, setEmployerPfLimitOvertime] = useState(false);
+
 
   // Employer ESI State
   const [isEsiDialogOpen, setIsEsiDialogOpen] = useState(false);
@@ -597,42 +601,42 @@ export default function SalaryDetailsPage() {
                 </Label>
               </div>
               {pfOption === 'variable' && (
-                <div className="space-y-4 pl-8 pt-4">
-                  <div className="flex items-center space-x-3">
-                    <Checkbox
-                      id="pf-variable-basic"
-                      checked={pfLimitBasic}
-                      onCheckedChange={(c) => setPfLimitBasic(!!c)}
-                      disabled
-                    />
-                    <Label
-                      htmlFor="pf-variable-basic"
-                      className="font-normal text-muted-foreground"
-                    >
-                      BASIC
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Checkbox
-                      id="pf-variable-incentive"
-                      checked={pfLimitIncentive}
-                      onCheckedChange={(c) => setPfLimitIncentive(!!c)}
-                    />
-                    <Label htmlFor="pf-variable-incentive" className="font-normal">
-                      Incentive
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Checkbox
-                      id="pf-variable-overtime"
-                      checked={pfLimitOvertime}
-                      onCheckedChange={(c) => setPfLimitOvertime(!!c)}
-                    />
-                    <Label htmlFor="pf-variable-overtime" className="font-normal">
-                      Overtime
-                    </Label>
-                  </div>
-                </div>
+                 <div className="space-y-4 pl-8 pt-4">
+                 <div className="flex items-center space-x-3">
+                   <Checkbox
+                     id="pf-variable-basic"
+                     checked={pfLimitBasic}
+                     onCheckedChange={(c) => setPfLimitBasic(!!c)}
+                     disabled
+                   />
+                   <Label
+                     htmlFor="pf-variable-basic"
+                     className="font-normal text-muted-foreground"
+                   >
+                     BASIC
+                   </Label>
+                 </div>
+                 <div className="flex items-center space-x-3">
+                   <Checkbox
+                     id="pf-variable-incentive"
+                     checked={pfLimitIncentive}
+                     onCheckedChange={(c) => setPfLimitIncentive(!!c)}
+                   />
+                   <Label htmlFor="pf-variable-incentive" className="font-normal">
+                     Incentive
+                   </Label>
+                 </div>
+                 <div className="flex items-center space-x-3">
+                   <Checkbox
+                     id="pf-variable-overtime"
+                     checked={pfLimitOvertime}
+                     onCheckedChange={(c) => setPfLimitOvertime(!!c)}
+                   />
+                   <Label htmlFor="pf-variable-overtime" className="font-normal">
+                     Overtime
+                   </Label>
+                 </div>
+               </div>
               )}
             </div>
           </RadioGroup>
@@ -647,14 +651,89 @@ export default function SalaryDetailsPage() {
         </DialogContent>
       </Dialog>
 
-      {renderContributionDialog(
-        isEmployerPfDialogOpen,
-        setIsEmployerPfDialogOpen,
-        'Manage Employer PF',
-        employerPfOption,
-        setEmployerPfOption,
-        handleEmployerPfSave
-      )}
+      <Dialog open={isEmployerPfDialogOpen} onOpenChange={setIsEmployerPfDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manage Employer PF</DialogTitle>
+          </DialogHeader>
+          <RadioGroup
+            value={employerPfOption}
+            onValueChange={(val) => setEmployerPfOption(val as ContributionOption)}
+            className="space-y-3 py-4"
+          >
+            <div className="flex items-center space-x-3">
+              <RadioGroupItem value="none" id="employer-pf-none" />
+              <Label htmlFor="employer-pf-none" className="text-base font-normal">
+                None
+              </Label>
+            </div>
+            <div>
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="limit" id="employer-pf-limit" />
+                <Label htmlFor="employer-pf-limit" className="text-base font-normal">
+                  ₹1800 Limit
+                </Label>
+              </div>
+              {employerPfOption === 'limit' && (
+                <div className="space-y-4 pl-8 pt-4">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="employer-pf-limit-basic"
+                      checked={employerPfLimitBasic}
+                      onCheckedChange={(c) => setEmployerPfLimitBasic(!!c)}
+                      disabled
+                    />
+                    <Label
+                      htmlFor="employer-pf-limit-basic"
+                      className="font-normal text-muted-foreground"
+                    >
+                      BASIC
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="employer-pf-limit-incentive"
+                      checked={employerPfLimitIncentive}
+                      onCheckedChange={(c) => setEmployerPfLimitIncentive(!!c)}
+                    />
+                    <Label htmlFor="employer-pf-limit-incentive" className="font-normal">
+                      Incentive
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="employer-pf-limit-overtime"
+                      checked={employerPfLimitOvertime}
+                      onCheckedChange={(c) => setEmployerPfLimitOvertime(!!c)}
+                    />
+                    <Label htmlFor="employer-pf-limit-overtime" className="font-normal">
+                      Overtime
+                    </Label>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center space-x-3">
+              <RadioGroupItem value="variable" id="employer-pf-variable" />
+              <Label
+                htmlFor="employer-pf-variable"
+                className="text-base font-normal"
+              >
+                12.0% Variable
+              </Label>
+            </div>
+          </RadioGroup>
+          <DialogFooter>
+            <Button
+              onClick={handleEmployerPfSave}
+              className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <Dialog open={isEsiDialogOpen} onOpenChange={setIsEsiDialogOpen}>
         <DialogContent className="sm:max-w-md">
