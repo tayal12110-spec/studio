@@ -269,11 +269,15 @@ export default function EmployeeDetailPage() {
                 {employee.permission || 'Employee'}
               </span>
             </DetailRow>
-            <DetailRow icon={Clock} label="Penalty & Overtime" />
+            <DetailRow 
+              icon={Clock} 
+              label="Penalty &amp; Overtime"
+              onClick={() => router.push(`/dashboard/employees/${employeeId}/penalty-overtime`)}
+            />
           </div>
 
           <div className="space-y-2 px-4">
-            <DetailRow icon={BookUser} label="Leave Balances & Policy" />
+            <DetailRow icon={BookUser} label="Leave Balances &amp; Policy" />
             <DetailRow icon={FileText} label="Documents" />
             <DetailRow icon={Bell} label="Notifications">
               <Switch defaultChecked />

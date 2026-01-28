@@ -49,6 +49,26 @@ export type Employee = {
   ifscCode?: string;
   upiId?: string;
   permission?: 'Employee' | 'Attendance Manager' | 'Branch Admin';
+  penaltyAndOvertime?: {
+    lateComing?: {
+      allowedDays?: number;
+      gracePeriod?: string;
+      deductionType?: 'day' | 'hour';
+      deductionRate?: number;
+    };
+    earlyLeaving?: {
+      allowedDays?: number;
+      gracePeriod?: string;
+      deductionType?: 'day' | 'hour';
+      deductionRate?: number;
+    };
+    overtime?: {
+      weekOffPay?: string;
+      publicHolidayPay?: string;
+      extraHoursPay?: string;
+      gracePeriod?: string;
+    };
+  };
 };
 
 export type AttendanceStatus = 'ABSENT' | 'HALF DAY' | 'PRESENT' | 'WEEK OFF' | 'HOLIDAY' | 'PAID LEAVE' | 'HALF DAY LEAVE' | 'UNPAID LEAVE';

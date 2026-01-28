@@ -224,6 +224,71 @@
             "Attendance Manager",
             "Branch Admin"
           ]
+        },
+        "penaltyAndOvertime": {
+          "type": "object",
+          "description": "Settings for penalties and overtime.",
+          "properties": {
+            "lateComing": {
+              "type": "object",
+              "properties": {
+                "allowedDays": {
+                  "type": "number"
+                },
+                "gracePeriod": {
+                  "type": "string"
+                },
+                "deductionType": {
+                  "type": "string",
+                  "enum": [
+                    "day",
+                    "hour"
+                  ]
+                },
+                "deductionRate": {
+                  "type": "number"
+                }
+              }
+            },
+            "earlyLeaving": {
+              "type": "object",
+              "properties": {
+                "allowedDays": {
+                  "type": "number"
+                },
+                "gracePeriod": {
+                  "type": "string"
+                },
+                "deductionType": {
+                  "type": "string",
+                  "enum": [
+                    "day",
+                    "hour"
+                  ]
+                },
+                "deductionRate": {
+                  "type": "number"
+                }
+              }
+            },
+            "overtime": {
+              "type": "object",
+              "properties": {
+                "weekOffPay": {
+                  "type": "string"
+                },
+                "publicHolidayPay": {
+                  "type": "string"
+                },
+                "extraHoursPay": {
+                  "type": "string"
+                },
+                "gracePeriod": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
       },
       "required": [
