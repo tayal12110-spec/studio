@@ -196,10 +196,12 @@ export default function EmployeeDetailPage() {
               router.push(`/dashboard/employees/${employeeId}/salary-details`)
             }
           />
-          <DetailRow icon={Landmark} label="Bank Details">
-            <Badge variant="destructive" className="bg-red-100 text-red-700">
-              Not Verified
-            </Badge>
+          <DetailRow icon={Landmark} label="Bank Details" onClick={() => router.push(`/dashboard/employees/${employeeId}/bank-details`)}>
+            {!(employee.accountNumber || employee.upiId) && (
+              <Badge variant="destructive" className="bg-red-100 text-red-700">
+                Not Added
+              </Badge>
+            )}
           </DetailRow>
           <DetailRow icon={UserCog} label="User Permission">
             <span className="text-sm text-muted-foreground">Employee</span>

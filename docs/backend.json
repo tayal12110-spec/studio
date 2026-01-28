@@ -195,6 +195,26 @@
               "type": "string"
             }
           }
+        },
+        "accountHolderName": {
+          "type": "string",
+          "description": "The name of the bank account holder."
+        },
+        "accountNumber": {
+          "type": "string",
+          "description": "The bank account number."
+        },
+        "bankName": {
+          "type": "string",
+          "description": "The name of the bank."
+        },
+        "ifscCode": {
+          "type": "string",
+          "description": "The IFSC code of the bank branch."
+        },
+        "upiId": {
+          "type": "string",
+          "description": "The UPI ID of the employee."
         }
       },
       "required": [
