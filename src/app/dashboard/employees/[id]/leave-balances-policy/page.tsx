@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,6 +29,8 @@ const DetailRow = ({
 
 export default function LeaveBalancesPolicyPage() {
   const router = useRouter();
+  const params = useParams();
+  const employeeId = params.id as string;
 
   return (
     <div className="flex h-full flex-col bg-slate-50 dark:bg-gray-950">
@@ -44,7 +46,7 @@ export default function LeaveBalancesPolicyPage() {
           <DetailRow
             label="Leave Balances"
             onClick={() => {
-              // Placeholder for future navigation
+              router.push(`/dashboard/employees/${employeeId}/leave-balances`);
             }}
           />
           <DetailRow
