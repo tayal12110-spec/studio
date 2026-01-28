@@ -62,9 +62,9 @@ export default function SalaryDetailsPage() {
 
   // State for PF Dialog
   const [isPfDialogOpen, setIsPfDialogOpen] = useState(false);
-  const [pfOption, setPfOption] = useState('variable'); // 'none', 'limit', 'variable'
-  const [currentPfOption, setCurrentPfOption] = useState('variable');
-  const [pfLabel, setPfLabel] = useState('12.0% Variable');
+  const [pfOption, setPfOption] = useState<'none' | 'limit' | 'variable'>('none');
+  const [currentPfOption, setCurrentPfOption] = useState<'none' | 'limit' | 'variable'>('none');
+  const [pfLabel, setPfLabel] = useState('Not Selected');
 
   const pfAmount = useMemo(() => {
     const salary = parseFloat(basicSalary) || 0;
@@ -84,8 +84,6 @@ export default function SalaryDetailsPage() {
       newLabel = '₹1800 Limit';
     } else if (pfOption === 'variable') {
       newLabel = '12.0% Variable';
-    } else {
-      newLabel = 'None';
     }
 
     setCurrentPfOption(pfOption);
@@ -403,7 +401,7 @@ export default function SalaryDetailsPage() {
           </DialogHeader>
           <RadioGroup
             value={pfOption}
-            onValueChange={setPfOption}
+            onValueChange={(value) => setPfOption(value as 'none' | 'limit' | 'variable')}
             className="space-y-3 py-4"
           >
             <div className="flex items-center space-x-3">
