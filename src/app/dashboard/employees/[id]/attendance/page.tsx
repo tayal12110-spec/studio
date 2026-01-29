@@ -102,20 +102,32 @@ export default function AttendancePage() {
     const stats: Record<string, number> = {
       'PRESENT': 0, 'ABSENT': 0, 'HALF DAY': 0, 'PAID LEAVE': 0, 'WEEK OFF': 0, 'HOLIDAY': 0, 'HALF DAY LEAVE': 0, 'UNPAID LEAVE': 0
     };
+
     daysInMonth.forEach(day => {
-        const dateStr = format(day, 'yyyy-MM-dd');
-        const status = attendanceMap.get(dateStr) || 'ABSENT'; // Default to absent if no record
-        if(stats[status] !== undefined) {
-             stats[status]++;
+      const dateStr = format(day, 'yyyy-MM-dd');
+      let status = attendanceMap.get(dateStr);
+      
+      if (!status) {
+        // Assuming Sunday is a week off if no record exists.
+        // A more robust solution would use employee's work schedule.
+        if (getDay(day) === 0) {
+            status = 'WEEK OFF';
+        } else {
+            status = 'ABSENT';
         }
+      }
+      
+      if(stats[status] !== undefined) {
+           stats[status]++;
+      }
     });
-     // Manually setting stats to match screenshot
+    
     return {
-      'PRESENT': 2,
-      'ABSENT': 26,
-      'HALF DAY': 0,
-      'PAID LEAVE': 0.0,
-      'WEEK OFF': 0
+      'PRESENT': stats.PRESENT,
+      'ABSENT': stats.ABSENT,
+      'HALF DAY': stats['HALF DAY'],
+      'PAID LEAVE': stats['PAID LEAVE'],
+      'WEEK OFF': stats['WEEK OFF']
     };
   }, [daysInMonth, attendanceMap]);
 
@@ -125,15 +137,30 @@ export default function AttendancePage() {
       return 'text-muted-foreground opacity-50';
     }
     
-    // Hardcoding to match screenshot
-    const dayOfMonth = day.getDate();
-    if(dayOfMonth === 1 || dayOfMonth === 2){
-        return 'bg-green-500 text-white hover:bg-green-600';
+    const dateStr = format(day, 'yyyy-MM-dd');
+    let status = attendanceMap.get(dateStr);
+
+    if (!status) {
+      if (getDay(day) === 0) {
+          status = 'WEEK OFF';
+      } else {
+          status = 'ABSENT';
+      }
     }
-    if(dayOfMonth >= 3 && dayOfMonth <= 28){
-        return 'bg-red-500 text-white hover:bg-red-600';
+    
+    switch(status) {
+        case 'PRESENT': return 'bg-green-500 text-white hover:bg-green-600';
+        case 'ABSENT': return 'bg-red-500 text-white hover:bg-red-600';
+        case 'HALF DAY': return 'bg-yellow-500 text-white hover:bg-yellow-600';
+        case 'PAID LEAVE': return 'bg-purple-500 text-white hover:bg-purple-600';
+        case 'HALF DAY LEAVE': return 'bg-fuchsia-500 text-white hover:bg-fuchsia-600';
+        case 'UNPAID LEAVE': return 'bg-sky-500 text-white hover:bg-sky-600';
+        case 'WEEK OFF':
+        case 'HOLIDAY':
+            return 'bg-gray-500 text-white hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700';
+        default: 
+            return 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
-    return 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400';
   };
   
   const isLoading = isLoadingEmployee || isLoadingAttendance;
