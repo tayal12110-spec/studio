@@ -1,10 +1,11 @@
 'use client';
 
-import { DashboardHeader } from '@/components/dashboard/header';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Check } from 'lucide-react';
+
 
 const plans = [
     {
@@ -33,6 +34,7 @@ const plans = [
 
 export default function SubscriptionPage() {
     const { toast } = useToast();
+    const router = useRouter();
 
     const handleChoosePlan = (planName: string) => {
         toast({
@@ -44,7 +46,12 @@ export default function SubscriptionPage() {
 
     return (
     <div className="flex flex-col">
-      <DashboardHeader title="Settings" />
+       <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
+        <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => router.back()}>
+            <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="ml-4 text-lg font-semibold">Subscriptions & Billing</h1>
+      </header>
       <main className="flex-1 p-4 md:p-6">
         <div className="text-center mb-12">
             <h2 className="font-headline text-3xl font-bold tracking-tight">Simple, Transparent Pricing</h2>

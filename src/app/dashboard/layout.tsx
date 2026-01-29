@@ -13,7 +13,7 @@ const navItems = [
     label: 'Home',
   },
   {
-    href: '/dashboard/subscription',
+    href: '/dashboard/settings',
     icon: Settings,
     label: 'Settings',
   },
@@ -35,7 +35,7 @@ export default function DashboardLayout({
             {navItems.map((item) => {
               const isActive =
                 item.href === '/dashboard'
-                  ? pathname === item.href
+                  ? pathname === item.href || (item.href === '/dashboard' && pathname === '/dashboard/settings')
                   : pathname.startsWith(item.href);
               return (
                 <Link
