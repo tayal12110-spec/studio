@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Handshake, Settings, Users } from 'lucide-react';
+import { Home, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EmployeeProvider } from './employee-context';
 
@@ -13,19 +13,9 @@ const navItems = [
     label: 'Home',
   },
   {
-    href: '/dashboard/employees',
-    icon: Users,
-    label: 'Employees',
-  },
-  {
-    href: '/dashboard/reports',
-    icon: Handshake,
-    label: 'Payroll',
-  },
-  {
     href: '/dashboard/subscription',
     icon: Settings,
-    label: 'More',
+    label: 'Settings',
   },
 ];
 
@@ -41,7 +31,7 @@ export default function DashboardLayout({
       <div className="flex min-h-screen flex-col bg-background">
         <main className="flex-1 pb-20">{children}</main>
         <footer className="fixed bottom-0 z-10 w-full border-t bg-card">
-          <nav className="grid grid-cols-4">
+          <nav className="grid grid-cols-2">
             {navItems.map((item) => {
               const isActive =
                 item.href === '/dashboard'

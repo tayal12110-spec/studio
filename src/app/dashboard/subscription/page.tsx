@@ -44,7 +44,7 @@ export default function SubscriptionPage() {
 
     return (
     <div className="flex flex-col">
-      <DashboardHeader title="Subscription" />
+      <DashboardHeader title="Settings" />
       <main className="flex-1 p-4 md:p-6">
         <div className="text-center mb-12">
             <h2 className="font-headline text-3xl font-bold tracking-tight">Simple, Transparent Pricing</h2>
