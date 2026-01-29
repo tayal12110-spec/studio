@@ -6,11 +6,14 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { format, parse, isValid } from 'date-fns';
+import Link from 'next/link';
 
 export default function PayAdvancePage() {
   const router = useRouter();
+  const params = useParams();
   const searchParams = useSearchParams();
   const monthStr = searchParams.get('month');
+  const employeeId = params.id;
   
   const month = monthStr && isValid(parse(monthStr, 'yyyy-MM', new Date())) 
     ? parse(monthStr, 'yyyy-MM', new Date()) 
@@ -46,8 +49,10 @@ export default function PayAdvancePage() {
             />
           )}
           <h2 className="text-xl font-semibold">No Advance Added</h2>
-          <Button className="h-12 px-6 text-base bg-accent text-accent-foreground hover:bg-accent/90">
-            <Plus className="mr-2 h-5 w-5" /> Pay Advance
+          <Button asChild className="h-12 px-6 text-base bg-accent text-accent-foreground hover:bg-accent/90">
+            <Link href={`/dashboard/employees/${employeeId}/pay-advance/add?month=${monthStr || ''}`}>
+                <Plus className="mr-2 h-5 w-5" /> Pay Advance
+            </Link>
           </Button>
         </div>
       </main>
