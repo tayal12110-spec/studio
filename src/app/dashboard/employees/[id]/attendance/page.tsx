@@ -11,6 +11,8 @@ import {
   UserCheck,
   MapPin,
   Info,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -40,6 +42,8 @@ import {
   getDay,
   isSameDay,
   isSameMonth,
+  addMonths,
+  subMonths
 } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
@@ -51,6 +55,14 @@ const StatCard = ({ label, value, color }: { label: string; value: string | numb
   </div>
 );
 
+const SalaryDetailRow = ({ label, value }: { label: string; value: number }) => (
+    <div className="flex items-center justify-between px-4 py-3.5">
+        <p className="text-base text-muted-foreground">{label}</p>
+        <p className="font-semibold text-base">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value)}</p>
+    </div>
+);
+
+
 export default function AttendancePage() {
   const router = useRouter();
   const params = useParams();
@@ -58,6 +70,7 @@ export default function AttendancePage() {
   const firestore = useFirestore();
 
   const [month, setMonth] = useState(new Date(2026, 0)); // Jan 2026
+  const [activeTab, setActiveTab] = useState('attendance');
 
   const employeeRef = useMemoFirebase(
     () => (firestore && employeeId ? doc(firestore, 'employees', employeeId) : null),
@@ -108,8 +121,6 @@ export default function AttendancePage() {
       let status = attendanceMap.get(dateStr);
       
       if (!status) {
-        // Assuming Sunday is a week off if no record exists.
-        // A more robust solution would use employee's work schedule.
         if (getDay(day) === 0) {
             status = 'WEEK OFF';
         } else {
@@ -162,6 +173,34 @@ export default function AttendancePage() {
             return 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
+
+  const salaryDetails = {
+    payableAmount: 632.26,
+    payableDays: 2.0,
+    earnings: {
+        total: 632.26,
+        basic: 632.26,
+        bonus: 0,
+        other: 0,
+        workBasis: 0,
+        overtime: 0,
+        incentive: 0,
+        reimbursement: 0
+    },
+    deductions: {
+        total: 0,
+        loan: 0,
+        earlyLeaving: 0,
+        lateComing: 0,
+        other: 0
+    },
+    paidAmount: 0,
+    remainingAmount: 632.26,
+  };
+
+  const changeMonth = (offset: number) => {
+      setMonth(currentMonth => offset > 0 ? addMonths(currentMonth, 1) : subMonths(currentMonth, 1));
+  };
   
   const isLoading = isLoadingEmployee || isLoadingAttendance;
 
@@ -186,7 +225,7 @@ export default function AttendancePage() {
       </header>
 
       <main className="flex-1 pb-20">
-        <Tabs defaultValue="attendance" className="w-full">
+        <Tabs defaultValue="attendance" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 rounded-none">
             <TabsTrigger value="attendance">ATTENDANCE</TabsTrigger>
             <TabsTrigger value="salary">SALARY</TabsTrigger>
@@ -266,13 +305,96 @@ export default function AttendancePage() {
 
             </div>
           </TabsContent>
+          <TabsContent value="salary" className="m-0 p-4 space-y-4">
+            <div className="flex items-center justify-between rounded-lg border bg-card p-3">
+                <Button variant="ghost" size="icon" onClick={() => changeMonth(-1)}>
+                    <ChevronLeft className="h-5 w-5" />
+                </Button>
+                <div className="flex items-center gap-2 text-lg font-semibold">
+                    <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+                    <span>{format(month, 'MMM yyyy')}</span>
+                </div>
+                    <Button variant="ghost" size="icon" onClick={() => changeMonth(1)}>
+                    <ChevronRight className="h-5 w-5" />
+                </Button>
+            </div>
+            
+            <div className="space-y-3 p-2">
+                <div className="flex justify-between items-center">
+                    <p className="text-lg">Payable Amount</p>
+                    <p className="text-xl font-bold">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(salaryDetails.payableAmount)}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-1 text-muted-foreground">
+                        <p>Payable Days - {salaryDetails.payableDays.toFixed(1)}</p>
+                        <Info className="h-4 w-4" />
+                    </div>
+                    <Button variant="outline" size="sm">
+                        <Download className="h-4 w-4 mr-2" />
+                        Pay Slip
+                    </Button>
+                </div>
+            </div>
+
+            <div className="rounded-lg border bg-card overflow-hidden">
+                <div className="flex justify-between items-center p-3 bg-green-100/60 dark:bg-green-900/20">
+                    <p className="font-semibold text-green-700 dark:text-green-300">Earnings</p>
+                    <p className="font-semibold text-green-700 dark:text-green-300">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(salaryDetails.earnings.total)}</p>
+                </div>
+                <SalaryDetailRow label="Basic" value={salaryDetails.earnings.basic} />
+                <SalaryDetailRow label="Bonus" value={salaryDetails.earnings.bonus} />
+                <SalaryDetailRow label="Other Earnings" value={salaryDetails.earnings.other} />
+                <SalaryDetailRow label="Work Basis Pay" value={salaryDetails.earnings.workBasis} />
+                <SalaryDetailRow label="Overtime" value={salaryDetails.earnings.overtime} />
+                <SalaryDetailRow label="Incentive" value={salaryDetails.earnings.incentive} />
+                <SalaryDetailRow label="Reimbursement" value={salaryDetails.earnings.reimbursement} />
+            </div>
+            
+            <div className="rounded-lg border bg-card overflow-hidden">
+                <div className="flex justify-between items-center p-3 bg-red-100/60 dark:bg-red-900/20">
+                    <p className="font-semibold text-red-700 dark:text-red-300">Deduction</p>
+                    <p className="font-semibold text-red-700 dark:text-red-300">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(salaryDetails.deductions.total)}</p>
+                </div>
+                <SalaryDetailRow label="Loan Repayment" value={salaryDetails.deductions.loan} />
+                <SalaryDetailRow label="Early Leaving Fine" value={salaryDetails.deductions.earlyLeaving} />
+                <SalaryDetailRow label="Late Coming Fine" value={salaryDetails.deductions.lateComing} />
+                <SalaryDetailRow label="Other Deductions" value={salaryDetails.deductions.other} />
+            </div>
+
+            <div className="pt-4">
+                    <div className="flex justify-between items-center px-2">
+                    <p className="text-lg font-semibold">Paid Amount</p>
+                    <p className="text-lg font-bold">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(salaryDetails.paidAmount)}</p>
+                </div>
+                <p className="text-center text-muted-foreground text-sm py-8">No payments done yet</p>
+            </div>
+          </TabsContent>
+          <TabsContent value="notes" className="p-4">
+             <div className="text-center py-20 text-muted-foreground">
+                No notes found.
+             </div>
+          </TabsContent>
         </Tabs>
       </main>
+      {activeTab === 'attendance' && (
        <footer className="sticky bottom-0 border-t bg-card p-4">
         <Button className="w-full h-12 text-base" variant="outline">
           Ask Staff To Mark Attendance
         </Button>
       </footer>
+      )}
+      {activeTab === 'salary' && (
+        <footer className="sticky bottom-0 border-t bg-card p-4 flex items-center justify-between gap-4">
+            <div>
+                <p className="text-sm text-muted-foreground">Remaining Amount</p>
+                <p className="text-lg font-bold">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(salaryDetails.remainingAmount)}</p>
+            </div>
+            <div className="flex gap-2">
+                <Button variant="outline" className="h-12 px-6">Pay Advance</Button>
+                <Button className="h-12 px-8 bg-accent text-accent-foreground hover:bg-accent/90">Pay Salary</Button>
+            </div>
+        </footer>
+      )}
     </div>
   );
 }
