@@ -112,7 +112,7 @@ export default function AttendancePage() {
   }, [attendanceData]);
 
   const summary = useMemo(() => {
-    const stats: Record<string, number> = {
+    const stats: Record<AttendanceStatus, number> = {
       'PRESENT': 0, 'ABSENT': 0, 'HALF DAY': 0, 'PAID LEAVE': 0, 'WEEK OFF': 0, 'HOLIDAY': 0, 'HALF DAY LEAVE': 0, 'UNPAID LEAVE': 0
     };
 
@@ -133,14 +133,50 @@ export default function AttendancePage() {
       }
     });
     
-    return {
-      'PRESENT': stats.PRESENT,
-      'ABSENT': stats.ABSENT,
-      'HALF DAY': stats['HALF DAY'],
-      'PAID LEAVE': stats['PAID LEAVE'],
-      'WEEK OFF': stats['WEEK OFF']
-    };
+    return stats;
   }, [daysInMonth, attendanceMap]);
+
+  const salaryDetails = useMemo(() => {
+    if (!employee) {
+      return {
+        payableAmount: 0,
+        payableDays: 0,
+        earnings: { total: 0, basic: 0, bonus: 0, other: 0, workBasis: 0, overtime: 0, incentive: 0, reimbursement: 0 },
+        deductions: { total: 0, loan: 0, earlyLeaving: 0, lateComing: 0, other: 0 },
+        paidAmount: 0,
+        remainingAmount: 0,
+      };
+    }
+
+    const payableDays = summary.PRESENT + (summary['HALF DAY'] * 0.5) + summary['PAID LEAVE'] + (summary['HALF DAY LEAVE'] * 0.5);
+    const numberOfDaysInMonth = daysInMonth.length > 0 ? daysInMonth.length : 30;
+    const dailySalary = employee.baseSalary / numberOfDaysInMonth;
+    const payableAmount = dailySalary * payableDays;
+    
+    return {
+      payableAmount,
+      payableDays,
+      earnings: {
+        total: payableAmount,
+        basic: payableAmount,
+        bonus: 0,
+        other: 0,
+        workBasis: 0,
+        overtime: 0,
+        incentive: 0,
+        reimbursement: 0
+      },
+      deductions: {
+        total: 0,
+        loan: 0,
+        earlyLeaving: 0,
+        lateComing: 0,
+        other: 0
+      },
+      paidAmount: 0,
+      remainingAmount: payableAmount,
+    };
+  }, [employee, summary, daysInMonth.length]);
 
 
   const getDayClass = (day: Date) => {
@@ -172,30 +208,6 @@ export default function AttendancePage() {
         default: 
             return 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
-  };
-
-  const salaryDetails = {
-    payableAmount: 632.26,
-    payableDays: 2.0,
-    earnings: {
-        total: 632.26,
-        basic: 632.26,
-        bonus: 0,
-        other: 0,
-        workBasis: 0,
-        overtime: 0,
-        incentive: 0,
-        reimbursement: 0
-    },
-    deductions: {
-        total: 0,
-        loan: 0,
-        earlyLeaving: 0,
-        lateComing: 0,
-        other: 0
-    },
-    paidAmount: 0,
-    remainingAmount: 632.26,
   };
 
   const changeMonth = (offset: number) => {
