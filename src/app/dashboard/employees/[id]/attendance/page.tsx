@@ -23,7 +23,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { useDoc, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { useDoc, useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import {
   doc,
   collection,
@@ -47,6 +47,18 @@ import {
 } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 const StatCard = ({ label, value, color }: { label: string; value: string | number; color: string }) => (
   <div className={`flex-1 text-center border-r last:border-r-0 ${color} py-2`}>
@@ -68,6 +80,7 @@ export default function AttendancePage() {
   const params = useParams();
   const employeeId = params.id as string;
   const firestore = useFirestore();
+  const { toast } = useToast();
 
   const [month, setMonth] = useState(new Date(2026, 0)); // Jan 2026
   const [activeTab, setActiveTab] = useState('attendance');
@@ -178,6 +191,50 @@ export default function AttendancePage() {
     };
   }, [employee, summary, daysInMonth.length]);
 
+  const handleMarkAllPresent = () => {
+    if (!firestore || !employeeId || !attendanceColRef) return;
+
+    let updatedCount = 0;
+
+    daysInMonth.forEach(day => {
+        const dateStr = format(day, 'yyyy-MM-dd');
+        let status = attendanceMap.get(dateStr);
+        
+        if (!status) {
+            if (getDay(day) === 0) { // Sunday
+                status = 'WEEK OFF';
+            } else {
+                status = 'ABSENT';
+            }
+        }
+        
+        if (status === 'ABSENT') {
+            const attendanceDate = format(day, 'yyyy-MM-dd');
+            const attendanceRef = doc(firestore, 'employees', employeeId, 'attendance', attendanceDate);
+
+            const newAttendanceData = {
+                employeeId,
+                date: attendanceDate,
+                status: 'PRESENT' as AttendanceStatus,
+            };
+            
+            setDocumentNonBlocking(attendanceRef, newAttendanceData, { merge: true });
+            updatedCount++;
+        }
+    });
+
+    if (updatedCount > 0) {
+        toast({
+            title: 'Attendance Updated',
+            description: `${updatedCount} absent day(s) have been marked as Present.`,
+        });
+    } else {
+        toast({
+            title: 'No Changes',
+            description: 'There were no absent days to mark as present.',
+        });
+    }
+  };
 
   const getDayClass = (day: Date) => {
     if (!isSameMonth(day, month)) {
@@ -273,10 +330,26 @@ export default function AttendancePage() {
                     <Download className="h-6 w-6"/>
                     <span className="text-sm mt-1">Download Report</span>
                  </Button>
-                 <Button variant="ghost" className="flex-col h-auto text-blue-600">
-                    <UserCheck className="h-6 w-6"/>
-                    <span className="text-sm mt-1">Mark All Present</span>
-                 </Button>
+                 <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="ghost" className="flex-col h-auto text-blue-600">
+                            <UserCheck className="h-6 w-6"/>
+                            <span className="text-sm mt-1">Mark All Present</span>
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Mark All Absent as Present</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to mark all Absent days as Present?
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleMarkAllPresent}>Mark Present</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
                  <Button variant="ghost" className="flex-col h-auto text-blue-600">
                     <MapPin className="h-6 w-6"/>
                     <span className="text-sm mt-1">Live Location</span>
