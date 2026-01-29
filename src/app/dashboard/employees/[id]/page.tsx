@@ -228,12 +228,6 @@ export default function EmployeeDetailPage() {
             </Link>
             <h1 className="font-semibold">{employee.name}</h1>
           </div>
-          <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-            <Link href={`/dashboard/employees/${employeeId}/edit`}>
-              <FileText className="mr-2 h-4 w-4" />
-              Biodata
-            </Link>
-          </Button>
         </header>
 
         <main className="flex-1 pb-24">

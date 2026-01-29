@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation';
 import {
   ArrowLeft,
   Loader2,
-  FileText,
   Calendar as CalendarIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,8 +30,6 @@ import { doc, DocumentReference } from 'firebase/firestore';
 import type { Employee } from '../../../data';
 import { format, parseISO, isValid } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Link from 'next/link';
 
 export default function CurrentEmploymentPage() {
   const router = useRouter();
@@ -121,36 +118,12 @@ export default function CurrentEmploymentPage() {
   return (
     <>
       <div className="flex h-full flex-col">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b bg-card px-4">
-          <div className='flex items-center'>
+        <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
             <Button variant="ghost" size="icon" aria-label="Go back" onClick={() => router.push(`/dashboard/employees/${employeeId}`)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="ml-4 text-lg font-semibold">Edit Employee</h1>
-          </div>
-          <Button variant='outline'>
-            <FileText className='mr-2 h-4 w-4' />
-            Biodata
-          </Button>
+            <h1 className="ml-4 text-lg font-semibold">Edit Employment Details</h1>
         </header>
-
-        <Tabs defaultValue="employment" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 rounded-none bg-card">
-                <TabsTrigger value="personal" asChild className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                    <Link href={`/dashboard/employees/${employeeId}/edit`}>Personal</Link>
-                </TabsTrigger>
-                <TabsTrigger value="employment" asChild className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                    <Link href={`/dashboard/employees/${employeeId}/current-employment`}>Employment</Link>
-                </TabsTrigger>
-                <TabsTrigger value="salary" asChild className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                    <Link href={`/dashboard/employees/${employeeId}/salary-details`}>Salary</Link>
-                </TabsTrigger>
-                <TabsTrigger value="bank" asChild className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                    <Link href={`/dashboard/employees/${employeeId}/bank-details`}>Bank</Link>
-                </TabsTrigger>
-            </TabsList>
-        </Tabs>
-
 
         <form onSubmit={handleSaveDetails} className="flex flex-1 flex-col overflow-hidden">
           <main className="flex-1 overflow-y-auto p-6">

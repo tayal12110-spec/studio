@@ -37,8 +37,6 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Link from 'next/link';
 
 const ContributionRow = ({
   label,
@@ -296,7 +294,7 @@ export default function SalaryDetailsPage() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <h1 className="ml-4 text-lg font-semibold">
-              Edit Employee
+              Edit Salary Details
             </h1>
           </div>
           <Button
@@ -306,23 +304,6 @@ export default function SalaryDetailsPage() {
             History
           </Button>
         </header>
-
-        <Tabs defaultValue="salary" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 rounded-none bg-card">
-                <TabsTrigger value="personal" asChild className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                    <Link href={`/dashboard/employees/${employeeId}/edit`}>Personal</Link>
-                </TabsTrigger>
-                <TabsTrigger value="employment" asChild className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                    <Link href={`/dashboard/employees/${employeeId}/current-employment`}>Employment</Link>
-                </TabsTrigger>
-                <TabsTrigger value="salary" asChild className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                    <Link href={`/dashboard/employees/${employeeId}/salary-details`}>Salary</Link>
-                </TabsTrigger>
-                <TabsTrigger value="bank" asChild className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                    <Link href={`/dashboard/employees/${employeeId}/bank-details`}>Bank</Link>
-                </TabsTrigger>
-            </TabsList>
-        </Tabs>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="mx-auto max-w-2xl space-y-8">
