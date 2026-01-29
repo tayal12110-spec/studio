@@ -134,7 +134,7 @@ export default function AttendancePage() {
       let status = attendanceMap.get(dateStr);
       
       if (!status) {
-        if (getDay(day) === 0) {
+        if (getDay(day) === 0) { // Sunday
             status = 'WEEK OFF';
         } else {
             status = 'ABSENT';
@@ -145,7 +145,6 @@ export default function AttendancePage() {
            stats[status]++;
       }
     });
-    
     return stats;
   }, [daysInMonth, attendanceMap]);
 
@@ -161,7 +160,7 @@ export default function AttendancePage() {
       };
     }
 
-    const payableDays = summary.PRESENT + (summary['HALF DAY'] * 0.5) + summary['PAID LEAVE'] + (summary['HALF DAY LEAVE'] * 0.5);
+    const payableDays = summary.PRESENT + (summary['HALF DAY'] * 0.5) + summary['PAID LEAVE'] + (summary['HALF DAY LEAVE'] * 0.5) + summary.HOLIDAY + summary['WEEK OFF'];
     const numberOfDaysInMonth = daysInMonth.length > 0 ? daysInMonth.length : 30;
     const dailySalary = employee.baseSalary / numberOfDaysInMonth;
     const payableAmount = dailySalary * payableDays;
@@ -475,7 +474,7 @@ export default function AttendancePage() {
                 <p className="text-lg font-bold">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(salaryDetails.remainingAmount)}</p>
             </div>
             <div className="flex gap-2">
-                <Button variant="outline" className="h-12 px-6">Pay Advance</Button>
+                <Button variant="outline" className="h-12 px-6" onClick={() => router.push(`/dashboard/employees/${employeeId}/pay-advance?month=${format(month, 'yyyy-MM')}`)}>Pay Advance</Button>
                 <Button className="h-12 px-8 bg-accent text-accent-foreground hover:bg-accent/90">Pay Salary</Button>
             </div>
         </footer>

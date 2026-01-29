@@ -29,6 +29,12 @@
       "description": "User avatar 4",
       "imageUrl": "https://images.unsplash.com/photo-1626526804650-7118ac691b7a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwZXJzb24lMjBmYWNlfGVufDB8fHx8MTc2ODc0MjM5MHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person face"
+    },
+    {
+      "id": "no-advance",
+      "description": "Illustration for no advance payment",
+      "imageUrl": "https://images.unsplash.com/photo-1764185826281-fecec29aa5b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxlbXB0eSUyMGJveHxlbnwwfHx8fDE3Njk2MjQ4OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "empty box"
     }
   ]
 }
