@@ -70,7 +70,7 @@ export default function SettingsPage() {
   const router = useRouter();
 
   const settingsItems = [
-    { icon: Building2, label: 'Company Settings' },
+    { icon: Building2, label: 'Company Settings', href: '/dashboard/settings/company' },
     {
       icon: FileText,
       label: 'Subscriptions & Billing',
