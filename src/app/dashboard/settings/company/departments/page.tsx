@@ -51,8 +51,8 @@ export default function MyDepartmentsPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const departmentsCol = useMemoFirebase(
-    () => (firestore && user ? collection(firestore, 'departments') : null),
-    [firestore, user]
+    () => (firestore && user && !isUserLoading ? collection(firestore, 'departments') : null),
+    [firestore, user, isUserLoading]
   ) as CollectionReference | null;
 
   const { data: departments, isLoading: isLoadingDepartments } =
