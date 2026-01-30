@@ -142,7 +142,7 @@ export default function AttendanceSettingsPage() {
              <SettingsRow icon={CalendarDays} label="Holiday List" onClick={() => router.push('/dashboard/settings/attendance/holiday-list')}>
                 <ChevronRight className="h-5 w-5" />
             </SettingsRow>
-             <SettingsRow icon={CalendarDays} label="Custom Paid Leaves" isLast>
+             <SettingsRow icon={CalendarDays} label="Custom Paid Leaves" isLast onClick={() => router.push('/dashboard/settings/attendance/custom-paid-leaves')}>
                 <ChevronRight className="h-5 w-5" />
             </SettingsRow>
           </SettingsSection>
