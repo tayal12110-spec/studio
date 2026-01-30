@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -14,13 +14,22 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 type Holiday = {
   date: string;
   name: string;
 };
 
-const holidays2026: Holiday[] = [
+const publicHolidays2026: Holiday[] = [
     { date: '2026-01-01', name: "New Year's Day" },
     { date: '2026-01-02', name: 'Mannam Jayanthi' },
     { date: '2026-01-03', name: "Hazrat Ali's Birthday" },
@@ -69,15 +78,7 @@ const holidays2026: Holiday[] = [
     { date: '2026-12-31', name: "New Year's Eve" },
 ];
 
-const HolidayItem = ({ holiday }: { holiday: Holiday }) => {
-  const { toast } = useToast();
-  const handleAdd = () => {
-    toast({
-      title: 'Holiday Added',
-      description: `${holiday.name} has been added to the company holiday list.`,
-    });
-  };
-
+const HolidayItem = ({ holiday, onRemove }: { holiday: Holiday, onRemove: (date: string) => void }) => {
   return (
     <Card>
       <CardContent className="flex items-center justify-between p-4">
@@ -85,8 +86,8 @@ const HolidayItem = ({ holiday }: { holiday: Holiday }) => {
           <p className="text-sm text-muted-foreground">{holiday.date}</p>
           <p className="font-semibold">{holiday.name}</p>
         </div>
-        <Button variant="outline" className="text-accent border-accent hover:bg-accent/10 hover:text-accent" onClick={handleAdd}>
-          ADD
+        <Button variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive font-semibold" onClick={() => onRemove(holiday.date)}>
+          REMOVE
         </Button>
       </CardContent>
     </Card>
@@ -97,82 +98,185 @@ export default function HolidayListPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [year, setYear] = useState<Date>(new Date(2026, 0, 1));
+  const [holidays, setHolidays] = useState<Holiday[]>(publicHolidays2026);
+  
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newHolidayName, setNewHolidayName] = useState('');
+  const [newHolidayDate, setNewHolidayDate] = useState<Date | undefined>();
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleAddAll = () => {
+    setHolidays(publicHolidays2026);
     toast({
       title: 'All Holidays Added',
       description: 'All public holidays for 2026 have been added.',
     });
   };
 
-  const handleAddNew = () => {
+  const handleRemove = (date: string) => {
+    setHolidays(currentHolidays => currentHolidays.filter(h => h.date !== date));
     toast({
-      title: 'Feature Coming Soon',
-      description: 'The ability to add custom holidays will be available soon.',
+        title: 'Holiday Removed',
+        variant: 'destructive',
     });
+  };
+  
+  const handleAddNew = () => {
+    setIsDialogOpen(true);
+  };
+  
+  const handleSaveNewHoliday = () => {
+      if (!newHolidayName.trim() || !newHolidayDate) {
+          toast({
+              variant: 'destructive',
+              title: 'Missing information',
+              description: 'Please provide a name and a date.',
+          });
+          return;
+      }
+      setIsSaving(true);
+      
+      const newHoliday: Holiday = {
+          name: newHolidayName,
+          date: format(newHolidayDate, 'yyyy-MM-dd'),
+      };
+      
+      if (holidays.some(h => h.date === newHoliday.date)) {
+          toast({
+              variant: 'destructive',
+              title: 'Duplicate Date',
+              description: 'A holiday already exists on this date.',
+          });
+          setIsSaving(false);
+          return;
+      }
+
+      setTimeout(() => {
+          setHolidays(prev => [...prev, newHoliday].sort((a, b) => a.date.localeCompare(b.date)));
+          setIsSaving(false);
+          setIsDialogOpen(false);
+          setNewHolidayName('');
+          setNewHolidayDate(undefined);
+          toast({
+              title: 'Holiday Added',
+              description: `"${newHolidayName}" has been added.`,
+          });
+      }, 500);
   };
 
   return (
-    <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
-      <header className="flex h-16 shrink-0 items-center justify-between border-b bg-card px-4">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Go back"
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-lg font-semibold">Holiday List</h1>
-        </div>
-        <Popover>
-          <PopoverTrigger asChild>
+    <>
+      <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b bg-card px-4">
+          <div className="flex items-center gap-2">
             <Button
-              variant={'outline'}
-              className={cn(
-                'w-[120px] justify-between text-left font-normal',
-                !year && 'text-muted-foreground'
-              )}
+              variant="ghost"
+              size="icon"
+              aria-label="Go back"
+              onClick={() => router.back()}
             >
-              <CalendarIcon className="h-4 w-4" />
-              {year ? format(year, 'yyyy') : <span>Select year</span>}
+              <ArrowLeft className="h-5 w-5" />
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={year}
-              onSelect={(date) => date && setYear(date)}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </header>
+            <h1 className="text-lg font-semibold">Holiday List</h1>
+          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={'outline'}
+                className={cn(
+                  'w-[120px] justify-between text-left font-normal',
+                  !year && 'text-muted-foreground'
+                )}
+              >
+                <CalendarIcon className="h-4 w-4" />
+                {year ? format(year, 'yyyy') : <span>Select year</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={year}
+                onSelect={(date) => date && setYear(date)}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </header>
 
-      <main className="flex-1 overflow-y-auto p-4 pb-32">
-        <div className="space-y-3">
-          {holidays2026.map((holiday) => (
-            <HolidayItem key={holiday.date} holiday={holiday} />
-          ))}
-        </div>
-      </main>
+        <main className="flex-1 overflow-y-auto p-4 pb-32">
+          <div className="space-y-3">
+            {holidays.map((holiday) => (
+              <HolidayItem key={holiday.date} holiday={holiday} onRemove={handleRemove} />
+            ))}
+          </div>
+        </main>
 
-      <footer className="sticky bottom-0 space-y-3 border-t bg-card p-4">
-        <Button
-          variant="outline"
-          className="h-12 w-full text-base text-accent border-accent hover:bg-accent/10 hover:text-accent"
-          onClick={handleAddAll}
-        >
-          Add all Public Holidays
-        </Button>
-        <Button
-          onClick={handleAddNew}
-          className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
-        >
-          Add New Holidays
-        </Button>
-      </footer>
-    </div>
+        <footer className="sticky bottom-0 space-y-3 border-t bg-card p-4">
+          <Button
+            variant="outline"
+            className="h-12 w-full text-base text-accent border-accent hover:bg-accent/10 hover:text-accent"
+            onClick={handleAddAll}
+          >
+            Add all Public Holidays
+          </Button>
+          <Button
+            onClick={handleAddNew}
+            className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+          >
+            Add New Holidays
+          </Button>
+        </footer>
+      </div>
+      
+       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">Add Holiday</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div>
+              <Label htmlFor="holiday-name">Holiday Name</Label>
+              <Input id="holiday-name" value={newHolidayName} onChange={(e) => setNewHolidayName(e.target.value)} className="mt-1" placeholder="Holiday Name" />
+            </div>
+            <div>
+              <Label htmlFor="holiday-date">Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="holiday-date"
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal mt-1",
+                      !newHolidayDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {newHolidayDate ? format(newHolidayDate, "PPP") : <span>Date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={newHolidayDate}
+                    onSelect={setNewHolidayDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={handleSaveNewHoliday}
+              disabled={isSaving}
+              className="w-full h-11 bg-accent text-accent-foreground hover:bg-accent/90"
+            >
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Add Holiday
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
