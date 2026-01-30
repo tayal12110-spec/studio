@@ -130,7 +130,7 @@ export default function AttendanceSettingsPage() {
              <SettingsRow icon={Users} label="Attendance Kiosk" onClick={() => router.push('/dashboard/settings/attendance/kiosk')}>
                 <ChevronRight className="h-5 w-5" />
             </SettingsRow>
-             <SettingsRow icon={Smartphone} label="Device Verification" isLast>
+             <SettingsRow icon={Smartphone} label="Device Verification" isLast onClick={() => router.push('/dashboard/settings/attendance/device-verification')}>
                 <ChevronRight className="h-5 w-5" />
             </SettingsRow>
           </SettingsSection>
