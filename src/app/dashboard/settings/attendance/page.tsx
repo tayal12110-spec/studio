@@ -112,8 +112,14 @@ export default function AttendanceSettingsPage() {
           </SettingsSection>
 
           <SettingsSection title="Attendance Modes">
-            <SettingsRow icon={ScanFace} label="AI Face Recognition" hasNewBadge isFirst>
-                <Button variant="outline" size="sm" className='bg-muted text-muted-foreground' disabled>Disabled</Button>
+            <SettingsRow 
+                icon={ScanFace} 
+                label="AI Face Recognition" 
+                hasNewBadge 
+                isFirst
+                onClick={() => router.push('/dashboard/settings/attendance/face-recognition')}
+            >
+                <ChevronRight className="h-5 w-5" />
             </SettingsRow>
              <SettingsRow icon={QrCode} label="QR Codes">
                 <ChevronRight className="h-5 w-5" />
