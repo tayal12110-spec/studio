@@ -10,6 +10,17 @@ import { useEmployees } from '@/app/dashboard/employee-context';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import type { Employee } from '@/app/dashboard/data';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function FaceRecognitionPage() {
   const router = useRouter();
@@ -17,6 +28,8 @@ export default function FaceRecognitionPage() {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [isFaceRecognitionEnabled, setIsFaceRecognitionEnabled] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+
 
   const filteredEmployees = employees.filter(employee =>
     employee.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -28,6 +41,25 @@ export default function FaceRecognitionPage() {
         description: `Starting face enrollment for ${employeeName}.`,
     });
     // Here you would integrate with a face enrollment API or flow.
+  }
+  
+  const handleSwitchChange = (checked: boolean) => {
+    if (checked) {
+      // If turning on, show the confirmation dialog
+      setIsConfirmDialogOpen(true);
+    } else {
+      // If turning off, just do it
+      setIsFaceRecognitionEnabled(false);
+    }
+  }
+
+  const handleTurnOnConfirm = () => {
+    setIsFaceRecognitionEnabled(true);
+    setIsConfirmDialogOpen(false);
+    toast({
+      title: "Face Recognition Turned On",
+      description: "Staff can now use face recognition for attendance.",
+    });
   }
 
   const renderContent = () => {
@@ -71,44 +103,63 @@ export default function FaceRecognitionPage() {
   };
 
   return (
-    <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
-      <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Go back"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="ml-4 text-lg font-semibold">Face Settings</h1>
-      </header>
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-4 space-y-4">
-            <div className="flex items-center justify-between bg-card p-4 rounded-lg">
-                <label htmlFor="face-recognition-switch" className="font-medium">Face Recognition</label>
-                <Switch 
-                    id="face-recognition-switch"
-                    checked={isFaceRecognitionEnabled}
-                    onCheckedChange={setIsFaceRecognitionEnabled}
-                />
-            </div>
+    <>
+      <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
+        <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Go back"
+            onClick={() => router.back()}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="ml-4 text-lg font-semibold">Face Settings</h1>
+        </header>
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-4 space-y-4">
+              <div className="flex items-center justify-between bg-card p-4 rounded-lg">
+                  <label htmlFor="face-recognition-switch" className="font-medium">Face Recognition</label>
+                  <Switch 
+                      id="face-recognition-switch"
+                      checked={isFaceRecognitionEnabled}
+                      onCheckedChange={handleSwitchChange}
+                  />
+              </div>
 
-            <div className="relative flex items-center">
-                <Search className="absolute left-3 h-5 w-5 text-muted-foreground" />
-                <Input
-                    placeholder="Search employee"
-                    className="pl-10"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <Button variant="outline" size="icon" className="ml-2">
-                    <SlidersHorizontal className="h-5 w-5" />
-                </Button>
-            </div>
-        </div>
-        {renderContent()}
-      </main>
-    </div>
+              <div className="relative flex items-center">
+                  <Search className="absolute left-3 h-5 w-5 text-muted-foreground" />
+                  <Input
+                      placeholder="Search employee"
+                      className="pl-10"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <Button variant="outline" size="icon" className="ml-2">
+                      <SlidersHorizontal className="h-5 w-5" />
+                  </Button>
+              </div>
+          </div>
+          {renderContent()}
+        </main>
+      </div>
+
+      <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>You have staff pending enrollment</AlertDialogTitle>
+            <AlertDialogDescription>
+              Staff without face enrolled can mark attendance without face recognition
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2">
+            <AlertDialogAction onClick={handleTurnOnConfirm} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+              Turn On
+            </AlertDialogAction>
+            <AlertDialogCancel className="w-full mt-0">Cancel</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
