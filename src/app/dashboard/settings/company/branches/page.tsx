@@ -102,11 +102,7 @@ export default function MyBranchesPage() {
   };
   
   const handleEdit = (branchId: string) => {
-    // For now, just a placeholder.
-    toast({
-        title: 'Edit Clicked',
-        description: `Edit functionality for branch ${branchId} is not yet implemented.`
-    });
+    router.push(`/dashboard/settings/company/branches/${branchId}/edit`);
   }
 
   return (
