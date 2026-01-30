@@ -1,20 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 
 export default function BiometricDevicesPage() {
   const router = useRouter();
-  const { toast } = useToast();
-
-  const handleAddClick = () => {
-    toast({
-      title: 'Coming Soon!',
-      description: 'Functionality to add biometric devices will be available soon.',
-    });
-  };
 
   return (
     <div className="flex h-full flex-col bg-slate-50 dark:bg-background">
@@ -35,11 +27,13 @@ export default function BiometricDevicesPage() {
         </div>
         <div className="flex justify-center">
           <Button
-            onClick={handleAddClick}
+            asChild
             className="h-12 rounded-full bg-accent px-6 text-base text-accent-foreground shadow-lg hover:bg-accent/90"
           >
-            <Plus className="mr-2 h-5 w-5" />
-            Add Biometric
+            <Link href="/dashboard/settings/attendance/biometric-devices/add">
+              <Plus className="mr-2 h-5 w-5" />
+              Add Biometric
+            </Link>
           </Button>
         </div>
       </main>
