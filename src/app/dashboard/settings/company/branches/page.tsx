@@ -51,7 +51,7 @@ export default function MyBranchesPage() {
         </Button>
         <h1 className="ml-4 text-lg font-semibold">Branches</h1>
       </header>
-      <main className="flex-1 overflow-y-auto p-4">
+      <main className="flex-1 overflow-y-auto p-4 pb-24">
         <div className="space-y-3">
           <BranchItem
             name="tut"
@@ -60,7 +60,7 @@ export default function MyBranchesPage() {
           />
         </div>
       </main>
-      <div className="fixed bottom-6 right-6 z-10">
+      <div className="fixed bottom-20 right-6 z-10 md:bottom-6">
           <Button asChild className="h-12 rounded-full bg-accent px-6 text-base text-accent-foreground shadow-lg hover:bg-accent/90">
               <Link href="/dashboard/settings/company/branches/add">
                 <Plus className="mr-2 h-5 w-5" />
