@@ -29,21 +29,29 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+type Admin = {
+  name: string;
+  phone: string;
+  isOwner: boolean;
+  email: string;
+};
 
 export default function AdminsPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [admins, setAdmins] = useState([
+  const [admins, setAdmins] = useState<Admin[]>([
     {
       name: 'cg',
       phone: '+91 9717471142',
       isOwner: true,
-      email: 'cg@example.com' // I'll assume an email exists for consistency
+      email: 'cg@example.com'
     },
   ]);
   
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isFormSheetOpen, setIsFormSheetOpen] = useState(false);
+  const [sheetMode, setSheetMode] = useState<'add' | 'edit'>('add');
+  const [editingAdminIndex, setEditingAdminIndex] = useState<number | null>(null);
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -51,7 +59,36 @@ export default function AdminsPage() {
   const [countryCode, setCountryCode] = useState('+91');
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleAddAdmin = () => {
+  const handleOpenAddSheet = () => {
+    setSheetMode('add');
+    setEditingAdminIndex(null);
+    setName('');
+    setPhone('');
+    setEmail('');
+    setCountryCode('+91');
+    setIsFormSheetOpen(true);
+  }
+
+  const handleOpenEditSheet = (admin: Admin, index: number) => {
+    setSheetMode('edit');
+    setEditingAdminIndex(index);
+    
+    setName(admin.name);
+    setEmail(admin.email);
+    
+    const phoneParts = admin.phone.split(' ');
+    if (phoneParts.length > 1 && phoneParts[0].startsWith('+')) {
+      setCountryCode(phoneParts[0]);
+      setPhone(phoneParts.slice(1).join(' '));
+    } else {
+      setCountryCode('+91');
+      setPhone(admin.phone);
+    }
+    
+    setIsFormSheetOpen(true);
+  };
+  
+  const handleFormSubmit = () => {
     if (!name || !phone || !email) {
       toast({
         variant: 'destructive',
@@ -60,43 +97,54 @@ export default function AdminsPage() {
       return;
     }
 
+    if (sheetMode === 'add') {
+      handleAddAdmin();
+    } else {
+      handleSaveEdit();
+    }
+  };
+
+  const handleAddAdmin = () => {
     setIsSaving(true);
-    const newAdmin = {
+    const newAdmin: Admin = {
       name,
       phone: `${countryCode} ${phone}`,
       email,
       isOwner: false,
     };
     
-    // In a real app, this would be an API call.
     setTimeout(() => {
         setAdmins(prev => [...prev, newAdmin]);
         setIsSaving(false);
-        setIsSheetOpen(false);
-        // Reset form
-        setName('');
-        setPhone('');
-        setEmail('');
+        setIsFormSheetOpen(false);
         toast({
             title: 'Admin Added',
             description: `${name} has been added as an admin.`
         });
     }, 500);
   };
-
-  const openSheet = () => {
-    setName('');
-    setPhone('');
-    setEmail('');
-    setCountryCode('+91');
-    setIsSheetOpen(true);
-  }
-
-  const handleEdit = (admin: typeof admins[0]) => {
-    // Placeholder function for edit action
-    toast({
-      title: `Editing ${admin.name}`,
-    });
+  
+  const handleSaveEdit = () => {
+    if (editingAdminIndex === null) return;
+    
+    setIsSaving(true);
+    
+    setTimeout(() => {
+        const updatedAdmins = [...admins];
+        const originalAdmin = updatedAdmins[editingAdminIndex];
+        if (originalAdmin) {
+            updatedAdmins[editingAdminIndex] = {
+                ...originalAdmin,
+                name,
+                phone: `${countryCode} ${phone}`,
+                email,
+            };
+        }
+        setAdmins(updatedAdmins);
+        setIsSaving(false);
+        setIsFormSheetOpen(false);
+        toast({ title: 'Admin Updated', description: `${name}'s details have been updated.` });
+    }, 500);
   };
 
   return (
@@ -145,7 +193,7 @@ export default function AdminsPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleEdit(admin)}>
+                  <DropdownMenuItem onClick={() => handleOpenEditSheet(admin, index)}>
                     Edit
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -155,27 +203,27 @@ export default function AdminsPage() {
         </main>
 
         <div className="fixed bottom-24 right-6 z-10 md:bottom-6">
-          <Button onClick={openSheet} className="h-12 rounded-full bg-accent px-6 text-base text-accent-foreground shadow-lg hover:bg-accent/90">
+          <Button onClick={handleOpenAddSheet} className="h-12 rounded-full bg-accent px-6 text-base text-accent-foreground shadow-lg hover:bg-accent/90">
             <Plus className="mr-2 h-5 w-5" />
             Add Admin
           </Button>
         </div>
       </div>
       
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+      <Sheet open={isFormSheetOpen} onOpenChange={setIsFormSheetOpen}>
         <SheetContent side="bottom" className="mx-auto w-full rounded-t-2xl p-0 sm:max-w-md">
             <SheetHeader className="p-6 pb-2 text-center">
               <div className="mx-auto mb-4 h-1.5 w-12 shrink-0 rounded-full bg-muted" />
-              <SheetTitle>Add Admin</SheetTitle>
+              <SheetTitle>{sheetMode === 'add' ? 'Add Admin' : 'Edit Admin'}</SheetTitle>
             </SheetHeader>
             <div className="space-y-4 px-6 py-2">
                 <div>
-                    <Label htmlFor="name" className="sr-only">Name</Label>
-                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
+                    <Label htmlFor="name">Name</Label>
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="mt-1" />
                 </div>
                 <div>
-                    <Label className="sr-only">Phone Number</Label>
-                    <div className="flex items-center gap-2">
+                    <Label>Phone Number</Label>
+                    <div className="flex items-center gap-2 mt-1">
                         <Select value={countryCode} onValueChange={setCountryCode}>
                             <SelectTrigger className="w-[85px]">
                                 <SelectValue />
@@ -188,17 +236,17 @@ export default function AdminsPage() {
                     </div>
                 </div>
                 <div>
-                    <Label htmlFor="email" className="sr-only">Email Id</Label>
-                    <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email Id" />
+                    <Label htmlFor="email">Email Id</Label>
+                    <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email Id" className="mt-1" />
                 </div>
             </div>
             <SheetFooter className="p-6 pt-4">
                 <Button
-                    onClick={handleAddAdmin}
+                    onClick={handleFormSubmit}
                     disabled={isSaving || !name || !phone || !email}
                     className="h-12 w-full text-base bg-accent text-accent-foreground hover:bg-accent/90"
                 >
-                    {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Add Admin'}
+                    {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (sheetMode === 'add' ? 'Add Admin' : 'Save')}
                 </Button>
             </SheetFooter>
         </SheetContent>
