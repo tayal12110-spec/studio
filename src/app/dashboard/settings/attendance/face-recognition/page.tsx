@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Search, SlidersHorizontal, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { useEmployees } from '@/app/dashboard/employee-context';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import type { Employee } from '@/app/dashboard/data';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -19,8 +18,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from '@/components/ui/alert-dialog';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export default function FaceRecognitionPage() {
   const router = useRouter();
@@ -30,25 +29,88 @@ export default function FaceRecognitionPage() {
   const [isFaceRecognitionEnabled, setIsFaceRecognitionEnabled] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [isCameraViewOpen, setIsCameraViewOpen] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [selectedEmployeeName, setSelectedEmployeeName] = useState('');
 
   const filteredEmployees = employees.filter(employee =>
     employee.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
   const handleEnrollFace = (employeeName: string) => {
+    setSelectedEmployeeName(employeeName);
+    setIsCameraViewOpen(true);
+  };
+
+  useEffect(() => {
+    if (isCameraViewOpen) {
+      let isComponentMounted = true;
+      const getCameraPermission = async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          if (isComponentMounted) {
+            streamRef.current = stream;
+            setHasCameraPermission(true);
+            if (videoRef.current) {
+              videoRef.current.srcObject = stream;
+            }
+          } else {
+            stream.getTracks().forEach(track => track.stop());
+          }
+        } catch (error) {
+          console.error('Error accessing camera:', error);
+          if (isComponentMounted) {
+            setHasCameraPermission(false);
+            toast({
+              variant: 'destructive',
+              title: 'Camera Access Denied',
+              description: 'Please enable camera permissions in your browser settings to use this app.',
+            });
+          }
+        }
+      };
+
+      getCameraPermission();
+
+      return () => {
+        isComponentMounted = false;
+        const currentStream = streamRef.current;
+        if (currentStream) {
+          currentStream.getTracks().forEach(track => track.stop());
+        }
+        streamRef.current = null;
+      };
+    }
+  }, [isCameraViewOpen, toast]);
+
+  const handleCapture = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (video && canvas) {
+        const context = canvas.getContext('2d');
+        if (context) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            // In a real app, you'd send this dataUrl to your face recognition service
+            console.log('Captured image data URL for', selectedEmployeeName);
+        }
+    }
     toast({
-        title: "Enrollment Started",
-        description: `Starting face enrollment for ${employeeName}.`,
+        title: "Face Enrolled!",
+        description: `Face has been captured for ${selectedEmployeeName}.`,
     });
-    // Here you would integrate with a face enrollment API or flow.
-  }
+    setIsCameraViewOpen(false);
+  };
   
   const handleSwitchChange = (checked: boolean) => {
     if (checked) {
-      // If turning on, show the confirmation dialog
       setIsConfirmDialogOpen(true);
     } else {
-      // If turning off, just do it
       setIsFaceRecognitionEnabled(false);
     }
   }
@@ -101,6 +163,40 @@ export default function FaceRecognitionPage() {
       </div>
     );
   };
+
+  if (isCameraViewOpen) {
+    return (
+        <div className="flex h-full min-h-screen flex-col bg-black">
+            <header className="flex h-16 shrink-0 items-center justify-between px-4 text-white">
+                <Button variant="ghost" size="icon" onClick={() => setIsCameraViewOpen(false)}>
+                    <ArrowLeft className="h-5 w-5" />
+                </Button>
+                 <h1 className="text-lg font-semibold">Enroll Face for {selectedEmployeeName}</h1>
+                 <div></div>
+            </header>
+            <main className="flex flex-1 flex-col items-center justify-center p-4">
+                 <div className="w-full max-w-md aspect-[4/3] rounded-lg overflow-hidden bg-gray-900 flex items-center justify-center relative">
+                    <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                    <canvas ref={canvasRef} className="hidden" />
+                    {hasCameraPermission === null && <Loader2 className="h-8 w-8 animate-spin text-white absolute" />}
+                </div>
+                 {hasCameraPermission === false && (
+                    <Alert variant="destructive" className="mt-4 max-w-md bg-gray-900 border-red-500/50 text-white">
+                        <AlertTitle>Camera Access Required</AlertTitle>
+                        <AlertDescription className="text-gray-300">
+                            Please allow camera access in your browser settings to use this feature.
+                        </AlertDescription>
+                    </Alert>
+                )}
+            </main>
+            <footer className="shrink-0 p-4 flex justify-center">
+                 <Button size="icon" className="h-20 w-20 rounded-full border-4 border-white bg-transparent hover:bg-white/20" onClick={handleCapture} disabled={hasCameraPermission !== true}>
+                    <div className="h-16 w-16 rounded-full bg-white"></div>
+                 </Button>
+            </footer>
+        </div>
+    )
+  }
 
   return (
     <>
