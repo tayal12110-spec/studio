@@ -2,8 +2,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, Plus, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, Plus, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -11,8 +11,20 @@ import {
   useFirestore,
   useMemoFirebase,
   useUser,
+  addDocumentNonBlocking,
 } from '@/firebase';
 import { collection, CollectionReference } from 'firebase/firestore';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetClose,
+} from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 // Define a type for Department
 type Department = {
@@ -32,6 +44,11 @@ export default function MyDepartmentsPage() {
   const router = useRouter();
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
+  const { toast } = useToast();
+  
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [departmentName, setDepartmentName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const departmentsCol = useMemoFirebase(
     () => (firestore && user ? collection(firestore, 'departments') : null),
@@ -43,8 +60,46 @@ export default function MyDepartmentsPage() {
 
   const isLoading = isUserLoading || isLoadingDepartments;
 
+  const handleAddDepartment = () => {
+    if (!departmentName.trim()) {
+      toast({
+        variant: 'destructive',
+        title: 'Department name is required',
+      });
+      return;
+    }
+    if (!departmentsCol) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Firestore is not available. Please try again.',
+      });
+      return;
+    }
+    setIsSaving(true);
+
+    addDocumentNonBlocking(departmentsCol, { name: departmentName });
+
+    toast({
+      title: 'Department Added!',
+      description: `The department "${departmentName}" has been successfully added.`,
+    });
+
+    setTimeout(() => {
+      setIsSaving(false);
+      setDepartmentName('');
+      setIsSheetOpen(false);
+    }, 500);
+  };
+  
+  const openSheet = () => {
+    setDepartmentName('');
+    setIsSaving(false);
+    setIsSheetOpen(true);
+  }
+
   return (
-    <>
+    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
       <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
         <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
           <Button
@@ -69,20 +124,56 @@ export default function MyDepartmentsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 text-muted-foreground">
+            <div className="py-20 text-center text-muted-foreground">
               <p>No Departments Added</p>
             </div>
           )}
         </main>
-        <footer className="fixed bottom-0 left-0 right-0 border-t bg-card p-4 flex justify-center">
-            <Button asChild className="h-12 rounded-full bg-accent px-6 text-base text-accent-foreground shadow-lg hover:bg-accent/90">
-                <Link href="/dashboard/settings/company/departments/add">
-                  <Plus className="mr-2 h-5 w-5" />
-                  Add Department
-                </Link>
+        
+        <div className="fixed bottom-24 left-4 z-10 md:bottom-6">
+            <Button onClick={openSheet} className="h-14 w-14 rounded-full bg-accent shadow-lg">
+                <Plus className="h-7 w-7" />
             </Button>
-        </footer>
+        </div>
+
       </div>
-    </>
+      
+      <SheetContent side="bottom" className="mx-auto w-full rounded-t-2xl p-0 sm:max-w-md">
+          <SheetHeader className="p-6 pb-2 text-left">
+            <SheetTitle className="flex items-center justify-between text-xl font-semibold">
+              Add Department
+                <SheetClose>
+                  <X className="h-5 w-5 text-muted-foreground" />
+                  <span className="sr-only">Close</span>
+                </SheetClose>
+            </SheetTitle>
+          </SheetHeader>
+          <div className="px-6 py-4">
+            <Label htmlFor="department-name" className="text-muted-foreground">Department Name</Label>
+            <Input
+              id="department-name"
+              value={departmentName}
+              onChange={(e) => setDepartmentName(e.target.value)}
+              placeholder="eg. Sales, Marketing etc"
+              className="mt-1"
+            />
+          </div>
+          <SheetFooter className="grid grid-cols-2 gap-4 p-6 bg-slate-50 dark:bg-gray-800/50">
+              <SheetClose asChild>
+                  <Button variant="outline" className="h-12 text-base">Cancel</Button>
+              </SheetClose>
+              <Button
+                onClick={handleAddDepartment}
+                disabled={isSaving || !departmentName.trim()}
+                className="h-12 bg-accent text-base text-accent-foreground hover:bg-accent/90"
+              >
+                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Add
+              </Button>
+          </SheetFooter>
+      </SheetContent>
+
+    </Sheet>
   );
 }
+    
