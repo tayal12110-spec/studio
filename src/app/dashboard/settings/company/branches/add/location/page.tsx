@@ -9,6 +9,17 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export default function AddBranchLocationPage() {
   const router = useRouter();
@@ -23,7 +34,7 @@ export default function AddBranchLocationPage() {
   const [radius, setRadius] = useState(100);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleAddBranch = () => {
+  const confirmAddBranch = () => {
     setIsSaving(true);
     // In a real app, you'd save the branch with location and radius.
     toast({
@@ -119,14 +130,31 @@ export default function AddBranchLocationPage() {
       </main>
 
       <footer className="sticky bottom-0 border-t bg-card p-4">
-        <Button
-          onClick={handleAddBranch}
-          className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
-          disabled={isSaving}
-        >
-          {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isSaving ? 'Adding Branch...' : 'Add New Branch'}
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+              disabled={isSaving}
+            >
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSaving ? 'Adding Branch...' : 'Add New Branch'}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Add Branch</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to add this branch?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>NO</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmAddBranch}>
+                YES
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </footer>
     </div>
   );
