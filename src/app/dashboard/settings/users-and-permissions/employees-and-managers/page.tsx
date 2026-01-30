@@ -31,15 +31,17 @@ import { updateDocumentNonBlocking, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 
 
-type RoleFilter = 'All' | 'Employee' | 'Branch Admin' | 'Attendance Manager' | 'Advanced Attendance Manager';
+type RoleFilter = 'All' | 'Employee' | 'Branch Admin' | 'Attendance Manager' | 'Regular' | 'Advanced';
 
-const roles: RoleFilter[] = ['All', 'Employee', 'Branch Admin', 'Attendance Manager', 'Advanced Attendance Manager'];
+const roles: RoleFilter[] = ['All', 'Employee', 'Branch Admin', 'Attendance Manager', 'Regular', 'Advanced'];
 
 const permissionOptions: {value: Employee['permission'], label: string, description: string}[] = [
     { value: 'Branch Admin', label: 'Branch Admin', description: 'Mark attendance & salary of all employees' },
     { value: 'Attendance Manager', label: 'Attendance Manager', description: 'Mark attendance of all employees' },
+    { value: 'Regular', label: 'Regular', description: "Only today's attendance" },
+    { value: 'Advanced', label: 'Advanced', description: "Any day's attendance" },
     { value: 'Employee', label: 'Employee', description: 'Mark their own attendance' }
-]
+];
 
 export default function UpdateRolesPage() {
   const router = useRouter();
@@ -77,9 +79,6 @@ export default function UpdateRolesPage() {
   const filteredEmployees = employees.filter(employee => {
     const nameMatch = employee.name.toLowerCase().includes(searchQuery.toLowerCase());
     if (activeFilter === 'All') return nameMatch;
-    if (activeFilter === 'Advanced Attendance Manager') {
-        return nameMatch && (employee.permission === 'Attendance Manager' || employee.permission === 'Advanced Attendance Manager');
-    }
     return nameMatch && employee.permission === activeFilter;
   });
 

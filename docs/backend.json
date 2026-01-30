@@ -223,7 +223,8 @@
             "Employee",
             "Attendance Manager",
             "Branch Admin",
-            "Advanced Attendance Manager"
+            "Regular",
+            "Advanced"
           ]
         },
         "penaltyAndOvertime": {
