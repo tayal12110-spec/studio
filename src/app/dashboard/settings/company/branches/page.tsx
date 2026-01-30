@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ArrowLeft, MoreVertical, Plus, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -60,9 +61,11 @@ export default function MyBranchesPage() {
         </div>
       </main>
       <div className="fixed bottom-6 right-6 z-10">
-          <Button className="h-12 rounded-full bg-accent px-6 text-base text-accent-foreground shadow-lg hover:bg-accent/90">
-              <Plus className="mr-2 h-5 w-5" />
-              Add Branch
+          <Button asChild className="h-12 rounded-full bg-accent px-6 text-base text-accent-foreground shadow-lg hover:bg-accent/90">
+              <Link href="/dashboard/settings/company/branches/add">
+                <Plus className="mr-2 h-5 w-5" />
+                Add Branch
+              </Link>
           </Button>
       </div>
     </div>
