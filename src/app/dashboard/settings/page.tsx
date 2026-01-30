@@ -78,7 +78,7 @@ export default function SettingsPage() {
     },
     { icon: ShieldCheck, label: 'Background Verification', href: '/dashboard/settings/background-verification' },
     { icon: Users, label: 'Users & Permissions', href: '/dashboard/settings/users-and-permissions' },
-    { icon: ClipboardList, label: 'Custom Fields' },
+    { icon: ClipboardList, label: 'Custom Fields', href: '/dashboard/settings/custom-fields' },
     { icon: CalendarCheck, label: 'Attendance Settings' },
     { icon: Wallet, label: 'Salary Settings' },
     { icon: BarChart3, label: 'Reports', href: '/dashboard/reports' },
