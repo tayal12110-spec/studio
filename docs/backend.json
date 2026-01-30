@@ -222,7 +222,8 @@
           "enum": [
             "Employee",
             "Attendance Manager",
-            "Branch Admin"
+            "Branch Admin",
+            "Advanced Attendance Manager"
           ]
         },
         "penaltyAndOvertime": {

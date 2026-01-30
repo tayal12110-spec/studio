@@ -48,7 +48,7 @@ export type Employee = {
   bankName?: string;
   ifscCode?: string;
   upiId?: string;
-  permission?: 'Employee' | 'Attendance Manager' | 'Branch Admin';
+  permission?: 'Employee' | 'Attendance Manager' | 'Branch Admin' | 'Advanced Attendance Manager';
   penaltyAndOvertime?: {
     lateComing?: {
       allowedDays?: number;

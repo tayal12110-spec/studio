@@ -31,7 +31,7 @@ export default function UsersAndPermissionsPage() {
 
   const items = [
     { label: 'Admins', href: '/dashboard/settings/users-and-permissions/admins' },
-    { label: 'Employee & Managers', href: '#' },
+    { label: 'Employee & Managers', href: '/dashboard/settings/users-and-permissions/employees-and-managers' },
     { label: 'Chartered Accountant', href: '#' },
   ];
 
