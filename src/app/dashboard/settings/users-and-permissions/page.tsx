@@ -30,7 +30,7 @@ export default function UsersAndPermissionsPage() {
   const router = useRouter();
 
   const items = [
-    { label: 'Admins', href: '#' },
+    { label: 'Admins', href: '/dashboard/settings/users-and-permissions/admins' },
     { label: 'Employee & Managers', href: '#' },
     { label: 'Chartered Accountant', href: '#' },
   ];
