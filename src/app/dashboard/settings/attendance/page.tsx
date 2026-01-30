@@ -91,7 +91,13 @@ export default function AttendanceSettingsPage() {
       <main className="flex-1 overflow-y-auto p-4">
         <div className="space-y-6">
           <SettingsSection title="Shifts and Breaks">
-            <SettingsRow icon={Clock} label="Shifts" hasNewBadge isFirst>
+            <SettingsRow
+              icon={Clock}
+              label="Shifts"
+              hasNewBadge
+              isFirst
+              onClick={() => router.push('/dashboard/settings/attendance/shifts')}
+            >
               <ChevronRight className="h-5 w-5" />
             </SettingsRow>
             <SettingsRow icon={Coffee} label="Breaks" hasNewBadge isLast>
