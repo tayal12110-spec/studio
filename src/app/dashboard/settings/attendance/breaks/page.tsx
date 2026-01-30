@@ -23,11 +23,15 @@ export default function BreaksPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [breakName, setBreakName] = useState('');
   const [breakType, setBreakType] = useState<'unpaid' | 'paid'>('unpaid');
+  const [breakHours, setBreakHours] = useState('');
+  const [breakMinutes, setBreakMinutes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   const handleAddBreakClick = () => {
     setBreakName('');
     setBreakType('unpaid');
+    setBreakHours('');
+    setBreakMinutes('');
     setIsSaving(false);
     setIsDialogOpen(true);
   };
@@ -37,6 +41,14 @@ export default function BreaksPage() {
       toast({
         variant: 'destructive',
         title: 'Break name is required.',
+      });
+      return;
+    }
+    if ((!breakHours || parseInt(breakHours, 10) <= 0) && (!breakMinutes || parseInt(breakMinutes, 10) <= 0)) {
+      toast({
+        variant: 'destructive',
+        title: 'Break duration is required.',
+        description: 'Please enter a value greater than 0 for hours or minutes.',
       });
       return;
     }
@@ -53,6 +65,10 @@ export default function BreaksPage() {
       // In a real implementation, we would see the new break listed on the page.
     }, 500);
   };
+
+  const isFormValid = () => {
+    return breakName.trim() && (breakHours.trim() || breakMinutes.trim());
+  }
 
   return (
     <>
@@ -139,6 +155,29 @@ export default function BreaksPage() {
                 </div>
               </RadioGroup>
             </div>
+             <div>
+              <Label>
+                Break Duration <span className="text-red-500">*</span>
+              </Label>
+              <div className="flex items-center gap-2 mt-1">
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={breakHours}
+                  onChange={(e) => setBreakHours(e.target.value)}
+                  className="w-24 text-center"
+                />
+                <span className="text-muted-foreground">hours</span>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={breakMinutes}
+                  onChange={(e) => setBreakMinutes(e.target.value)}
+                  className="w-24 text-center"
+                />
+                <span className="text-muted-foreground">minutes</span>
+              </div>
+            </div>
           </div>
           <DialogFooter className="grid grid-cols-2 gap-4 p-4 border-t">
             <DialogClose asChild>
@@ -148,7 +187,7 @@ export default function BreaksPage() {
             </DialogClose>
             <Button
               onClick={handleAddBreak}
-              disabled={isSaving || !breakName.trim()}
+              disabled={isSaving || !isFormValid()}
               className="h-11 bg-accent text-accent-foreground hover:bg-accent/90"
             >
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
