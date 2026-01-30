@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, MoreVertical, Plus, Target, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, CollectionReference } from 'firebase/firestore';
 import type { Branch } from '../../../../data';
 
@@ -41,13 +41,16 @@ const BranchItem = ({
 export default function MyBranchesPage() {
   const router = useRouter();
   const firestore = useFirestore();
+  const { user, isUserLoading } = useUser();
 
   const branchesCol = useMemoFirebase(
-    () => (firestore ? collection(firestore, 'branches') : null),
-    [firestore]
+    () => (firestore && user ? collection(firestore, 'branches') : null),
+    [firestore, user]
   ) as CollectionReference | null;
 
-  const { data: branches, isLoading } = useCollection<Branch>(branchesCol);
+  const { data: branches, isLoading: isLoadingBranches } = useCollection<Branch>(branchesCol);
+
+  const isLoading = isUserLoading || isLoadingBranches;
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
