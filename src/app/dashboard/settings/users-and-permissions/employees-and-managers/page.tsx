@@ -17,12 +17,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  Sheet,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -34,6 +35,12 @@ type RoleFilter = 'All' | 'Employee' | 'Branch Admin' | 'Attendance Manager' | '
 
 const roles: RoleFilter[] = ['All', 'Employee', 'Branch Admin', 'Attendance Manager', 'Advanced Attendance Manager'];
 
+const permissionOptions: {value: Employee['permission'], label: string, description: string}[] = [
+    { value: 'Branch Admin', label: 'Branch Admin', description: 'Mark attendance & salary of all employees' },
+    { value: 'Attendance Manager', label: 'Attendance Manager', description: 'Mark attendance of all employees' },
+    { value: 'Employee', label: 'Employee', description: 'Mark their own attendance' }
+]
+
 export default function UpdateRolesPage() {
   const router = useRouter();
   const { employees, isLoading } = useEmployees();
@@ -42,21 +49,14 @@ export default function UpdateRolesPage() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<RoleFilter>('All');
-  const [isPermissionSheetOpen, setIsPermissionSheetOpen] = useState(false);
+  const [isPermissionDialogOpen, setIsPermissionDialogOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [selectedPermission, setSelectedPermission] = useState<Employee['permission']>('Employee');
-
-  const permissionDescriptions: Record<string, string> = {
-    'Employee': 'Employee : Can mark their own attendance only.',
-    'Attendance Manager': 'Attendance Manager: Can mark attendance for other staff.',
-    'Branch Admin': 'Branch Admin: Has all access for this branch.',
-  };
-
 
   const handleEditRoleClick = (employee: Employee) => {
     setSelectedEmployee(employee);
     setSelectedPermission(employee.permission || 'Employee');
-    setIsPermissionSheetOpen(true);
+    setIsPermissionDialogOpen(true);
   };
 
   const handlePermissionSave = () => {
@@ -69,7 +69,7 @@ export default function UpdateRolesPage() {
       title: 'Permission Updated',
       description: `${selectedEmployee.name}'s permission has been set to ${selectedPermission}.`,
     });
-    setIsPermissionSheetOpen(false);
+    setIsPermissionDialogOpen(false);
     setSelectedEmployee(null);
   };
 
@@ -187,70 +187,48 @@ export default function UpdateRolesPage() {
       </main>
     </div>
     
-    <Sheet
-        open={isPermissionSheetOpen}
-        onOpenChange={setIsPermissionSheetOpen}
+    <Dialog
+        open={isPermissionDialogOpen}
+        onOpenChange={setIsPermissionDialogOpen}
       >
-        <SheetContent
-          side="bottom"
-          className="mx-auto w-full rounded-t-lg p-0 sm:max-w-lg"
+        <DialogContent
+          className="p-0"
         >
           <div className="p-6">
-            <SheetHeader className="mb-4 text-left">
-              <SheetTitle className="text-xl font-semibold">
-                Select Permission
-              </SheetTitle>
-            </SheetHeader>
+            <DialogHeader className="mb-6 text-left">
+              <DialogTitle className="text-xl font-semibold">
+                Select Role
+              </DialogTitle>
+            </DialogHeader>
             <RadioGroup
               value={selectedPermission}
               onValueChange={(value: any) => setSelectedPermission(value)}
-              className="space-y-3"
+              className="space-y-4"
             >
-              <div className="flex items-center space-x-3 rounded-lg border p-4">
-                <RadioGroupItem value="Employee" id="r1" />
-                <Label
-                  htmlFor="r1"
-                  className="w-full cursor-pointer text-base font-normal"
-                >
-                  Employee
+              {permissionOptions.map(option => (
+                <Label key={option.value} htmlFor={option.value} className="flex items-start space-x-4 rounded-lg border p-4 cursor-pointer has-[:checked]:border-accent has-[:checked]:bg-accent/5">
+                  <RadioGroupItem value={option.value!} id={option.value} className="mt-1"/>
+                  <div className="grid gap-1.5">
+                    <div className="font-semibold">{option.label}</div>
+                    <div className="text-sm text-muted-foreground">{option.description}</div>
+                  </div>
                 </Label>
-              </div>
-              <div className="flex items-center space-x-3 rounded-lg border p-4">
-                <RadioGroupItem value="Attendance Manager" id="r2" />
-                <Label
-                  htmlFor="r2"
-                  className="w-full cursor-pointer text-base font-normal"
-                >
-                  Attendance Manager
-                </Label>
-              </div>
-              <div className="flex items-center space-x-3 rounded-lg border p-4">
-                <RadioGroupItem value="Branch Admin" id="r3" />
-                <Label
-                  htmlFor="r3"
-                  className="w-full cursor-pointer text-base font-normal"
-                >
-                  Branch Admin
-                </Label>
-              </div>
+              ))}
             </RadioGroup>
-
-            {selectedPermission && (
-              <div className="mt-6 rounded-lg bg-green-100 p-3 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-200">
-                {permissionDescriptions[selectedPermission]}
-              </div>
-            )}
           </div>
-          <SheetFooter className="border-t bg-card p-4">
+          <DialogFooter className="border-t bg-card p-4 grid grid-cols-2 gap-2">
+            <DialogClose asChild>
+                <Button variant="ghost" className="h-11">CLOSE</Button>
+            </DialogClose>
             <Button
               onClick={handlePermissionSave}
-              className="h-12 w-full bg-accent text-accent-foreground hover:bg-accent/90"
+              className="h-11 bg-accent text-accent-foreground hover:bg-accent/90"
             >
-              Update Permission
+              UPDATE
             </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
