@@ -22,6 +22,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 
 export default function AdminsPage() {
@@ -86,6 +92,13 @@ export default function AdminsPage() {
     setIsSheetOpen(true);
   }
 
+  const handleEdit = (admin: typeof admins[0]) => {
+    // Placeholder function for edit action
+    toast({
+      title: `Editing ${admin.name}`,
+    });
+  };
+
   return (
     <>
       <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
@@ -125,9 +138,18 @@ export default function AdminsPage() {
                   <p className="text-sm text-muted-foreground">{admin.phone}</p>
                 </div>
               </div>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreVertical className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleEdit(admin)}>
+                    Edit
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ))}
         </main>
@@ -144,7 +166,7 @@ export default function AdminsPage() {
         <SheetContent side="bottom" className="mx-auto w-full rounded-t-2xl p-0 sm:max-w-md">
             <SheetHeader className="p-6 pb-2 text-center">
               <div className="mx-auto mb-4 h-1.5 w-12 shrink-0 rounded-full bg-muted" />
-              <SheetTitle className="text-xl font-semibold">Add Admin</SheetTitle>
+              <SheetTitle>Add Admin</SheetTitle>
             </SheetHeader>
             <div className="space-y-4 px-6 py-2">
                 <div>
