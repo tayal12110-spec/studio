@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Youtube, Loader2 } from 'lucide-react';
+import { ArrowLeft, Youtube, Loader2, MoreVertical, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -23,10 +23,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
+
+type Kiosk = {
+  name: string;
+  phone: string;
+};
+
+const KioskItem = ({ kiosk }: { kiosk: Kiosk }) => (
+  <Card>
+    <CardContent className="flex items-center justify-between p-4">
+      <div>
+        <p className="font-semibold">{kiosk.name}</p>
+        <p className="text-sm text-muted-foreground">{kiosk.phone}</p>
+      </div>
+      <Button variant="ghost" size="icon">
+        <MoreVertical className="h-5 w-5" />
+      </Button>
+    </CardContent>
+  </Card>
+);
 
 export default function ManageKioskPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const [kiosks, setKiosks] = useState<Kiosk[]>([]);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [kioskName, setKioskName] = useState('Attendance Kiosk');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -47,8 +68,14 @@ export default function ManageKioskPage() {
       return;
     }
     setIsSaving(true);
-    // Simulate saving
+    
+    const newKiosk: Kiosk = {
+        name: kioskName,
+        phone: `${countryCode} ${phoneNumber}`
+    };
+
     setTimeout(() => {
+      setKiosks(prev => [...prev, newKiosk]);
       setIsSaving(false);
       setIsSheetOpen(false);
       toast({
@@ -84,39 +111,58 @@ export default function ManageKioskPage() {
           <h1 className="ml-4 text-lg font-semibold">Manage Attendance Kiosk</h1>
         </header>
 
-        <main className="flex flex-1 flex-col items-center justify-center p-6 text-center">
-          <div className="space-y-4">
-            {kioskImage && (
-              <Image
-                src={kioskImage.imageUrl}
-                alt={kioskImage.description}
-                width={250}
-                height={200}
-                data-ai-hint={kioskImage.imageHint}
-              />
-            )}
-            <p className="text-lg text-muted-foreground">
-              Tap to add Attendance Kiosk
-            </p>
-          </div>
+        <main className="flex-1 overflow-y-auto p-4 pb-24">
+          {kiosks.length === 0 ? (
+             <div className="flex h-full flex-col items-center justify-center p-6 text-center">
+                <div className="space-y-4">
+                    {kioskImage && (
+                    <Image
+                        src={kioskImage.imageUrl}
+                        alt={kioskImage.description}
+                        width={250}
+                        height={200}
+                        data-ai-hint={kioskImage.imageHint}
+                    />
+                    )}
+                    <p className="text-lg text-muted-foreground">
+                    Tap to add Attendance Kiosk
+                    </p>
+                </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {kiosks.map((kiosk, index) => (
+                <KioskItem key={index} kiosk={kiosk} />
+              ))}
+            </div>
+          )}
         </main>
 
-        <footer className="sticky bottom-0 space-y-3 border-t bg-card p-4">
-          <Button
-            variant="outline"
-            className="w-full h-12 text-base"
-            onClick={handleHowToUse}
-          >
-            <Youtube className="mr-2 h-5 w-5 text-red-500" />
-            How to use Attendance Kiosk
-          </Button>
-          <Button
-            onClick={handleCreateKiosk}
-            className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90"
-          >
-            Create Attendance Kiosk
-          </Button>
-        </footer>
+        {kiosks.length === 0 ? (
+          <footer className="sticky bottom-0 space-y-3 border-t bg-card p-4">
+            <Button
+              variant="outline"
+              className="w-full h-12 text-base"
+              onClick={handleHowToUse}
+            >
+              <Youtube className="mr-2 h-5 w-5 text-red-500" />
+              How to use Attendance Kiosk
+            </Button>
+            <Button
+              onClick={handleCreateKiosk}
+              className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90"
+            >
+              Create Attendance Kiosk
+            </Button>
+          </footer>
+        ) : (
+            <div className="fixed bottom-24 right-6 z-10 md:bottom-6">
+                <Button onClick={handleCreateKiosk} className="h-12 rounded-full bg-accent px-6 text-base text-accent-foreground shadow-lg hover:bg-accent/90">
+                  <Plus className="mr-2 h-5 w-5" />
+                  Add Kiosk
+                </Button>
+            </div>
+        )}
       </div>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
