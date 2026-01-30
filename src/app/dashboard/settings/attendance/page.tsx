@@ -127,7 +127,7 @@ export default function AttendanceSettingsPage() {
              <SettingsRow icon={Fingerprint} label="Biometric Devices" onClick={() => router.push('/dashboard/settings/attendance/biometric-devices')}>
                 <ChevronRight className="h-5 w-5" />
             </SettingsRow>
-             <SettingsRow icon={Users} label="Attendance Kiosk">
+             <SettingsRow icon={Users} label="Attendance Kiosk" onClick={() => router.push('/dashboard/settings/attendance/kiosk')}>
                 <ChevronRight className="h-5 w-5" />
             </SettingsRow>
              <SettingsRow icon={Smartphone} label="Device Verification" isLast>
