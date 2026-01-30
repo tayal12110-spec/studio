@@ -171,7 +171,7 @@ export default function AttendanceSettingsPage() {
               </SettingsRow>
             </SettingsSection>
             
-             <SettingsSection title="Leaves & Holidays">
+             <SettingsSection title="Leaves &amp; Holidays">
                <SettingsRow icon={CalendarDays} label="Leave Requests" isFirst onClick={() => router.push('/dashboard/settings/attendance/leave-requests')}>
                   <ChevronRight className="h-5 w-5" />
               </SettingsRow>
@@ -219,7 +219,7 @@ export default function AttendanceSettingsPage() {
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col gap-2 pt-2">
             <AlertDialogAction
-              onClick={() => router.push('/dashboard/subscription/upgrade')}
+              onClick={() => router.push('/dashboard/subscription')}
               className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
             >
               Upgrade Now
