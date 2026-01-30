@@ -54,7 +54,7 @@ export default function CompanySettingsPage() {
         <div className="space-y-3">
             <SettingsItem icon={Building2} label="Company Details" href="/dashboard/settings/company/details" />
             <SettingsItem icon={GitBranch} label="My Branches" href="/dashboard/settings/company/branches" />
-            <SettingsItem icon={GitBranch} label="My Departments" href="#" />
+            <SettingsItem icon={GitBranch} label="My Departments" href="/dashboard/settings/company/departments" />
         </div>
       </main>
       <footer className="fixed bottom-0 left-0 right-0 border-t bg-card p-4">

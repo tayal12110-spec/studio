@@ -524,6 +524,18 @@
         "address",
         "radius"
       ]
+    },
+    "Department": {
+      "title": "Department",
+      "type": "object",
+      "description": "Represents a company department.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the department."
+        }
+      },
+      "required": ["name"]
     }
   },
   "auth": {
@@ -574,6 +586,12 @@
         "$ref": "#/backend/entities/Branch"
       },
       "description": "Stores company branch information. All authenticated users can access."
+    },
+    "/departments/{departmentId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Department"
+      },
+      "description": "Stores company department information. All authenticated users can access."
     }
   }
 }
