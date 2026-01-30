@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Search, RefreshCw, Loader2, Printer } from 'lucide-react';
+import { ArrowLeft, Search, RefreshCw, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
@@ -15,7 +15,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { format } from 'date-fns';
 
 export default function QrCodePage() {
   const router = useRouter();
@@ -44,28 +43,6 @@ export default function QrCodePage() {
   const handleGenerate = (branchId: string) => {
       setGeneratedQrCodes(prev => new Set(prev).add(branchId));
       setGenerationTime(prev => ({...prev, [branchId]: new Date()}));
-  }
-
-  const handlePrint = (branchId: string) => {
-    const qrCodeUrl = generateQrCodeUrl(branchId, Date.now());
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-        printWindow.document.write(`
-            <html>
-                <head><title>Print QR Code</title></head>
-                <body style="text-align: center; margin-top: 50px;">
-                    <img src="${qrCodeUrl}" />
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                            window.onafterprint = function() { window.close(); };
-                        }
-                    </script>
-                </body>
-            </html>
-        `);
-        printWindow.document.close();
-    }
   }
 
   return (
@@ -118,45 +95,27 @@ export default function QrCodePage() {
                 </AccordionTrigger>
                 <AccordionContent className="p-4 pt-0">
                     <div className="flex flex-col items-center justify-center space-y-4">
+                        <div className="relative h-48 w-48 rounded-lg border p-2">
                         {generatedQrCodes.has(branch.id) && generationTime[branch.id] ? (
-                            <>
-                                <div className="relative h-48 w-48 rounded-lg border p-2">
-                                    <Image
-                                        src={generateQrCodeUrl(branch.id, generationTime[branch.id]!.getTime())}
-                                        alt={`QR Code for ${branch.name}`}
-                                        width={180}
-                                        height={180}
-                                        key={generationTime[branch.id]!.getTime()}
-                                        data-ai-hint="qr code"
-                                    />
-                                </div>
-                                <p className="text-xs text-muted-foreground">
-                                    Generated on {format(generationTime[branch.id]!, "hh:mm a, dd MMMM yyyy")}
-                                </p>
-                                <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
-                                    <Button variant="outline" onClick={() => handleGenerate(branch.id)}>
-                                        <RefreshCw className="mr-2 h-4 w-4" />
-                                        Refresh QR Code
-                                    </Button>
-                                    <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={() => handlePrint(branch.id)}>
-                                        <Printer className="mr-2 h-4 w-4" />
-                                        Print QR Code
-                                    </Button>
-                                </div>
-                            </>
+                            <Image
+                                src={generateQrCodeUrl(branch.id, generationTime[branch.id]!.getTime())}
+                                alt={`QR Code for ${branch.name}`}
+                                width={180}
+                                height={180}
+                                key={generationTime[branch.id]!.getTime()}
+                                data-ai-hint="qr code"
+                            />
                         ) : (
-                            <>
-                                <div className="relative h-48 w-48 rounded-lg border p-2">
-                                    <div className="h-full w-full bg-muted/50 flex items-center justify-center text-muted-foreground text-sm">
-                                        Generate QR to view
-                                    </div>
-                                </div>
-                                <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={() => handleGenerate(branch.id)}>
-                                    <RefreshCw className="mr-2 h-4 w-4" />
-                                    Generate QR code
-                                </Button>
-                            </>
+                            <div className="h-full w-full bg-muted/50 flex items-center justify-center text-muted-foreground text-sm">
+                                Generate QR to view
+                            </div>
                         )}
+                        </div>
+
+                        <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={() => handleGenerate(branch.id)}>
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Generate QR code
+                        </Button>
                     </div>
                 </AccordionContent>
               </AccordionItem>
