@@ -53,7 +53,7 @@ export default function CompanySettingsPage() {
       <main className="flex-1 p-4">
         <div className="space-y-3">
             <SettingsItem icon={Building2} label="Company Details" href="/dashboard/settings/company/details" />
-            <SettingsItem icon={GitBranch} label="My Branches" href="#" />
+            <SettingsItem icon={GitBranch} label="My Branches" href="/dashboard/settings/company/branches" />
             <SettingsItem icon={GitBranch} label="My Departments" href="#" />
         </div>
       </main>
