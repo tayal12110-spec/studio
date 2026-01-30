@@ -35,6 +35,12 @@
       "description": "Illustration for no advance payment",
       "imageUrl": "https://images.unsplash.com/photo-1764185826281-fecec29aa5b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxlbXB0eSUyMGJveHxlbnwwfHx8fDE3Njk2MjQ4OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "empty box"
+    },
+    {
+      "id": "no-invoices",
+      "description": "Illustration for no invoices found",
+      "imageUrl": "https://images.unsplash.com/photo-1621998951482-d096a4c7dee4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxubyUyMGRvY3VtZW50fGVufDB8fHx8MTc2OTc2NTM0Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "no document"
     }
   ]
 }

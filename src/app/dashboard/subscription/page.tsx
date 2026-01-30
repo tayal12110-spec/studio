@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
 const SettingsItem = ({
@@ -50,14 +49,6 @@ const SettingsItem = ({
 
 export default function SubscriptionPage() {
   const router = useRouter();
-  const { toast } = useToast();
-
-  const handleDownloadInvoices = () => {
-    toast({
-      title: 'Coming Soon!',
-      description: 'Invoice download functionality is under development.',
-    });
-  };
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
@@ -88,7 +79,7 @@ export default function SubscriptionPage() {
             <SettingsItem
               icon={FileBarChart2}
               label="Download Invoices"
-              onClick={handleDownloadInvoices}
+              href="/dashboard/subscription/invoices"
             />
           </CardContent>
         </Card>
