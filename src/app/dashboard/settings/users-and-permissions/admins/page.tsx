@@ -9,6 +9,8 @@ import {
   Sheet,
   SheetContent,
   SheetFooter,
+  SheetHeader,
+  SheetTitle,
 } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -140,32 +142,32 @@ export default function AdminsPage() {
       
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent side="bottom" className="mx-auto w-full rounded-t-2xl p-0 sm:max-w-md">
-            <div className="p-6 pb-2">
-                <div className="mx-auto mb-4 h-1.5 w-12 shrink-0 rounded-full bg-muted" />
-                <h2 className="text-xl font-semibold text-center mb-4">Add Admin</h2>
-                <div className="space-y-4">
-                    <div>
-                        <Label htmlFor="name" className="sr-only">Name</Label>
-                        <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
+            <SheetHeader className="p-6 pb-2 text-center">
+              <div className="mx-auto mb-4 h-1.5 w-12 shrink-0 rounded-full bg-muted" />
+              <SheetTitle className="text-xl font-semibold">Add Admin</SheetTitle>
+            </SheetHeader>
+            <div className="space-y-4 px-6 py-2">
+                <div>
+                    <Label htmlFor="name" className="sr-only">Name</Label>
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
+                </div>
+                <div>
+                    <Label className="sr-only">Phone Number</Label>
+                    <div className="flex items-center gap-2">
+                        <Select value={countryCode} onValueChange={setCountryCode}>
+                            <SelectTrigger className="w-[85px]">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="+91">+91</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone Number" className="flex-1" />
                     </div>
-                    <div>
-                        <Label className="sr-only">Phone Number</Label>
-                        <div className="flex items-center gap-2">
-                            <Select value={countryCode} onValueChange={setCountryCode}>
-                                <SelectTrigger className="w-[85px]">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="+91">+91</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone Number" className="flex-1" />
-                        </div>
-                    </div>
-                    <div>
-                        <Label htmlFor="email" className="sr-only">Email Id</Label>
-                        <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email Id" />
-                    </div>
+                </div>
+                <div>
+                    <Label htmlFor="email" className="sr-only">Email Id</Label>
+                    <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email Id" />
                 </div>
             </div>
             <SheetFooter className="p-6 pt-4">
