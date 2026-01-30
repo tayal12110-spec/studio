@@ -100,7 +100,13 @@ export default function AttendanceSettingsPage() {
             >
               <ChevronRight className="h-5 w-5" />
             </SettingsRow>
-            <SettingsRow icon={Coffee} label="Breaks" hasNewBadge isLast>
+            <SettingsRow
+              icon={Coffee}
+              label="Breaks"
+              hasNewBadge
+              isLast
+              onClick={() => router.push('/dashboard/settings/attendance/breaks')}
+            >
                 <ChevronRight className="h-5 w-5" />
             </SettingsRow>
           </SettingsSection>
