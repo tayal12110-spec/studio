@@ -23,6 +23,17 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 type Holiday = {
   date: string;
@@ -212,13 +223,33 @@ export default function HolidayListPage() {
         </main>
 
         <footer className="sticky bottom-0 space-y-3 border-t bg-card p-4">
-          <Button
-            variant="outline"
-            className="h-12 w-full text-base text-accent border-accent hover:bg-accent/10 hover:text-accent"
-            onClick={handleAddAll}
-          >
-            Add all Public Holidays
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="h-12 w-full text-base text-accent border-accent hover:bg-accent/10 hover:text-accent"
+              >
+                Add all Public Holidays
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Add all holidays</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure, you want to add all public holidays?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Close</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleAddAll}
+                  className="bg-accent text-accent-foreground hover:bg-accent/90"
+                >
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <Button
             onClick={handleAddNew}
             className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
