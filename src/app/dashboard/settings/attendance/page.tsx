@@ -119,7 +119,7 @@ export default function AttendanceSettingsPage() {
                 isFirst
                 onClick={() => router.push('/dashboard/settings/attendance/face-recognition')}
             >
-                <ChevronRight className="h-5 w-5" />
+                <Button size="sm" className="h-auto py-1 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white">Enabled</Button>
             </SettingsRow>
              <SettingsRow icon={QrCode} label="QR Codes">
                 <ChevronRight className="h-5 w-5" />
