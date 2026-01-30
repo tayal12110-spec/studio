@@ -26,7 +26,7 @@ export default function LeaveRequestsPage() {
       </header>
 
       <main className="flex-1 overflow-y-auto">
-        <Tabs defaultValue="pending">
+        <Tabs defaultValue="history">
           <TabsList className="w-full h-auto justify-start rounded-none bg-card p-0 border-b">
             <TabsTrigger
               value="pending"
@@ -55,7 +55,7 @@ export default function LeaveRequestsPage() {
               </div>
             </div>
             <div className="flex h-[50vh] items-center justify-center text-center">
-                <p className="text-muted-foreground">No Pending Requests</p>
+                <p>No Pending Requests</p>
             </div>
           </TabsContent>
 
@@ -64,13 +64,15 @@ export default function LeaveRequestsPage() {
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
-                    placeholder="Search employee"
-                    className="pl-10"
+                      placeholder="Search employee"
+                      className="pl-10"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
             </div>
             <div className="flex h-[50vh] items-center justify-center text-center">
-              <p className="text-muted-foreground">No leave history found.</p>
+              <p>No Leave Requests</p>
             </div>
           </TabsContent>
         </Tabs>
