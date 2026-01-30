@@ -136,7 +136,7 @@ export default function AttendanceSettingsPage() {
           </SettingsSection>
           
            <SettingsSection title="Leaves & Holidays">
-             <SettingsRow icon={CalendarDays} label="Leave Requests" isFirst>
+             <SettingsRow icon={CalendarDays} label="Leave Requests" isFirst onClick={() => router.push('/dashboard/settings/attendance/leave-requests')}>
                 <ChevronRight className="h-5 w-5" />
             </SettingsRow>
              <SettingsRow icon={CalendarDays} label="Holiday List">
