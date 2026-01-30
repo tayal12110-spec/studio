@@ -20,11 +20,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export default function AddBranchLocationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  const firestore = useFirestore();
 
   const branchName = searchParams.get('branchName') || 'New Branch';
 
@@ -35,8 +38,25 @@ export default function AddBranchLocationPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const confirmAddBranch = () => {
+    if (!firestore) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Firestore is not available. Please try again.',
+      });
+      return;
+    }
     setIsSaving(true);
-    // In a real app, you'd save the branch with location and radius.
+
+    const branchesCol = collection(firestore, 'branches');
+    const newBranch = {
+      name: branchName,
+      address: location,
+      radius: radius,
+    };
+
+    addDocumentNonBlocking(branchesCol, newBranch);
+
     toast({
       title: 'Branch Added!',
       description: `The branch "${branchName}" has been successfully added.`,

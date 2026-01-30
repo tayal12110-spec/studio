@@ -32,5 +32,9 @@ service cloud.firestore {
     match /employees/{employeeId}/reimbursementRequests/{reimbursementRequestId} {
       allow read, write: if isSignedIn();
     }
+
+    match /branches/{branchId} {
+      allow read, write: if isSignedIn();
+    }
   }
 }

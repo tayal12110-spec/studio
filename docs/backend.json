@@ -500,6 +500,30 @@
         "status",
         "createdAt"
       ]
+    },
+    "Branch": {
+      "title": "Branch",
+      "type": "object",
+      "description": "Represents a company branch.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the branch."
+        },
+        "address": {
+          "type": "string",
+          "description": "The address of the branch."
+        },
+        "radius": {
+          "type": "number",
+          "description": "The geofence radius in meters."
+        }
+      },
+      "required": [
+        "name",
+        "address",
+        "radius"
+      ]
     }
   },
   "auth": {
@@ -544,6 +568,12 @@
         "$ref": "#/backend/entities/ReimbursementRequest"
       },
       "description": "Stores reimbursement requests for each employee."
+    },
+    "/branches/{branchId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Branch"
+      },
+      "description": "Stores company branch information. All authenticated users can access."
     }
   }
 }

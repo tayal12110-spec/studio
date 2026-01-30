@@ -2,9 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, MoreVertical, Plus, Target } from 'lucide-react';
+import { ArrowLeft, MoreVertical, Plus, Target, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, CollectionReference } from 'firebase/firestore';
+import type { Branch } from '../../../../data';
 
 const BranchItem = ({
   name,
@@ -37,6 +40,14 @@ const BranchItem = ({
 
 export default function MyBranchesPage() {
   const router = useRouter();
+  const firestore = useFirestore();
+
+  const branchesCol = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'branches') : null),
+    [firestore]
+  ) as CollectionReference | null;
+
+  const { data: branches, isLoading } = useCollection<Branch>(branchesCol);
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
@@ -52,13 +63,26 @@ export default function MyBranchesPage() {
         <h1 className="ml-4 text-lg font-semibold">Branches</h1>
       </header>
       <main className="flex-1 overflow-y-auto p-4 pb-24">
-        <div className="space-y-3">
-          <BranchItem
-            name="tut"
-            address="187, Sukhdev Vihar, Okhla, New Delhi, Delhi 110025, India"
-            radius={100}
-          />
-        </div>
+        {isLoading ? (
+          <div className="flex h-64 items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : branches && branches.length > 0 ? (
+          <div className="space-y-3">
+            {branches.map((branch) => (
+              <BranchItem
+                key={branch.id}
+                name={branch.name}
+                address={branch.address}
+                radius={branch.radius}
+              />
+            ))}
+          </div>
+        ) : (
+           <div className="text-center py-20 text-muted-foreground">
+            <p>No branches added yet.</p>
+          </div>
+        )}
       </main>
       <div className="fixed bottom-20 right-6 z-10 md:bottom-6">
           <Button asChild className="h-12 rounded-full bg-accent px-6 text-base text-accent-foreground shadow-lg hover:bg-accent/90">

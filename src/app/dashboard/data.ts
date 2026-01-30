@@ -115,3 +115,10 @@ export type ReimbursementRequest = {
     status: 'Pending' | 'Approved' | 'Rejected';
     createdAt: string; // ISO string
 };
+
+export type Branch = {
+  id: string; // Firestore document ID
+  name: string;
+  address: string;
+  radius: number;
+};
