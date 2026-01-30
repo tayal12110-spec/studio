@@ -124,7 +124,7 @@ export default function AttendanceSettingsPage() {
              <SettingsRow icon={QrCode} label="QR Codes" onClick={() => router.push('/dashboard/settings/attendance/qr-code')}>
                 <ChevronRight className="h-5 w-5" />
             </SettingsRow>
-             <SettingsRow icon={Fingerprint} label="Biometric Devices">
+             <SettingsRow icon={Fingerprint} label="Biometric Devices" onClick={() => router.push('/dashboard/settings/attendance/biometric-devices')}>
                 <ChevronRight className="h-5 w-5" />
             </SettingsRow>
              <SettingsRow icon={Users} label="Attendance Kiosk">
