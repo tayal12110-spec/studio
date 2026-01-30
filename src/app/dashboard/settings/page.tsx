@@ -76,7 +76,7 @@ export default function SettingsPage() {
       label: 'Subscriptions & Billing',
       href: '/dashboard/subscription',
     },
-    { icon: ShieldCheck, label: 'Background Verification' },
+    { icon: ShieldCheck, label: 'Background Verification', href: '/dashboard/settings/background-verification' },
     { icon: Users, label: 'Users & Permissions' },
     { icon: ClipboardList, label: 'Custom Fields' },
     { icon: CalendarCheck, label: 'Attendance Settings' },
