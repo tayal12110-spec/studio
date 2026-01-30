@@ -88,9 +88,12 @@ export default function AttendanceSettingsPage() {
   const { toast } = useToast();
   const [autoTrackEnabled, setAutoTrackEnabled] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isUpgradeDialogOpen, setIsUpgradeDialogOpen] = useState(false);
 
   const handleAutoTrackToggle = (checked: boolean) => {
     if (checked) {
+      // Don't set state, just open confirmation dialog.
+      // Switch will flip back, indicating the feature isn't active yet.
       setIsConfirmDialogOpen(true);
     } else {
       setAutoTrackEnabled(false);
@@ -102,12 +105,8 @@ export default function AttendanceSettingsPage() {
   };
 
   const handleConfirmTracking = () => {
-    setAutoTrackEnabled(true);
     setIsConfirmDialogOpen(false);
-    toast({
-      title: 'Auto Tracking Enabled',
-      description: 'Employee live location will be tracked for 12 hours after punch-in.',
-    });
+    setIsUpgradeDialogOpen(true);
   };
 
   return (
@@ -210,6 +209,25 @@ export default function AttendanceSettingsPage() {
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
+    <AlertDialog open={isUpgradeDialogOpen} onOpenChange={setIsUpgradeDialogOpen}>
+        <AlertDialogContent className="sm:max-w-xs">
+          <AlertDialogHeader className="text-center">
+            <AlertDialogTitle className="text-xl font-bold">Upgrade Plan</AlertDialogTitle>
+            <AlertDialogDescription className="pt-2">
+              Please upgrade your plan to use this feature
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 pt-2">
+            <AlertDialogAction
+              onClick={() => router.push('/dashboard/subscription/upgrade')}
+              className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
+            >
+              Upgrade Now
+            </AlertDialogAction>
+            <AlertDialogCancel className="mt-0 w-full">Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
