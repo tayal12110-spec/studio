@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Search, SlidersHorizontal, Loader2 } from 'lucide-react';
+import { ArrowLeft, Search, SlidersHorizontal, Loader2, Camera, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -20,6 +20,14 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetClose,
+} from '@/components/ui/sheet';
+
 
 export default function FaceRecognitionPage() {
   const router = useRouter();
@@ -28,9 +36,11 @@ export default function FaceRecognitionPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isFaceRecognitionEnabled, setIsFaceRecognitionEnabled] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isEnrollSheetOpen, setIsEnrollSheetOpen] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [isCameraViewOpen, setIsCameraViewOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
@@ -42,7 +52,39 @@ export default function FaceRecognitionPage() {
   
   const handleEnrollFace = (employeeName: string) => {
     setSelectedEmployeeName(employeeName);
-    setIsCameraViewOpen(true);
+    setIsEnrollSheetOpen(true);
+  };
+
+  const handleUploadOption = (option: 'camera' | 'upload') => {
+    setIsEnrollSheetOpen(false);
+    if (option === 'camera') {
+        setIsCameraViewOpen(true);
+    } else {
+        if (fileInputRef.current) {
+            fileInputRef.current.accept = 'image/*';
+            fileInputRef.current.click();
+        }
+    }
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onload = () => {
+              // In a real app, you'd send this dataUrl to your face recognition service
+              console.log('Uploaded image data URL for', selectedEmployeeName);
+              toast({
+                  title: "Face Enrolled!",
+                  description: `Face has been uploaded for ${selectedEmployeeName}.`,
+              });
+          };
+          reader.readAsDataURL(file);
+      }
+      // Reset file input
+      if (event.target) {
+          event.target.value = '';
+      }
   };
 
   useEffect(() => {
@@ -200,6 +242,13 @@ export default function FaceRecognitionPage() {
 
   return (
     <>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+        accept="image/*"
+      />
       <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
         <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
           <Button
@@ -256,6 +305,30 @@ export default function FaceRecognitionPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Sheet open={isEnrollSheetOpen} onOpenChange={setIsEnrollSheetOpen}>
+        <SheetContent side="bottom" className="sm:max-w-md mx-auto rounded-t-lg p-0">
+          <SheetHeader className="p-4 border-b flex flex-row items-center justify-between">
+            <SheetTitle className="text-left text-lg font-semibold">Enroll Face: {selectedEmployeeName}</SheetTitle>
+            <SheetClose asChild>
+                <Button variant="ghost" size="icon">
+                    <X className="h-5 w-5" />
+                    <span className="sr-only">Close</span>
+                </Button>
+            </SheetClose>
+          </SheetHeader>
+          <div className="grid grid-cols-2 gap-4 p-6">
+              <Button variant="outline" className="h-28 flex-col gap-2 border-dashed border-2" onClick={() => handleUploadOption('camera')}>
+                  <Camera className="h-8 w-8 text-muted-foreground" />
+                  <span className="text-base font-medium">Take a Photo</span>
+              </Button>
+              <Button variant="outline" className="h-28 flex-col gap-2 border-dashed border-2" onClick={() => handleUploadOption('upload')}>
+                  <Upload className="h-8 w-8 text-muted-foreground" />
+                  <span className="text-base font-medium">Upload From phone</span>
+              </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }
