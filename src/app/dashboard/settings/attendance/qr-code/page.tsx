@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Search, RefreshCw, Loader2 } from 'lucide-react';
+import { ArrowLeft, Search, RefreshCw, Loader2, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
@@ -15,10 +15,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 
 export default function QrCodePage() {
   const router = useRouter();
   const firestore = useFirestore();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [openAccordionItem, setOpenAccordionItem] = useState<string | undefined>();
   const [generatedQrCodes, setGeneratedQrCodes] = useState<Set<string>>(new Set());
@@ -43,7 +46,15 @@ export default function QrCodePage() {
   const handleGenerate = (branchId: string) => {
       setGeneratedQrCodes(prev => new Set(prev).add(branchId));
       setGenerationTime(prev => ({...prev, [branchId]: new Date()}));
-  }
+  };
+
+  const handlePrint = () => {
+    toast({
+      title: 'Printing not implemented',
+      description: 'This feature is for demonstration purposes.',
+    });
+    // In a real app: window.print();
+  };
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-background">
@@ -95,27 +106,45 @@ export default function QrCodePage() {
                 </AccordionTrigger>
                 <AccordionContent className="p-4 pt-0">
                     <div className="flex flex-col items-center justify-center space-y-4">
-                        <div className="relative h-48 w-48 rounded-lg border p-2">
                         {generatedQrCodes.has(branch.id) && generationTime[branch.id] ? (
-                            <Image
-                                src={generateQrCodeUrl(branch.id, generationTime[branch.id]!.getTime())}
-                                alt={`QR Code for ${branch.name}`}
-                                width={180}
-                                height={180}
-                                key={generationTime[branch.id]!.getTime()}
-                                data-ai-hint="qr code"
-                            />
+                            <>
+                                <div className="relative h-48 w-48 rounded-lg border p-2">
+                                    <Image
+                                        src={generateQrCodeUrl(branch.id, generationTime[branch.id]!.getTime())}
+                                        alt={`QR Code for ${branch.name}`}
+                                        width={180}
+                                        height={180}
+                                        key={generationTime[branch.id]!.getTime()}
+                                        data-ai-hint="qr code"
+                                    />
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                    Generated on {format(generationTime[branch.id]!, "p, dd MMMM yyyy")}
+                                </p>
+                                <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+                                    <Button variant="outline" onClick={() => handleGenerate(branch.id)}>
+                                        <RefreshCw className="mr-2 h-4 w-4" />
+                                        Refresh QR Code
+                                    </Button>
+                                    <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={handlePrint}>
+                                        <Printer className="mr-2 h-4 w-4" />
+                                        Print QR Code
+                                    </Button>
+                                </div>
+                            </>
                         ) : (
-                            <div className="h-full w-full bg-muted/50 flex items-center justify-center text-muted-foreground text-sm">
-                                Generate QR to view
-                            </div>
+                            <>
+                                <div className="relative h-48 w-48 rounded-lg border p-2">
+                                    <div className="h-full w-full bg-muted/50 flex items-center justify-center text-muted-foreground text-sm">
+                                        Generate QR to view
+                                    </div>
+                                </div>
+                                <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={() => handleGenerate(branch.id)}>
+                                    <RefreshCw className="mr-2 h-4 w-4" />
+                                    Generate QR code
+                                </Button>
+                            </>
                         )}
-                        </div>
-
-                        <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={() => handleGenerate(branch.id)}>
-                            <RefreshCw className="mr-2 h-4 w-4" />
-                            Generate QR code
-                        </Button>
                     </div>
                 </AccordionContent>
               </AccordionItem>
