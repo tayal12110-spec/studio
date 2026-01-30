@@ -121,7 +121,7 @@ export default function AttendanceSettingsPage() {
             >
                 <Button size="sm" className="h-auto py-1 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white">Enabled</Button>
             </SettingsRow>
-             <SettingsRow icon={QrCode} label="QR Codes">
+             <SettingsRow icon={QrCode} label="QR Codes" onClick={() => router.push('/dashboard/settings/attendance/qr-code')}>
                 <ChevronRight className="h-5 w-5" />
             </SettingsRow>
              <SettingsRow icon={Fingerprint} label="Biometric Devices">
