@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Search, SlidersHorizontal, Loader2, Camera, Upload, X } from 'lucide-react';
+import { ArrowLeft, Search, SlidersHorizontal, Loader2, Camera, Upload, X, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -19,6 +19,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent as AlertDialogWithoutButtons,
+  DialogHeader as AlertDialogHeaderWithoutButtons,
+  DialogTitle as AlertDialogTitleWithoutButtons,
+  DialogDescription as AlertDialogDescriptionWithoutButtons,
+  DialogFooter as AlertDialogFooterWithoutButtons,
+  DialogClose
+} from '@/components/ui/dialog';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import {
   Sheet,
@@ -27,6 +36,7 @@ import {
   SheetTitle,
   SheetClose,
 } from '@/components/ui/sheet';
+import type { Employee } from '@/app/dashboard/data';
 
 
 export default function FaceRecognitionPage() {
@@ -44,14 +54,18 @@ export default function FaceRecognitionPage() {
   const streamRef = useRef<MediaStream | null>(null);
   const [isCameraViewOpen, setIsCameraViewOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
-  const [selectedEmployeeName, setSelectedEmployeeName] = useState('');
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+
+  const [enrolledFaces, setEnrolledFaces] = useState<Set<string>>(new Set());
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+
 
   const filteredEmployees = employees.filter(employee =>
     employee.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
-  const handleEnrollFace = (employeeName: string) => {
-    setSelectedEmployeeName(employeeName);
+  const handleEnrollFace = (employee: Employee) => {
+    setSelectedEmployee(employee);
     setIsEnrollSheetOpen(true);
   };
 
@@ -67,17 +81,21 @@ export default function FaceRecognitionPage() {
     }
   };
 
+  const completeEnrollment = () => {
+    if (selectedEmployee) {
+      setEnrolledFaces(prev => new Set(prev).add(selectedEmployee.id));
+      setIsSuccessDialogOpen(true);
+    }
+  }
+
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
-      if (file) {
+      if (file && selectedEmployee) {
           const reader = new FileReader();
           reader.onload = () => {
               // In a real app, you'd send this dataUrl to your face recognition service
-              console.log('Uploaded image data URL for', selectedEmployeeName);
-              toast({
-                  title: "Face Enrolled!",
-                  description: `Face has been uploaded for ${selectedEmployeeName}.`,
-              });
+              console.log('Uploaded image data URL for', selectedEmployee.name);
+              completeEnrollment();
           };
           reader.readAsDataURL(file);
       }
@@ -131,7 +149,7 @@ export default function FaceRecognitionPage() {
   const handleCapture = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    if (video && canvas) {
+    if (video && canvas && selectedEmployee) {
         const context = canvas.getContext('2d');
         if (context) {
             canvas.width = video.videoWidth;
@@ -139,13 +157,10 @@ export default function FaceRecognitionPage() {
             context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
             const dataUrl = canvas.toDataURL('image/jpeg');
             // In a real app, you'd send this dataUrl to your face recognition service
-            console.log('Captured image data URL for', selectedEmployeeName);
+            console.log('Captured image data URL for', selectedEmployee.name);
+            completeEnrollment();
         }
     }
-    toast({
-        title: "Face Enrolled!",
-        description: `Face has been captured for ${selectedEmployeeName}.`,
-    });
     setIsCameraViewOpen(false);
   };
   
@@ -186,22 +201,36 @@ export default function FaceRecognitionPage() {
     return (
       <div className="space-y-1">
         <p className="px-4 py-2 text-sm text-muted-foreground">Showing {filteredEmployees.length} staff</p>
-        {filteredEmployees.map((employee) => (
-          <div
-            key={employee.id}
-            className="flex items-center justify-between bg-card p-4 border-b last:border-b-0"
-          >
-            <div className="flex items-center gap-4">
-              <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-primary text-primary-foreground">{employee.avatar || employee.name.charAt(0).toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <p className="font-medium">{employee.name}</p>
+        {filteredEmployees.map((employee) => {
+          const isEnrolled = enrolledFaces.has(employee.id);
+          return (
+            <div
+              key={employee.id}
+              className="flex items-center justify-between bg-card p-4 border-b last:border-b-0"
+            >
+              <div className="flex items-center gap-4">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-primary text-primary-foreground">{employee.avatar || employee.name.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div>
+                    <p className="font-medium">{employee.name}</p>
+                    {isEnrolled && (
+                        <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                            <CheckCircle className="h-4 w-4" />
+                            <span className="text-sm font-medium">Face enrolled</span>
+                        </div>
+                    )}
+                </div>
+              </div>
+              <Button 
+                className={isEnrolled ? "bg-card text-accent border border-accent hover:bg-accent/10" : "bg-accent text-accent-foreground hover:bg-accent/90"} 
+                onClick={() => handleEnrollFace(employee)}
+              >
+                {isEnrolled ? 'Update Face' : 'Enroll Face'}
+              </Button>
             </div>
-            <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={() => handleEnrollFace(employee.name)}>
-                Enroll Face
-            </Button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };
@@ -213,7 +242,7 @@ export default function FaceRecognitionPage() {
                 <Button variant="ghost" size="icon" onClick={() => setIsCameraViewOpen(false)}>
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
-                 <h1 className="text-lg font-semibold">Enroll Face for {selectedEmployeeName}</h1>
+                 <h1 className="text-lg font-semibold">Enroll Face for {selectedEmployee?.name}</h1>
                  <div></div>
             </header>
             <main className="flex flex-1 flex-col items-center justify-center p-4">
@@ -309,7 +338,7 @@ export default function FaceRecognitionPage() {
       <Sheet open={isEnrollSheetOpen} onOpenChange={setIsEnrollSheetOpen}>
         <SheetContent side="bottom" className="sm:max-w-md mx-auto rounded-t-lg p-0">
           <SheetHeader className="p-4 border-b flex flex-row items-center justify-between">
-            <SheetTitle className="text-left text-lg font-semibold">Enroll Face: {selectedEmployeeName}</SheetTitle>
+            <SheetTitle className="text-left text-lg font-semibold">Enroll Face: {selectedEmployee?.name}</SheetTitle>
             <SheetClose asChild>
                 <Button variant="ghost" size="icon">
                     <X className="h-5 w-5" />
@@ -329,6 +358,21 @@ export default function FaceRecognitionPage() {
           </div>
         </SheetContent>
       </Sheet>
+
+      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+        <AlertDialogWithoutButtons className="sm:max-w-xs">
+            <AlertDialogHeaderWithoutButtons className="text-center p-6 space-y-2">
+                <AlertDialogTitleWithoutButtons className="text-xl">Face enrolled Successfully!</AlertDialogTitleWithoutButtons>
+                <AlertDialogDescriptionWithoutButtons className="text-base text-muted-foreground">{selectedEmployee?.name}'s face enrolled successfully</AlertDialogDescriptionWithoutButtons>
+            </AlertDialogHeaderWithoutButtons>
+            <AlertDialogFooterWithoutButtons className="p-4 pt-0">
+                <DialogClose asChild>
+                    <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-11 text-base">Close</Button>
+                </DialogClose>
+            </AlertDialogFooterWithoutButtons>
+        </AlertDialogWithoutButtons>
+      </Dialog>
+
     </>
   );
 }
