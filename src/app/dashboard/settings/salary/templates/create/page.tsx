@@ -71,6 +71,9 @@ export default function CreateTemplatePage() {
   // State for Add Deduction
   const [isDeductionSheetOpen, setIsDeductionSheetOpen] = useState(false);
   const [addDeductionView, setAddDeductionView] = useState<'list' | 'form'>('list');
+  const [deductionName, setDeductionName] = useState('');
+  const [deductionAmount, setDeductionAmount] = useState('');
+  const [isDeductionFixed, setIsDeductionFixed] = useState(false);
 
   // Employer Contributions
   const [employerPf, setEmployerPf] = useState('Not Selected');
@@ -173,6 +176,11 @@ export default function CreateTemplatePage() {
     if (!open) {
         setAddDeductionView('list');
     }
+  }
+
+  const handleAddDeduction = () => {
+    toast({ title: 'Deduction added (not saved yet)' });
+    setAddDeductionView('list');
   }
 
   const contributionOptions = ['Not Selected', '12.0% Variable', '₹1800 Limit'];
@@ -332,20 +340,49 @@ export default function CreateTemplatePage() {
                     className="text-accent"
                     onClick={() => setAddDeductionView(prev => prev === 'list' ? 'form' : 'list')}
                 >
-                  Add Custom
+                  {addDeductionView === 'list' ? 'Add Custom' : 'Select Items'}
                 </Button>
             </SheetHeader>
-             <div className="py-12 text-center">
-                <p className="text-lg font-semibold">Please add custom items</p>
-                <p className="text-sm text-muted-foreground">Click on "Add Custom" Button</p>
-            </div>
-            <SheetFooter className="p-4 border-t">
-                <Button onClick={() => setIsDeductionSheetOpen(false)} className="w-full h-12 bg-accent text-accent-foreground hover:bg-accent/90">
-                    Save
-                </Button>
-            </SheetFooter>
+            {addDeductionView === 'list' ? (
+              <>
+                <div className="py-12 text-center">
+                    <p className="text-lg font-semibold">Please add custom items</p>
+                    <p className="text-sm text-muted-foreground">Click on "Add Custom" Button</p>
+                </div>
+                <SheetFooter className="p-4 border-t">
+                    <Button onClick={() => setIsDeductionSheetOpen(false)} className="w-full h-12 bg-accent text-accent-foreground hover:bg-accent/90">
+                        Save
+                    </Button>
+                </SheetFooter>
+              </>
+            ) : (
+              <>
+                <div className="p-6 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="deduction-name">Name</Label>
+                    <Input id="deduction-name" placeholder="Name" value={deductionName} onChange={(e) => setDeductionName(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="deduction-amount">Amount</Label>
+                    <Input id="deduction-amount" placeholder="Amount" type="number" value={deductionAmount} onChange={(e) => setDeductionAmount(e.target.value)} />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="deduction-fixed" checked={isDeductionFixed} onCheckedChange={(checked) => setIsDeductionFixed(!!checked)} />
+                    <Label htmlFor="deduction-fixed" className="font-normal">Fixed</Label>
+                  </div>
+                </div>
+                <SheetFooter className="p-4 border-t">
+                    <Button
+                      onClick={handleAddDeduction}
+                      className="w-full h-12 bg-accent text-accent-foreground hover:bg-accent/90"
+                    >
+                      Add Deduction
+                    </Button>
+                </SheetFooter>
+              </>
+            )}
         </SheetContent>
-    </Sheet>
+      </Sheet>
     </>
   );
 }
