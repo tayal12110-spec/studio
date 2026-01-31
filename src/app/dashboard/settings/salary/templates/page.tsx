@@ -10,6 +10,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import Link from 'next/link';
 
 const TemplateItem = ({ name }: { name: string }) => {
     const router = useRouter();
@@ -36,7 +37,7 @@ const TemplateItem = ({ name }: { name: string }) => {
                         <Button
                             variant="outline"
                             className="w-full"
-                            onClick={() => router.push('/dashboard/employees/some-id-placeholder/salary-details')}
+                            onClick={() => router.push('/dashboard/settings/salary/templates/create')}
                         >
                             View
                         </Button>
@@ -70,9 +71,11 @@ export default function SalaryTemplatesPage() {
         </div>
       </main>
       <div className="fixed bottom-24 left-0 right-0 flex justify-center">
-          <Button className="h-12 px-6 text-base bg-accent text-accent-foreground hover:bg-accent/90 rounded-full shadow-lg">
-            <Plus className="mr-2 h-5 w-5" />
-            Create Template
+          <Button asChild className="h-12 px-6 text-base bg-accent text-accent-foreground hover:bg-accent/90 rounded-full shadow-lg">
+            <Link href="/dashboard/settings/salary/templates/create">
+              <Plus className="mr-2 h-5 w-5" />
+              Create Template
+            </Link>
           </Button>
       </div>
     </div>
