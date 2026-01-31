@@ -20,27 +20,6 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   <h2 className="text-lg font-semibold text-muted-foreground">{children}</h2>
 );
 
-const AllowanceRow = ({ label, value, onValueChange, allowanceType, onTypeChange }: { label: string; value: string; onValueChange: (value: string) => void; allowanceType: 'fixed' | 'percentage'; onTypeChange: (type: 'fixed' | 'percentage') => void; }) => (
-    <div className="space-y-2">
-        <Label>{label}</Label>
-        <div className="relative">
-            <Input value={value} onChange={(e) => onValueChange(e.target.value)} type="number" className="pr-10" />
-            <span className="absolute inset-y-0 right-3 flex items-center text-muted-foreground">%</span>
-        </div>
-        <div className="flex gap-4 pt-2">
-            <div className="flex items-center space-x-2">
-                <Checkbox id={`${label}-fixed`} checked={allowanceType === 'fixed'} onCheckedChange={() => onTypeChange('fixed')} />
-                <Label htmlFor={`${label}-fixed`} className="font-normal text-muted-foreground">Fixed</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-                <Checkbox id={`${label}-percentage`} checked={allowanceType === 'percentage'} onCheckedChange={() => onTypeChange('percentage')} />
-                <Label htmlFor={`${label}-percentage`} className="font-normal text-muted-foreground">Percentage</Label>
-            </div>
-        </div>
-    </div>
-);
-
-
 const ContributionRow = ({ label, value, onValueChange, children, options }: { label: string; value: string; onValueChange: (value: string) => void; children?: React.ReactNode; options: string[] }) => (
     <div className="space-y-2">
         <Label>{label}</Label>
@@ -60,13 +39,8 @@ export default function CreateTemplatePage() {
   const router = useRouter();
   const { toast } = useToast();
   
-  const [templateName, setTemplateName] = useState('SalaryBox provided breakdown');
-  const [basic, setBasic] = useState('50.0');
-  const [hra, setHra] = useState('25.0');
-  const [travelAllowance, setTravelAllowance] = useState('10.0');
-  const [travelAllowanceType, setTravelAllowanceType] = useState<'fixed' | 'percentage'>('percentage');
-  const [specialAllowance, setSpecialAllowance] = useState('15.0');
-  const [specialAllowanceType, setSpecialAllowanceType] = useState<'fixed' | 'percentage'>('percentage');
+  const [templateName, setTemplateName] = useState('');
+  const [basic, setBasic] = useState('0.0');
   
   // Employer Contributions
   const [employerPf, setEmployerPf] = useState('Not Selected');
@@ -82,7 +56,7 @@ export default function CreateTemplatePage() {
 
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSaveTemplate = () => {
+  const handleCreateTemplate = () => {
     if (!templateName.trim()) {
         toast({ variant: 'destructive', title: 'Template Name is required.'});
         return;
@@ -90,7 +64,7 @@ export default function CreateTemplatePage() {
     setIsSaving(true);
     // Simulate API call
     setTimeout(() => {
-        toast({ title: 'Template Saved', description: `"${templateName}" has been saved.`});
+        toast({ title: 'Template Created', description: `"${templateName}" has been created.`});
         setIsSaving(false);
         router.back();
     }, 1000);
@@ -114,7 +88,7 @@ export default function CreateTemplatePage() {
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="ml-4 text-lg font-semibold">SalaryBox provided breakdown</h1>
+        <h1 className="ml-4 text-lg font-semibold">Create Template</h1>
       </header>
 
       <main className="flex-1 overflow-y-auto p-6">
@@ -133,28 +107,9 @@ export default function CreateTemplatePage() {
                         <span className="absolute inset-y-0 right-3 flex items-center text-muted-foreground">%</span>
                      </div>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="hra">HRA</Label>
-                     <div className="relative">
-                        <Input id="hra" value={hra} onChange={(e) => setHra(e.target.value)} type="number" className="pr-10" />
-                        <span className="absolute inset-y-0 right-3 flex items-center text-muted-foreground">%</span>
-                     </div>
-                </div>
-
-                <AllowanceRow 
-                    label="Travel Allowance" 
-                    value={travelAllowance} 
-                    onValueChange={setTravelAllowance} 
-                    allowanceType={travelAllowanceType}
-                    onTypeChange={(type) => setTravelAllowanceType(type)}
-                />
-                <AllowanceRow 
-                    label="Special Allowance" 
-                    value={specialAllowance} 
-                    onValueChange={setSpecialAllowance} 
-                    allowanceType={specialAllowanceType}
-                    onTypeChange={(type) => setSpecialAllowanceType(type)}
-                />
+                <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent">
+                    + Add Allowances
+                </Button>
             </div>
             
             <div className="space-y-4">
@@ -175,14 +130,17 @@ export default function CreateTemplatePage() {
                 <ContributionRow label="Employee ESI" value={employeeEsi} onValueChange={setEmployeeEsi} options={employeeEsiOptions} />
                 <ContributionRow label="Professional Tax" value={professionalTax} onValueChange={setProfessionalTax} options={profTaxOptions} />
                 <ContributionRow label="Labour Welfare Fund" value={employeeLwf} onValueChange={setEmployeeLwf} options={lwfOptions} />
+                <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent">
+                    + Add Deductions
+                </Button>
             </div>
         </div>
       </main>
       
       <footer className="sticky bottom-0 border-t bg-card p-4">
-        <Button onClick={handleSaveTemplate} disabled={isSaving} className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90">
+        <Button onClick={handleCreateTemplate} disabled={isSaving} className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90">
              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-             Save Template
+             Create Template
         </Button>
       </footer>
     </div>
