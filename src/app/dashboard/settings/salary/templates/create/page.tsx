@@ -61,7 +61,13 @@ export default function CreateTemplatePage() {
     'Dearness Allowance': false,
     'HRA': false,
   });
-  
+
+  // State for Add Custom Allowance
+  const [addAllowanceView, setAddAllowanceView] = useState<'list' | 'form'>('list');
+  const [allowanceName, setAllowanceName] = useState('');
+  const [allowanceAmount, setAllowanceAmount] = useState('');
+  const [allowanceValueType, setAllowanceValueType] = useState<'percentage' | 'fixed'>('percentage');
+
   // Employer Contributions
   const [employerPf, setEmployerPf] = useState('Not Selected');
   const [pfEdliCharges, setPfEdliCharges] = useState(false);
@@ -91,9 +97,11 @@ export default function CreateTemplatePage() {
   };
 
   const handleOpenAllowanceSheet = () => {
+    setAddAllowanceView('list');
     const current = { ...stagedAllowances };
+    const allowanceNames = new Set(allowances.map(a => a.name));
     for (const key in current) {
-      current[key] = allowances.some(a => a.name === key);
+      current[key] = allowanceNames.has(key);
     }
     setStagedAllowances(current);
     setIsAllowanceSheetOpen(true);
@@ -122,6 +130,39 @@ export default function CreateTemplatePage() {
   const handleAllowanceValueChange = (name: string, value: string) => {
       setAllowances(prev => prev.map(a => a.name === name ? {...a, value} : a));
   };
+  
+  const handleAddCustomAllowance = () => {
+    if (!allowanceName.trim() || !allowanceAmount.trim()) {
+      toast({
+        variant: 'destructive',
+        title: 'Missing information',
+        description: 'Please provide a name and amount for the allowance.',
+      });
+      return;
+    }
+    
+    setAllowances(prev => [
+      ...prev,
+      { name: allowanceName, value: allowanceAmount, type: allowanceValueType }
+    ]);
+    
+    setAllowanceName('');
+    setAllowanceAmount('');
+    setAllowanceValueType('percentage');
+    setAddAllowanceView('list');
+    
+    toast({
+      title: 'Allowance Added',
+      description: `"${allowanceName}" has been temporarily added.`,
+    });
+  };
+  
+  const handleSheetOpenChange = (open: boolean) => {
+    setIsAllowanceSheetOpen(open);
+    if (!open) {
+      setAddAllowanceView('list');
+    }
+  }
 
   const contributionOptions = ['Not Selected', '12.0% Variable', '₹1800 Limit'];
   const esiOptions = ['Not Selected', '3.25% Variable'];
@@ -207,29 +248,66 @@ export default function CreateTemplatePage() {
         </Button>
       </footer>
     </div>
-    <Sheet open={isAllowanceSheetOpen} onOpenChange={setIsAllowanceSheetOpen}>
+    <Sheet open={isAllowanceSheetOpen} onOpenChange={handleSheetOpenChange}>
         <SheetContent side="bottom" className="mx-auto w-full rounded-t-2xl p-0 sm:max-w-md">
             <SheetHeader className="p-4 flex flex-row items-center justify-between border-b">
                 <SheetTitle>Add Allowances</SheetTitle>
-                <Button variant="link" className="text-accent" onClick={() => toast({ title: 'Add Custom clicked'})}>Add Custom</Button>
-            </SheetHeader>
-            <div className="p-6 space-y-4">
-                {Object.keys(stagedAllowances).map(name => (
-                    <div key={name} className="flex items-center space-x-3">
-                        <Checkbox 
-                            id={name.toLowerCase().replace(' ', '-')} 
-                            checked={stagedAllowances[name]}
-                            onCheckedChange={(checked) => setStagedAllowances(prev => ({...prev, [name]: !!checked}))} />
-                        <Label htmlFor={name.toLowerCase().replace(' ', '-')} className="font-normal text-base">
-                            {name}
-                        </Label>
-                    </div>
-                ))}
-            </div>
-            <SheetFooter className="p-4 border-t">
-                <Button onClick={handleSaveAllowances} className="w-full h-12 bg-accent text-accent-foreground hover:bg-accent/90">
-                    Save
+                <Button
+                    variant="link"
+                    className="text-accent"
+                    onClick={() => setAddAllowanceView(prev => prev === 'list' ? 'form' : 'list')}
+                >
+                    {addAllowanceView === 'list' ? 'Add Custom' : 'Select Items'}
                 </Button>
+            </SheetHeader>
+            
+            {addAllowanceView === 'list' ? (
+                <div className="p-6 space-y-4">
+                    {Object.keys(stagedAllowances).map(name => (
+                        <div key={name} className="flex items-center space-x-3">
+                            <Checkbox 
+                                id={name.toLowerCase().replace(' ', '-')} 
+                                checked={stagedAllowances[name]}
+                                onCheckedChange={(checked) => setStagedAllowances(prev => ({...prev, [name]: !!checked}))} />
+                            <Label htmlFor={name.toLowerCase().replace(' ', '-')} className="font-normal text-base">
+                                {name}
+                            </Label>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="p-6 space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="allowance-name">Name</Label>
+                        <Input id="allowance-name" value={allowanceName} onChange={(e) => setAllowanceName(e.target.value)} placeholder="Name" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="allowance-amount">Amount</Label>
+                        <Input id="allowance-amount" value={allowanceAmount} onChange={(e) => setAllowanceAmount(e.target.value)} type="number" placeholder="Amount" />
+                    </div>
+                    <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-2">
+                            <Checkbox id="fixed-type" checked={allowanceValueType === 'fixed'} onCheckedChange={() => setAllowanceValueType('fixed')} />
+                            <Label htmlFor="fixed-type" className="font-normal">Fixed</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Checkbox id="percentage-type" checked={allowanceValueType === 'percentage'} onCheckedChange={() => setAllowanceValueType('percentage')} />
+                            <Label htmlFor="percentage-type" className="font-normal">Percentage</Label>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            <SheetFooter className="p-4 border-t">
+                 {addAllowanceView === 'list' ? (
+                    <Button onClick={handleSaveAllowances} className="w-full h-12 bg-accent text-accent-foreground hover:bg-accent/90">
+                        Save
+                    </Button>
+                ) : (
+                    <Button onClick={handleAddCustomAllowance} disabled={!allowanceName.trim() || !allowanceAmount.trim()} className="w-full h-12 bg-accent text-accent-foreground hover:bg-accent/90">
+                        Add Allowance
+                    </Button>
+                )}
             </SheetFooter>
         </SheetContent>
       </Sheet>
