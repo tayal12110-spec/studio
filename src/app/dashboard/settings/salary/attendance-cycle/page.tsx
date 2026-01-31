@@ -14,6 +14,17 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export default function AttendanceCyclePage() {
   const router = useRouter();
@@ -79,10 +90,30 @@ export default function AttendanceCyclePage() {
         </div>
       </main>
       <footer className="sticky bottom-0 border-t bg-card p-4">
-        <Button onClick={handleSave} className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90" disabled={isSaving}>
-            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90" disabled={isSaving}>
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className="sm:max-w-xs p-0">
+              <AlertDialogHeader className="text-center p-6">
+                  <AlertDialogTitle className="text-xl font-bold">Your Cycle will be updated!!</AlertDialogTitle>
+                  <AlertDialogDescription className="pt-2 text-base">
+                      e.g. Salary of Feb Month will be calculated based on attendance of 1 Jan to end of Jan
+                  </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="flex-col gap-2 p-6 pt-2">
+                  <AlertDialogAction onClick={handleSave} className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-11">
+                      Confirm
+                  </AlertDialogAction>
+                  <AlertDialogCancel asChild>
+                    <Button variant="ghost" className="w-full h-11">Cancel</Button>
+                  </AlertDialogCancel>
+              </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </footer>
     </div>
   );
