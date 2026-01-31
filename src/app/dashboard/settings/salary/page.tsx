@@ -102,6 +102,14 @@ export default function SalarySettingsPage() {
     });
   };
 
+  const handleRoundOffToggle = (checked: boolean) => {
+    setRoundOff(checked);
+    toast({
+      title: 'Setting Saved',
+      description: `Round off total salary has been ${checked ? 'enabled' : 'disabled'}.`,
+    });
+  };
+
 
   return (
     <>
@@ -167,7 +175,7 @@ export default function SalarySettingsPage() {
               <SettingsRow icon={Wallet} label="Manage Salary (CTC Template)" onClick={() => router.push('/dashboard/settings/salary/templates')} />
               <SettingsRow icon={HandCoins} label="Manage Incentive Types" onClick={() => router.push('/dashboard/settings/salary/incentive-types')} />
               <SettingsRow icon={Wallet} label="Round Off Total Salary">
-                  <Switch checked={roundOff} onCheckedChange={setRoundOff} />
+                  <Switch checked={roundOff} onCheckedChange={handleRoundOffToggle} />
               </SettingsRow>
           </div>
         </main>
