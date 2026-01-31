@@ -1,135 +1,167 @@
 'use client';
 
-import { DashboardHeader } from '@/components/dashboard/header';
+import { useRouter } from 'next/navigation';
+import {
+  ArrowLeft,
+  ChevronRight,
+  ClipboardList,
+  Wallet,
+  FileText as NotesIcon,
+  Users,
+  Handshake,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart';
-import { Download } from 'lucide-react';
-import { Pie, PieChart, ResponsiveContainer } from 'recharts';
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 
-const chartData = [
-  { department: 'Engineering', budget: 27500, fill: 'var(--color-engineering)' },
-  { department: 'Marketing', budget: 15000, fill: 'var(--color-marketing)' },
-  { department: 'Sales', budget: 12500, fill: 'var(--color-sales)' },
-  { department: 'HR', budget: 5000, fill: 'var(--color-hr)' },
-];
+const ReportRow = ({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) => (
+  <div
+    onClick={onClick}
+    className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 border-t"
+  >
+    <span className="font-medium">{label}</span>
+  </div>
+);
 
-const chartConfig = {
-  budget: {
-    label: 'Budget',
-  },
-  engineering: {
-    label: 'Engineering',
-    color: 'hsl(var(--chart-1))',
-  },
-  marketing: {
-    label: 'Marketing',
-    color: 'hsl(var(--chart-2))',
-  },
-  sales: {
-    label: 'Sales',
-    color: 'hsl(var(--chart-3))',
-  },
-  hr: {
-    label: 'HR',
-    color: 'hsl(var(--chart-4))',
-  },
-};
+const ReportCategoryRow = ({
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  icon: React.ElementType;
+  label: string;
+  onClick: () => void;
+}) => (
+  <div
+    onClick={onClick}
+    className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 border-b"
+  >
+    <div className="flex items-center gap-4">
+      <Icon className="h-6 w-6 text-primary" />
+      <span className="font-semibold text-lg">{label}</span>
+    </div>
+    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+  </div>
+);
 
-const reportData = [
-    { employeeId: 'E-12345', name: 'Alice Johnson', department: 'Engineering', netSalary: 5800.50, payDate: '2024-06-30' },
-    { employeeId: 'E-12346', name: 'Bob Williams', department: 'HR', netSalary: 4200.00, payDate: '2024-06-30' },
-    { employeeId: 'E-12348', name: 'Diana Prince', department: 'Sales', netSalary: 5500.75, payDate: '2024-06-30' },
-];
-
-function downloadCSV(data: any[], filename: string) {
-    if (data.length === 0) {
-        return;
-    }
-    const headers = Object.keys(data[0]);
-    const csvContent = [
-        headers.join(','),
-        ...data.map(row => headers.map(header => JSON.stringify(row[header])).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    if (link.href) {
-        URL.revokeObjectURL(link.href);
-    }
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-
-export default function ReportsPage() {
+export default function CompanyReportsPage() {
+  const router = useRouter();
   const { toast } = useToast();
 
-  const handleDownload = () => {
-    downloadCSV(reportData, 'payroll_report_june_2024.csv');
+  const handleReportClick = (reportName: string) => {
     toast({
-        title: 'Download Started',
-        description: 'Your payroll report is being downloaded.',
+      title: 'Generating Report...',
+      description: `Generating ${reportName}. This is a demo.`,
     });
   };
 
   return (
-    <div className="flex flex-col">
-      <DashboardHeader title="Reports">
-        <Button onClick={handleDownload}>
-          <Download className="mr-2 h-4 w-4" />
-          Download CSV
+    <div className="flex h-full min-h-screen flex-col bg-background">
+      <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Go back"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-5 w-5" />
         </Button>
-      </DashboardHeader>
-      <main className="flex-1 p-4 md:p-6">
-        <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-headline">
-                Department Budget Allocation
-              </CardTitle>
-              <CardDescription>
-                Monthly payroll budget distribution by department.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={chartConfig}
-                className="mx-auto aspect-square h-[300px]"
-              >
-                <ResponsiveContainer>
-                  <PieChart>
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent hideLabel />}
-                    />
-                    <Pie
-                      data={chartData}
-                      dataKey="budget"
-                      nameKey="department"
-                      innerRadius={60}
-                      strokeWidth={5}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-        </div>
+        <h1 className="ml-4 text-lg font-semibold">Company Reports</h1>
+      </header>
+      <main className="flex-1">
+        <Tabs defaultValue="reports" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 rounded-none h-auto p-0 bg-card border-b">
+            <TabsTrigger
+              value="reports"
+              className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none"
+            >
+              REPORTS
+            </TabsTrigger>
+            <TabsTrigger
+              value="downloads"
+              className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none"
+            >
+              DOWNLOADS
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="reports" className="m-0">
+            <Accordion type="single" collapsible defaultValue="item-1">
+              <AccordionItem value="item-1" className="border-b">
+                <AccordionTrigger className="p-4 hover:no-underline text-lg font-semibold">
+                  <div className="flex items-center gap-4">
+                    <ClipboardList className="h-6 w-6 text-primary" />
+                    <span>Attendance</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="p-0">
+                  <ReportRow
+                    label="Attendance Summary Report"
+                    onClick={() => handleReportClick('Attendance Summary Report')}
+                  />
+                  <ReportRow
+                    label="Detailed Attendance Report"
+                    onClick={() => handleReportClick('Detailed Attendance Report')}
+                  />
+                  <ReportRow
+                    label="Daily Attendance Report"
+                    onClick={() => handleReportClick('Daily Attendance Report')}
+                  />
+                  <ReportRow
+                    label="Company Roster Report"
+                    onClick={() => handleReportClick('Company Roster Report')}
+                  />
+                  <ReportRow
+                    label="Late Arrival Report"
+                    onClick={() => handleReportClick('Late Arrival Report')}
+                  />
+                  <ReportRow
+                    label="Leave Report"
+                    onClick={() => handleReportClick('Leave Report')}
+                  />
+                  <ReportRow
+                    label="Overtime Report"
+                    onClick={() => handleReportClick('Overtime Report')}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+            <ReportCategoryRow
+              icon={Wallet}
+              label="Payroll"
+              onClick={() => handleReportClick('Payroll Report')}
+            />
+             <ReportCategoryRow
+              icon={NotesIcon}
+              label="Notes"
+              onClick={() => handleReportClick('Notes Report')}
+            />
+             <ReportCategoryRow
+              icon={Users}
+              label="Employee List"
+              onClick={() => handleReportClick('Employee List Report')}
+            />
+             <ReportCategoryRow
+              icon={Handshake}
+              label="CRM"
+              onClick={() => handleReportClick('CRM Report')}
+            />
+          </TabsContent>
+          <TabsContent value="downloads" className="p-4 text-center text-muted-foreground mt-10">
+            No downloads available.
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
