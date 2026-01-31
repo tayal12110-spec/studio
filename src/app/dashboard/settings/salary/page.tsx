@@ -25,6 +25,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from '@/components/ui/sheet';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useToast } from '@/hooks/use-toast';
 
 const SettingsRow = ({
   icon: Icon,
@@ -53,23 +62,44 @@ const SettingsRow = ({
 
 export default function SalarySettingsPage() {
   const router = useRouter();
-  const [periodType, setPeriodType] = useState('fixed');
+  const { toast } = useToast();
+  const [periodType, setPeriodType] = useState('calendar');
   const [roundOff, setRoundOff] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [targetPeriodType, setTargetPeriodType] = useState<'calendar' | 'fixed' | null>(null);
+
+  const [isFixedDaysSheetOpen, setIsFixedDaysSheetOpen] = useState(false);
+  const [fixedDayType, setFixedDayType] = useState('30');
+  const [tempFixedDayType, setTempFixedDayType] = useState('30');
 
   const handlePeriodTypeClick = (type: 'calendar' | 'fixed') => {
     if (periodType !== type) {
       setTargetPeriodType(type);
       setIsConfirmDialogOpen(true);
+    } else if (type === 'fixed') {
+      setTempFixedDayType(fixedDayType);
+      setIsFixedDaysSheetOpen(true);
     }
   };
 
   const handleConfirmChange = () => {
     if (targetPeriodType) {
       setPeriodType(targetPeriodType);
+      if (targetPeriodType === 'fixed') {
+        setTempFixedDayType(fixedDayType);
+        setIsFixedDaysSheetOpen(true);
+      }
     }
     setIsConfirmDialogOpen(false);
+  };
+  
+  const handleSaveFixedDays = () => {
+    setFixedDayType(tempFixedDayType);
+    setIsFixedDaysSheetOpen(false);
+    toast({
+      title: 'Details Saved',
+      description: `Period type updated to ${tempFixedDayType} day month.`,
+    });
   };
 
 
@@ -124,9 +154,9 @@ export default function SalarySettingsPage() {
                 </div>
                 <h3 className="font-semibold">Fixed Days Month</h3>
                 <p className="text-sm text-muted-foreground">
-                  30 days month
+                  {fixedDayType} days month
                   <br />
-                  26 days month
+                  {fixedDayType === '26' ? '26 days month' : ''}
                 </p>
               </div>
             </div>
@@ -163,6 +193,49 @@ export default function SalarySettingsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Sheet open={isFixedDaysSheetOpen} onOpenChange={setIsFixedDaysSheetOpen}>
+        <SheetContent side="bottom" className="mx-auto w-full rounded-t-2xl p-0 sm:max-w-md">
+            <SheetHeader className="p-6 pb-2 text-center">
+              <div className="mx-auto mb-4 h-1.5 w-12 shrink-0 rounded-full bg-muted" />
+              <SheetTitle>Period Type</SheetTitle>
+            </SheetHeader>
+            <div className="px-6 py-4">
+              <RadioGroup
+                value={tempFixedDayType}
+                onValueChange={(value) => setTempFixedDayType(value)}
+                className="space-y-3"
+              >
+                <Label htmlFor="30-day" className="flex flex-col rounded-lg border p-4 cursor-pointer has-[:checked]:border-primary">
+                    <div className="flex items-center justify-between">
+                        <div className="text-left">
+                            <p className="font-semibold">30 Day Month</p>
+                            <p className="text-sm text-muted-foreground">eg. Jan - 30 days<br />Feb - 30 days</p>
+                        </div>
+                        <RadioGroupItem value="30" id="30-day" />
+                    </div>
+                </Label>
+                <Label htmlFor="26-day" className="flex flex-col rounded-lg border p-4 cursor-pointer has-[:checked]:border-primary">
+                    <div className="flex items-center justify-between">
+                        <div className="text-left">
+                            <p className="font-semibold">26 Days Month</p>
+                            <p className="text-sm text-muted-foreground">eg. Jan - 26 days<br />Feb - 26 days</p>
+                        </div>
+                        <RadioGroupItem value="26" id="26-day" />
+                    </div>
+                </Label>
+              </RadioGroup>
+            </div>
+            <SheetFooter className="p-6 pt-2">
+                <Button
+                    onClick={handleSaveFixedDays}
+                    className="h-12 w-full text-base bg-accent text-accent-foreground hover:bg-accent/90"
+                >
+                    Save Details
+                </Button>
+            </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }
