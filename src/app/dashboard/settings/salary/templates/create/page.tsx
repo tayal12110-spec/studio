@@ -15,6 +15,13 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   <h2 className="text-lg font-semibold text-muted-foreground">{children}</h2>
@@ -35,12 +42,25 @@ const ContributionRow = ({ label, value, onValueChange, children, options }: { l
     </div>
 );
 
+type Allowance = {
+  name: string;
+  value: string;
+  type: 'percent' | 'fixed';
+}
+
 export default function CreateTemplatePage() {
   const router = useRouter();
   const { toast } = useToast();
   
   const [templateName, setTemplateName] = useState('');
   const [basic, setBasic] = useState('0.0');
+
+  const [allowances, setAllowances] = useState<Allowance[]>([]);
+  const [isAllowanceSheetOpen, setIsAllowanceSheetOpen] = useState(false);
+  const [stagedAllowances, setStagedAllowances] = useState<Record<string, boolean>>({
+    'Dearness Allowance': false,
+    'HRA': false,
+  });
   
   // Employer Contributions
   const [employerPf, setEmployerPf] = useState('Not Selected');
@@ -70,6 +90,39 @@ export default function CreateTemplatePage() {
     }, 1000);
   };
 
+  const handleOpenAllowanceSheet = () => {
+    const current = { ...stagedAllowances };
+    for (const key in current) {
+      current[key] = allowances.some(a => a.name === key);
+    }
+    setStagedAllowances(current);
+    setIsAllowanceSheetOpen(true);
+  }
+
+  const handleSaveAllowances = () => {
+    const currentAllowances = [...allowances];
+    const allowanceNames = new Set(currentAllowances.map(a => a.name));
+
+    Object.entries(stagedAllowances).forEach(([name, checked]) => {
+      const isPresent = allowanceNames.has(name);
+      if (checked && !isPresent) {
+        currentAllowances.push({ name, value: '0.0', type: 'percent' });
+      } else if (!checked && isPresent) {
+        const index = currentAllowances.findIndex(a => a.name === name);
+        if (index > -1) {
+          currentAllowances.splice(index, 1);
+        }
+      }
+    });
+
+    setAllowances(currentAllowances);
+    setIsAllowanceSheetOpen(false);
+  };
+  
+  const handleAllowanceValueChange = (name: string, value: string) => {
+      setAllowances(prev => prev.map(a => a.name === name ? {...a, value} : a));
+  };
+
   const contributionOptions = ['Not Selected', '12.0% Variable', '₹1800 Limit'];
   const esiOptions = ['Not Selected', '3.25% Variable'];
   const lwfOptions = ['Not Applicable', 'Applicable'];
@@ -77,6 +130,7 @@ export default function CreateTemplatePage() {
   const profTaxOptions = ['Not Applicable', 'Applicable'];
 
   return (
+    <>
     <div className="flex h-full min-h-screen flex-col bg-background">
       <header className="flex h-16 shrink-0 items-center border-b bg-primary px-4 text-primary-foreground">
         <Button
@@ -107,7 +161,16 @@ export default function CreateTemplatePage() {
                         <span className="absolute inset-y-0 right-3 flex items-center text-muted-foreground">%</span>
                      </div>
                 </div>
-                <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent">
+                {allowances.map((allowance) => (
+                   <div key={allowance.name} className="space-y-2">
+                        <Label htmlFor={`allowance-${allowance.name}`}>{allowance.name}</Label>
+                        <div className="relative">
+                            <Input id={`allowance-${allowance.name}`} value={allowance.value} onChange={(e) => handleAllowanceValueChange(allowance.name, e.target.value)} type="number" className="pr-10" />
+                            <span className="absolute inset-y-0 right-3 flex items-center text-muted-foreground">%</span>
+                        </div>
+                   </div>
+                ))}
+                <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent" onClick={handleOpenAllowanceSheet}>
                     + Add Allowances
                 </Button>
             </div>
@@ -144,5 +207,32 @@ export default function CreateTemplatePage() {
         </Button>
       </footer>
     </div>
+    <Sheet open={isAllowanceSheetOpen} onOpenChange={setIsAllowanceSheetOpen}>
+        <SheetContent side="bottom" className="mx-auto w-full rounded-t-2xl p-0 sm:max-w-md">
+            <SheetHeader className="p-4 flex flex-row items-center justify-between border-b">
+                <SheetTitle>Add Allowances</SheetTitle>
+                <Button variant="link" className="text-accent" onClick={() => toast({ title: 'Add Custom clicked'})}>Add Custom</Button>
+            </SheetHeader>
+            <div className="p-6 space-y-4">
+                {Object.keys(stagedAllowances).map(name => (
+                    <div key={name} className="flex items-center space-x-3">
+                        <Checkbox 
+                            id={name.toLowerCase().replace(' ', '-')} 
+                            checked={stagedAllowances[name]}
+                            onCheckedChange={(checked) => setStagedAllowances(prev => ({...prev, [name]: !!checked}))} />
+                        <Label htmlFor={name.toLowerCase().replace(' ', '-')} className="font-normal text-base">
+                            {name}
+                        </Label>
+                    </div>
+                ))}
+            </div>
+            <SheetFooter className="p-4 border-t">
+                <Button onClick={handleSaveAllowances} className="w-full h-12 bg-accent text-accent-foreground hover:bg-accent/90">
+                    Save
+                </Button>
+            </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
