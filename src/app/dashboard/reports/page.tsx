@@ -108,7 +108,7 @@ export default function CompanyReportsPage() {
                 <AccordionContent className="p-0">
                   <ReportRow
                     label="Attendance Summary Report"
-                    onClick={() => handleReportClick('Attendance Summary Report')}
+                    onClick={() => router.push('/dashboard/reports/attendance-summary')}
                   />
                   <ReportRow
                     label="Detailed Attendance Report"
