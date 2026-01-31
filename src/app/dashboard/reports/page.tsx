@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowLeft,
   ChevronRight,
@@ -9,6 +9,9 @@ import {
   FileText as NotesIcon,
   Users,
   Handshake,
+  FileSpreadsheet,
+  Share2,
+  ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +22,14 @@ import {
 } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+
+type DownloadedReport = {
+  name: string;
+  month: string;
+  branch: string;
+};
 
 const ReportRow = ({
   label,
@@ -58,7 +69,29 @@ const ReportCategoryRow = ({
 
 export default function CompanyReportsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('reports');
+  const [downloads, setDownloads] = useState<DownloadedReport[]>([]);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'downloads') {
+      setActiveTab('downloads');
+      const reportName = searchParams.get('report_name');
+      const month = searchParams.get('month');
+      const branch = searchParams.get('branch');
+      if (reportName && month && branch) {
+        const newReport = { name: reportName, month, branch };
+        setDownloads(prev => {
+            if (prev.some(d => d.name === newReport.name && d.month === newReport.month && d.branch === newReport.branch)) {
+                return prev;
+            }
+            return [newReport, ...prev];
+        });
+      }
+    }
+  }, [searchParams]);
 
   const handleReportClick = (reportName: string) => {
     toast({
@@ -81,7 +114,7 @@ export default function CompanyReportsPage() {
         <h1 className="ml-4 text-lg font-semibold">Company Reports</h1>
       </header>
       <main className="flex-1">
-        <Tabs defaultValue="reports" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 rounded-none h-auto p-0 bg-card border-b">
             <TabsTrigger
               value="reports"
@@ -158,8 +191,41 @@ export default function CompanyReportsPage() {
               onClick={() => handleReportClick('CRM Report')}
             />
           </TabsContent>
-          <TabsContent value="downloads" className="p-4 text-center text-muted-foreground mt-10">
-            No downloads available.
+          <TabsContent value="downloads" className="p-4">
+            {downloads.length === 0 ? (
+                <div className="text-center py-20 text-muted-foreground mt-10">
+                    No downloads available.
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {downloads.map((report, index) => (
+                        <Card key={index}>
+                            <CardContent className="p-4">
+                                <div className="flex items-center gap-4">
+                                    <FileSpreadsheet className="h-8 w-8 text-green-600 mt-1 flex-shrink-0" />
+                                    <div className="flex-grow">
+                                        <p className="font-semibold">{report.name}</p>
+                                        <div className="flex justify-between text-sm text-muted-foreground">
+                                            <span>{report.month}</span>
+                                            <span>{report.branch}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-4 flex items-center gap-4">
+                                    <Button variant="ghost" className="text-primary hover:text-primary gap-2">
+                                        <ExternalLink className="h-4 w-4" />
+                                        Open
+                                    </Button>
+                                    <Button variant="ghost" className="text-primary hover:text-primary gap-2">
+                                        <Share2 className="h-4 w-4" />
+                                        Share
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
           </TabsContent>
         </Tabs>
       </main>

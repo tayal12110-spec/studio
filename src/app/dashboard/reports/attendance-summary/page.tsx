@@ -39,7 +39,25 @@ export default function AttendanceSummaryReportPage() {
       title: 'Downloading Report...',
       description: 'Your attendance summary report is being generated.',
     });
-    // In a real application, this would trigger a file download.
+    
+    const reportName = "Company Attendance Summary Report";
+    const monthString = duration ? format(duration, 'MMM yyyy') : 'Date N/A';
+    
+    const branchMap: { [key: string]: string } = {
+        all: 'All Branches',
+        main: 'Main',
+        tit: 'tit'
+    };
+    const branchString = branchMap[branch] || 'All Branches';
+    
+    const queryParams = new URLSearchParams({
+        tab: 'downloads',
+        report_name: reportName,
+        month: monthString,
+        branch: branchString,
+    });
+
+    router.push(`/dashboard/reports?${queryParams.toString()}`);
   };
 
   return (
