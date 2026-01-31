@@ -53,7 +53,7 @@ export default function CreateTemplatePage() {
   const { toast } = useToast();
   
   const [templateName, setTemplateName] = useState('');
-  const [basic, setBasic] = useState('0.0');
+  const [basic, setBasic] = useState('40.0');
 
   const [allowances, setAllowances] = useState<Allowance[]>([]);
   const [isAllowanceSheetOpen, setIsAllowanceSheetOpen] = useState(false);
@@ -67,6 +67,10 @@ export default function CreateTemplatePage() {
   const [allowanceName, setAllowanceName] = useState('');
   const [allowanceAmount, setAllowanceAmount] = useState('');
   const [allowanceValueType, setAllowanceValueType] = useState<'percentage' | 'fixed'>('percentage');
+  
+  // State for Add Deduction
+  const [isDeductionSheetOpen, setIsDeductionSheetOpen] = useState(false);
+  const [addDeductionView, setAddDeductionView] = useState<'list' | 'form'>('list');
 
   // Employer Contributions
   const [employerPf, setEmployerPf] = useState('Not Selected');
@@ -157,10 +161,17 @@ export default function CreateTemplatePage() {
     });
   };
   
-  const handleSheetOpenChange = (open: boolean) => {
+  const handleAllowanceSheetOpenChange = (open: boolean) => {
     setIsAllowanceSheetOpen(open);
     if (!open) {
       setAddAllowanceView('list');
+    }
+  }
+  
+  const handleDeductionSheetOpenChange = (open: boolean) => {
+    setIsDeductionSheetOpen(open);
+    if (!open) {
+        setAddDeductionView('list');
     }
   }
 
@@ -234,7 +245,7 @@ export default function CreateTemplatePage() {
                 <ContributionRow label="Employee ESI" value={employeeEsi} onValueChange={setEmployeeEsi} options={employeeEsiOptions} />
                 <ContributionRow label="Professional Tax" value={professionalTax} onValueChange={setProfessionalTax} options={profTaxOptions} />
                 <ContributionRow label="Labour Welfare Fund" value={employeeLwf} onValueChange={setEmployeeLwf} options={lwfOptions} />
-                <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent">
+                <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent" onClick={() => setIsDeductionSheetOpen(true)}>
                     + Add Deductions
                 </Button>
             </div>
@@ -248,7 +259,7 @@ export default function CreateTemplatePage() {
         </Button>
       </footer>
     </div>
-    <Sheet open={isAllowanceSheetOpen} onOpenChange={handleSheetOpenChange}>
+    <Sheet open={isAllowanceSheetOpen} onOpenChange={handleAllowanceSheetOpenChange}>
         <SheetContent side="bottom" className="mx-auto w-full rounded-t-2xl p-0 sm:max-w-md">
             <SheetHeader className="p-4 flex flex-row items-center justify-between border-b">
                 <SheetTitle>Add Allowances</SheetTitle>
@@ -310,7 +321,31 @@ export default function CreateTemplatePage() {
                 )}
             </SheetFooter>
         </SheetContent>
-      </Sheet>
+    </Sheet>
+    
+    <Sheet open={isDeductionSheetOpen} onOpenChange={handleDeductionSheetOpenChange}>
+        <SheetContent side="bottom" className="mx-auto w-full rounded-t-2xl p-0 sm:max-w-md">
+            <SheetHeader className="p-4 flex flex-row items-center justify-between border-b">
+                <SheetTitle>Add Deductions</SheetTitle>
+                <Button
+                    variant="link"
+                    className="text-accent"
+                    onClick={() => setAddDeductionView(prev => prev === 'list' ? 'form' : 'list')}
+                >
+                  Add Custom
+                </Button>
+            </SheetHeader>
+             <div className="py-12 text-center">
+                <p className="text-lg font-semibold">Please add custom items</p>
+                <p className="text-sm text-muted-foreground">Click on "Add Custom" Button</p>
+            </div>
+            <SheetFooter className="p-4 border-t">
+                <Button onClick={() => setIsDeductionSheetOpen(false)} className="w-full h-12 bg-accent text-accent-foreground hover:bg-accent/90">
+                    Save
+                </Button>
+            </SheetFooter>
+        </SheetContent>
+    </Sheet>
     </>
   );
 }
