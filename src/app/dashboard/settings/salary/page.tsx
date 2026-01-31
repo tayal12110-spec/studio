@@ -163,7 +163,7 @@ export default function SalarySettingsPage() {
           </div>
 
           <div className="space-y-3">
-              <SettingsRow icon={CalendarDays} label="Attendance Cycle" onClick={() => {}} />
+              <SettingsRow icon={CalendarDays} label="Attendance Cycle" onClick={() => router.push('/dashboard/settings/salary/attendance-cycle')} />
               <SettingsRow icon={Wallet} label="Manage Salary (CTC Template)" onClick={() => router.push('/dashboard/settings/salary/templates')} />
               <SettingsRow icon={HandCoins} label="Manage Incentive Types" onClick={() => {}} />
               <SettingsRow icon={Wallet} label="Round Off Total Salary">
