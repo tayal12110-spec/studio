@@ -4,23 +4,48 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, MoreVertical, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 
-const TemplateItem = ({ name }: { name: string }) => (
-    <Card>
-      <CardContent className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-orange-500 text-white font-semibold">S</AvatarFallback>
-          </Avatar>
-          <p className="font-medium text-base">{name}</p>
-        </div>
-        <Button variant="ghost" size="icon">
-          <MoreVertical className="h-5 w-5" />
-        </Button>
-      </CardContent>
-    </Card>
-);
+const TemplateItem = ({ name }: { name: string }) => {
+    const router = useRouter();
+
+    return (
+        <Collapsible>
+            <Card>
+                <div className="flex items-center justify-between p-4">
+                    <CollapsibleTrigger asChild>
+                        <div className="flex flex-1 items-center gap-4 cursor-pointer">
+                            <Avatar className="h-10 w-10">
+                                <AvatarFallback className="bg-orange-500 text-white font-semibold">S</AvatarFallback>
+                            </Avatar>
+                            <p className="font-medium text-base">{name}</p>
+                        </div>
+                    </CollapsibleTrigger>
+                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); /* TODO: open menu */ }}>
+                        <MoreVertical className="h-5 w-5" />
+                    </Button>
+                </div>
+
+                <CollapsibleContent>
+                    <div className="px-4 pb-4">
+                        <Button
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => router.push('/dashboard/employees/some-id-placeholder/salary-details')}
+                        >
+                            View
+                        </Button>
+                    </div>
+                </CollapsibleContent>
+            </Card>
+        </Collapsible>
+    );
+};
 
 
 export default function SalaryTemplatesPage() {
