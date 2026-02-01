@@ -100,6 +100,20 @@ export default function CompanyReportsPage() {
     });
   };
 
+  const handleOpenReport = () => {
+    toast({
+      title: 'Opening Report',
+      description: 'This is a demo. The report would open here.',
+    });
+  };
+
+  const handleShareReport = () => {
+    toast({
+      title: 'Sharing Report',
+      description: 'This is a demo. Sharing functionality would be implemented here.',
+    });
+  };
+
   return (
     <div className="flex h-full min-h-screen flex-col bg-background">
       <header className="flex h-16 shrink-0 items-center border-b bg-card px-4">
@@ -212,11 +226,11 @@ export default function CompanyReportsPage() {
                                     </div>
                                 </div>
                                 <div className="mt-4 flex items-center gap-4">
-                                    <Button variant="ghost" className="text-primary hover:text-primary gap-2">
+                                    <Button variant="ghost" className="text-primary hover:text-primary gap-2" onClick={handleOpenReport}>
                                         <ExternalLink className="h-4 w-4" />
                                         Open
                                     </Button>
-                                    <Button variant="ghost" className="text-primary hover:text-primary gap-2">
+                                    <Button variant="ghost" className="text-primary hover:text-primary gap-2" onClick={handleShareReport}>
                                         <Share2 className="h-4 w-4" />
                                         Share
                                     </Button>
