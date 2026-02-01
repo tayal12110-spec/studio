@@ -224,7 +224,7 @@ export default function CompanyReportsPage() {
                   />
                   <ReportRow
                     label="Leave Report"
-                    onClick={() => handleReportClick('Leave Report')}
+                    onClick={() => router.push('/dashboard/reports/leave-report')}
                   />
                   <ReportRow
                     label="Overtime Report"
