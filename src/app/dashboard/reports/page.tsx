@@ -195,7 +195,7 @@ export default function CompanyReportsPage() {
                   />
                   <ReportRow
                     label="Daily Attendance Report"
-                    onClick={() => handleReportClick('Daily Attendance Report')}
+                    onClick={() => router.push('/dashboard/reports/daily-attendance')}
                   />
                   <ReportRow
                     label="Company Roster Report"
