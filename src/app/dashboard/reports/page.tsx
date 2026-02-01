@@ -30,7 +30,7 @@ type DownloadedReport = {
   name: string;
   month: string;
   branch: string;
-  format: 'pdf' | 'xls';
+  format: 'pdf' | 'xls' | 'csv';
 };
 
 const ReportRow = ({
@@ -83,7 +83,7 @@ export default function CompanyReportsPage() {
       const reportName = searchParams.get('report_name');
       const month = searchParams.get('month');
       const branch = searchParams.get('branch');
-      const format = searchParams.get('format') as 'pdf' | 'xls' | null;
+      const format = searchParams.get('format') as 'pdf' | 'xls' | 'csv' | null;
 
       if (reportName && month && branch && format) {
         const newReport: DownloadedReport = { name: reportName, month, branch, format };
@@ -115,8 +115,12 @@ export default function CompanyReportsPage() {
 
   const handleShareReport = async (report: DownloadedReport) => {
     const fileName = `${report.name.replace(/\s/g, '_')}.${report.format}`;
+    let mimeType = 'application/octet-stream';
+    if (report.format === 'pdf') mimeType = 'application/pdf';
+    else if (report.format === 'xls') mimeType = 'application/vnd.ms-excel';
+    else if (report.format === 'csv') mimeType = 'text/csv';
+
     const fileContent = `This is a dummy file for the report: ${report.name}`;
-    const mimeType = report.format === 'pdf' ? 'application/pdf' : 'application/vnd.ms-excel';
 
     try {
       const blob = new Blob([fileContent], { type: mimeType });
@@ -143,6 +147,19 @@ export default function CompanyReportsPage() {
               description: 'There was an error trying to share the report.',
             });
         }
+    }
+  };
+
+  const getFileIcon = (format: 'pdf' | 'xls' | 'csv') => {
+    switch (format) {
+      case 'pdf':
+        return <FileIcon className="h-8 w-8 text-red-600 mt-1 flex-shrink-0" />;
+      case 'xls':
+        return <FileSpreadsheet className="h-8 w-8 text-green-600 mt-1 flex-shrink-0" />;
+      case 'csv':
+        return <FileSpreadsheet className="h-8 w-8 text-green-700 mt-1 flex-shrink-0" />;
+      default:
+        return <FileIcon className="h-8 w-8 text-gray-500 mt-1 flex-shrink-0" />;
     }
   };
 
@@ -203,7 +220,7 @@ export default function CompanyReportsPage() {
                   />
                   <ReportRow
                     label="Late Arrival Report"
-                    onClick={() => handleReportClick('Late Arrival Report')}
+                    onClick={() => router.push('/dashboard/reports/late-arrival')}
                   />
                   <ReportRow
                     label="Leave Report"
@@ -248,11 +265,7 @@ export default function CompanyReportsPage() {
                         <Card key={index}>
                             <CardContent className="p-4">
                                 <div className="flex items-center gap-4">
-                                    {report.format === 'xls' ? (
-                                        <FileSpreadsheet className="h-8 w-8 text-green-600 mt-1 flex-shrink-0" />
-                                    ) : (
-                                        <FileIcon className="h-8 w-8 text-red-600 mt-1 flex-shrink-0" />
-                                    )}
+                                    {getFileIcon(report.format)}
                                     <div className="flex-grow">
                                         <p className="font-semibold">{report.name}</p>
                                         <div className="flex justify-between text-sm text-muted-foreground">
