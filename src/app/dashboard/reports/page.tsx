@@ -199,7 +199,7 @@ export default function CompanyReportsPage() {
                   />
                   <ReportRow
                     label="Company Roster Report"
-                    onClick={() => handleReportClick('Company Roster Report')}
+                    onClick={() => router.push('/dashboard/reports/company-roster')}
                   />
                   <ReportRow
                     label="Late Arrival Report"
