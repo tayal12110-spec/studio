@@ -104,11 +104,13 @@ export default function CompanyReportsPage() {
     });
   };
 
-  const handleOpenReport = () => {
-    toast({
-      title: 'Opening Report',
-      description: 'This is a demo. The report would open here.',
+  const handleOpenReport = (report: DownloadedReport) => {
+    const queryParams = new URLSearchParams({
+        name: report.name,
+        month: report.month,
+        branch: report.branch,
     });
+    router.push(`/dashboard/reports/detailed-attendance/view?${queryParams.toString()}`);
   };
 
   const handleShareReport = async (report: DownloadedReport) => {
@@ -260,7 +262,7 @@ export default function CompanyReportsPage() {
                                     </div>
                                 </div>
                                 <div className="mt-4 flex items-center gap-4">
-                                    <Button variant="ghost" className="text-primary hover:text-primary gap-2" onClick={handleOpenReport}>
+                                    <Button variant="ghost" className="text-primary hover:text-primary gap-2" onClick={() => handleOpenReport(report)}>
                                         <ExternalLink className="h-4 w-4" />
                                         Open
                                     </Button>
