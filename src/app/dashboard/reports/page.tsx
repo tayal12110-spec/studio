@@ -12,6 +12,7 @@ import {
   FileSpreadsheet,
   Share2,
   ExternalLink,
+  File as FileIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,6 +30,7 @@ type DownloadedReport = {
   name: string;
   month: string;
   branch: string;
+  format: 'pdf' | 'xls';
 };
 
 const ReportRow = ({
@@ -81,10 +83,12 @@ export default function CompanyReportsPage() {
       const reportName = searchParams.get('report_name');
       const month = searchParams.get('month');
       const branch = searchParams.get('branch');
-      if (reportName && month && branch) {
-        const newReport = { name: reportName, month, branch };
+      const format = searchParams.get('format') as 'pdf' | 'xls' | null;
+
+      if (reportName && month && branch && format) {
+        const newReport: DownloadedReport = { name: reportName, month, branch, format };
         setDownloads(prev => {
-            if (prev.some(d => d.name === newReport.name && d.month === newReport.month && d.branch === newReport.branch)) {
+            if (prev.some(d => d.name === newReport.name && d.month === newReport.month && d.branch === newReport.branch && d.format === newReport.format)) {
                 return prev;
             }
             return [newReport, ...prev];
@@ -107,11 +111,37 @@ export default function CompanyReportsPage() {
     });
   };
 
-  const handleShareReport = () => {
-    toast({
-      title: 'Sharing Report',
-      description: 'This is a demo. Sharing functionality would be implemented here.',
-    });
+  const handleShareReport = async (report: DownloadedReport) => {
+    const fileName = `${report.name.replace(/\s/g, '_')}.${report.format}`;
+    const fileContent = `This is a dummy file for the report: ${report.name}`;
+    const mimeType = report.format === 'pdf' ? 'application/pdf' : 'application/vnd.ms-excel';
+
+    try {
+      const blob = new Blob([fileContent], { type: mimeType });
+      const file = new File([blob], fileName, { type: mimeType });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: report.name,
+          text: `Here is the report: ${report.name}`,
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Sharing not supported',
+          description: 'Your browser does not support sharing files.',
+        });
+      }
+    } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+            toast({
+              variant: 'destructive',
+              title: 'Error Sharing',
+              description: 'There was an error trying to share the report.',
+            });
+        }
+    }
   };
 
   return (
@@ -216,7 +246,11 @@ export default function CompanyReportsPage() {
                         <Card key={index}>
                             <CardContent className="p-4">
                                 <div className="flex items-center gap-4">
-                                    <FileSpreadsheet className="h-8 w-8 text-green-600 mt-1 flex-shrink-0" />
+                                    {report.format === 'xls' ? (
+                                        <FileSpreadsheet className="h-8 w-8 text-green-600 mt-1 flex-shrink-0" />
+                                    ) : (
+                                        <FileIcon className="h-8 w-8 text-red-600 mt-1 flex-shrink-0" />
+                                    )}
                                     <div className="flex-grow">
                                         <p className="font-semibold">{report.name}</p>
                                         <div className="flex justify-between text-sm text-muted-foreground">
@@ -230,7 +264,7 @@ export default function CompanyReportsPage() {
                                         <ExternalLink className="h-4 w-4" />
                                         Open
                                     </Button>
-                                    <Button variant="ghost" className="text-primary hover:text-primary gap-2" onClick={handleShareReport}>
+                                    <Button variant="ghost" className="text-primary hover:text-primary gap-2" onClick={() => handleShareReport(report)}>
                                         <Share2 className="h-4 w-4" />
                                         Share
                                     </Button>

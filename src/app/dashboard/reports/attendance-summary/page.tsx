@@ -32,15 +32,18 @@ export default function AttendanceSummaryReportPage() {
   const [department, setDepartment] = useState('all');
   const [usePayrollCycle, setUsePayrollCycle] = useState(false);
   const [duration, setDuration] = useState<Date | undefined>(new Date(2026, 0));
-  const [formatType, setFormatType] = useState('xls');
+  const [formatType, setFormatType] = useState<'xls'>('xls');
 
   const handleDownload = () => {
+    const reportName = usePayrollCycle
+      ? "Company Attendance Summary Report (Payroll Attendance Cycle)"
+      : "Company Attendance Summary Report";
+
     toast({
       title: 'Downloading Report...',
       description: 'Your attendance summary report is being generated.',
     });
     
-    const reportName = "Company Attendance Summary Report";
     const monthString = duration ? format(duration, 'MMM yyyy') : 'Date N/A';
     
     const branchMap: { [key: string]: string } = {
@@ -55,6 +58,7 @@ export default function AttendanceSummaryReportPage() {
         report_name: reportName,
         month: monthString,
         branch: branchString,
+        format: formatType,
     });
 
     router.push(`/dashboard/reports?${queryParams.toString()}`);
@@ -146,7 +150,7 @@ export default function AttendanceSummaryReportPage() {
         
         <div>
             <Label>Select Format</Label>
-            <RadioGroup value={formatType} onValueChange={setFormatType} className="mt-2">
+            <RadioGroup value={formatType} onValueChange={(value) => setFormatType(value as 'xls')} className="mt-2">
                 <div className="rounded-lg border has-[:checked]:border-primary has-[:checked]:bg-primary/10">
                 <Label htmlFor="format-xls" className="flex cursor-pointer items-center gap-3 p-3">
                     <RadioGroupItem value="xls" id="format-xls" />

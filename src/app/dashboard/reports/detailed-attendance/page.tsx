@@ -32,15 +32,18 @@ export default function DetailedAttendanceReportPage() {
   const [department, setDepartment] = useState('all');
   const [usePayrollCycle, setUsePayrollCycle] = useState(false);
   const [duration, setDuration] = useState<Date | undefined>(new Date(2026, 1)); // Feb 2026
-  const [formatType, setFormatType] = useState('pdf');
+  const [formatType, setFormatType] = useState<'pdf' | 'xls'>('pdf');
 
   const handleDownload = () => {
+    const reportName = usePayrollCycle
+      ? "Company Attendance Detailed Report (Payroll Attendance Cycle)"
+      : "Detailed Attendance Report";
+    
     toast({
       title: 'Downloading Report...',
       description: 'Your detailed attendance report is being generated.',
     });
     
-    const reportName = "Detailed Attendance Report";
     const monthString = duration ? format(duration, 'MMM yyyy') : 'Date N/A';
     
     const branchMap: { [key: string]: string } = {
@@ -55,6 +58,7 @@ export default function DetailedAttendanceReportPage() {
         report_name: reportName,
         month: monthString,
         branch: branchString,
+        format: formatType,
     });
 
     router.push(`/dashboard/reports?${queryParams.toString()}`);
@@ -146,7 +150,7 @@ export default function DetailedAttendanceReportPage() {
         
         <div>
             <Label>Select Format</Label>
-            <RadioGroup value={formatType} onValueChange={setFormatType} className="mt-2 grid grid-cols-2 gap-4">
+            <RadioGroup value={formatType} onValueChange={(value) => setFormatType(value as 'pdf' | 'xls')} className="mt-2 grid grid-cols-2 gap-4">
                 <Label
                     htmlFor="format-pdf"
                     className={cn(
