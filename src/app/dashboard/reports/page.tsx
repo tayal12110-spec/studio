@@ -228,7 +228,7 @@ export default function CompanyReportsPage() {
                   />
                   <ReportRow
                     label="Overtime Report"
-                    onClick={() => handleReportClick('Overtime Report')}
+                    onClick={() => router.push('/dashboard/reports/overtime-report')}
                   />
                 </AccordionContent>
               </AccordionItem>
