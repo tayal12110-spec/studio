@@ -97,11 +97,15 @@ export default function CompanyReportsPage() {
     }
   }, [searchParams]);
 
-  const handleReportClick = (reportName: string) => {
-    toast({
-      title: 'Generating Report...',
-      description: `Generating ${reportName}. This is a demo.`,
-    });
+  const handleReportClick = (reportName: string, path?: string) => {
+    if (path) {
+      router.push(path);
+    } else {
+      toast({
+        title: 'Generating Report...',
+        description: `Generating ${reportName}. This is a demo.`,
+      });
+    }
   };
 
   const handleOpenReport = (report: DownloadedReport) => {
@@ -240,7 +244,7 @@ export default function CompanyReportsPage() {
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="p-0">
-                  <ReportRow label="Pay Slips" onClick={() => handleReportClick('Pay Slips')} />
+                  <ReportRow label="Pay Slips" onClick={() => handleReportClick('Pay Slips', '/dashboard/reports/payslips')} />
                   <ReportRow label="Salary Sheet" onClick={() => handleReportClick('Salary Sheet')} />
                   <ReportRow label="CTC Breakdown Report" onClick={() => handleReportClick('CTC Breakdown Report')} />
                   <ReportRow label="Incentive Sheet" onClick={() => handleReportClick('Incentive Sheet')} />
