@@ -159,7 +159,7 @@ export default function CompanyReportsPage() {
                   />
                   <ReportRow
                     label="Detailed Attendance Report"
-                    onClick={() => handleReportClick('Detailed Attendance Report')}
+                    onClick={() => router.push('/dashboard/reports/detailed-attendance')}
                   />
                   <ReportRow
                     label="Daily Attendance Report"
