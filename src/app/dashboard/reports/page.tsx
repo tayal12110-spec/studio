@@ -232,13 +232,28 @@ export default function CompanyReportsPage() {
                   />
                 </AccordionContent>
               </AccordionItem>
+              <AccordionItem value="item-2" className="border-b">
+                <AccordionTrigger className="p-4 hover:no-underline text-lg font-semibold">
+                  <div className="flex items-center gap-4">
+                    <Wallet className="h-6 w-6 text-primary" />
+                    <span>Payroll</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="p-0">
+                  <ReportRow label="Pay Slips" onClick={() => handleReportClick('Pay Slips')} />
+                  <ReportRow label="Salary Sheet" onClick={() => handleReportClick('Salary Sheet')} />
+                  <ReportRow label="CTC Breakdown Report" onClick={() => handleReportClick('CTC Breakdown Report')} />
+                  <ReportRow label="Incentive Sheet" onClick={() => handleReportClick('Incentive Sheet')} />
+                  <ReportRow label="Reimbursement Report" onClick={() => handleReportClick('Reimbursement Report')} />
+                  <ReportRow label="Provident Fund Challan Report" onClick={() => handleReportClick('Provident Fund Challan Report')} />
+                  <ReportRow label="ESI Report" onClick={() => handleReportClick('ESI Report')} />
+                  <ReportRow label="ESI Challan Report" onClick={() => handleReportClick('ESI Challan Report')} />
+                  <ReportRow label="Loan Report" onClick={() => handleReportClick('Loan Report')} />
+                  <ReportRow label="Tax Deducted at Source Report" onClick={() => handleReportClick('Tax Deducted at Source Report')} />
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
             <ReportCategoryRow
-              icon={Wallet}
-              label="Payroll"
-              onClick={() => handleReportClick('Payroll Report')}
-            />
-             <ReportCategoryRow
               icon={NotesIcon}
               label="Notes"
               onClick={() => handleReportClick('Notes Report')}
