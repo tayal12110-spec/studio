@@ -246,7 +246,7 @@ export default function CompanyReportsPage() {
                 <AccordionContent className="p-0">
                   <ReportRow label="Pay Slips" onClick={() => handleReportClick('Pay Slips', '/dashboard/reports/payslips')} />
                   <ReportRow label="Salary Sheet" onClick={() => handleReportClick('Salary Sheet', '/dashboard/reports/salary-sheet')} />
-                  <ReportRow label="CTC Breakdown Report" onClick={() => handleReportClick('CTC Breakdown Report')} />
+                  <ReportRow label="CTC Breakdown Report" onClick={() => handleReportClick('CTC Breakdown Report', '/dashboard/reports/ctc-breakdown')} />
                   <ReportRow label="Incentive Sheet" onClick={() => handleReportClick('Incentive Sheet')} />
                   <ReportRow label="Reimbursement Report" onClick={() => handleReportClick('Reimbursement Report')} />
                   <ReportRow label="Provident Fund Challan Report" onClick={() => handleReportClick('Provident Fund Challan Report')} />
