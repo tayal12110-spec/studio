@@ -245,7 +245,7 @@ export default function CompanyReportsPage() {
                 </AccordionTrigger>
                 <AccordionContent className="p-0">
                   <ReportRow label="Pay Slips" onClick={() => handleReportClick('Pay Slips', '/dashboard/reports/payslips')} />
-                  <ReportRow label="Salary Sheet" onClick={() => handleReportClick('Salary Sheet')} />
+                  <ReportRow label="Salary Sheet" onClick={() => handleReportClick('Salary Sheet', '/dashboard/reports/salary-sheet')} />
                   <ReportRow label="CTC Breakdown Report" onClick={() => handleReportClick('CTC Breakdown Report')} />
                   <ReportRow label="Incentive Sheet" onClick={() => handleReportClick('Incentive Sheet')} />
                   <ReportRow label="Reimbursement Report" onClick={() => handleReportClick('Reimbursement Report')} />
