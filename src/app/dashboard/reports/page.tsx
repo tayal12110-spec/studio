@@ -247,7 +247,7 @@ export default function CompanyReportsPage() {
                   <ReportRow label="Pay Slips" onClick={() => handleReportClick('Pay Slips', '/dashboard/reports/payslips')} />
                   <ReportRow label="Salary Sheet" onClick={() => handleReportClick('Salary Sheet', '/dashboard/reports/salary-sheet')} />
                   <ReportRow label="CTC Breakdown Report" onClick={() => handleReportClick('CTC Breakdown Report', '/dashboard/reports/ctc-breakdown')} />
-                  <ReportRow label="Incentive Sheet" onClick={() => handleReportClick('Incentive Sheet')} />
+                  <ReportRow label="Incentive Sheet" onClick={() => handleReportClick('Incentive Sheet', '/dashboard/reports/incentive-sheet')} />
                   <ReportRow label="Reimbursement Report" onClick={() => handleReportClick('Reimbursement Report')} />
                   <ReportRow label="Provident Fund Challan Report" onClick={() => handleReportClick('Provident Fund Challan Report')} />
                   <ReportRow label="ESI Report" onClick={() => handleReportClick('ESI Report')} />
