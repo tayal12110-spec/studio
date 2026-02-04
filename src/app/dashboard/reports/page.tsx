@@ -30,7 +30,7 @@ type DownloadedReport = {
   name: string;
   month: string;
   branch: string;
-  format: 'pdf' | 'xls' | 'csv';
+  format: 'pdf' | 'xls' | 'csv' | 'txt';
 };
 
 const ReportRow = ({
@@ -83,7 +83,7 @@ export default function CompanyReportsPage() {
       const reportName = searchParams.get('report_name');
       const month = searchParams.get('month');
       const branch = searchParams.get('branch');
-      const format = searchParams.get('format') as 'pdf' | 'xls' | 'csv' | null;
+      const format = searchParams.get('format') as 'pdf' | 'xls' | 'csv' | 'txt' | null;
 
       if (reportName && month && branch && format) {
         const newReport: DownloadedReport = { name: reportName, month, branch, format };
@@ -123,6 +123,7 @@ export default function CompanyReportsPage() {
     if (report.format === 'pdf') mimeType = 'application/pdf';
     else if (report.format === 'xls') mimeType = 'application/vnd.ms-excel';
     else if (report.format === 'csv') mimeType = 'text/csv';
+    else if (report.format === 'txt') mimeType = 'text/plain';
 
     const fileContent = `This is a dummy file for the report: ${report.name}`;
 
@@ -154,7 +155,7 @@ export default function CompanyReportsPage() {
     }
   };
 
-  const getFileIcon = (format: 'pdf' | 'xls' | 'csv') => {
+  const getFileIcon = (format: DownloadedReport['format']) => {
     switch (format) {
       case 'pdf':
         return <FileIcon className="h-8 w-8 text-red-600 mt-1 flex-shrink-0" />;
@@ -162,6 +163,8 @@ export default function CompanyReportsPage() {
         return <FileSpreadsheet className="h-8 w-8 text-green-600 mt-1 flex-shrink-0" />;
       case 'csv':
         return <FileSpreadsheet className="h-8 w-8 text-green-700 mt-1 flex-shrink-0" />;
+      case 'txt':
+          return <NotesIcon className="h-8 w-8 text-blue-500 mt-1 flex-shrink-0" />;
       default:
         return <FileIcon className="h-8 w-8 text-gray-500 mt-1 flex-shrink-0" />;
     }
@@ -249,7 +252,7 @@ export default function CompanyReportsPage() {
                   <ReportRow label="CTC Breakdown Report" onClick={() => handleReportClick('CTC Breakdown Report', '/dashboard/reports/ctc-breakdown')} />
                   <ReportRow label="Incentive Sheet" onClick={() => handleReportClick('Incentive Sheet', '/dashboard/reports/incentive-sheet')} />
                   <ReportRow label="Reimbursement Report" onClick={() => handleReportClick('Reimbursement Report', '/dashboard/reports/reimbursement-report')} />
-                  <ReportRow label="Provident Fund Challan Report" onClick={() => handleReportClick('Provident Fund Challan Report')} />
+                  <ReportRow label="Provident Fund Challan Report" onClick={() => handleReportClick('Provident Fund Challan Report', '/dashboard/reports/pf-challan')} />
                   <ReportRow label="ESI Report" onClick={() => handleReportClick('ESI Report')} />
                   <ReportRow label="ESI Challan Report" onClick={() => handleReportClick('ESI Challan Report')} />
                   <ReportRow label="Loan Report" onClick={() => handleReportClick('Loan Report')} />
