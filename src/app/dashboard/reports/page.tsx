@@ -255,7 +255,7 @@ export default function CompanyReportsPage() {
                   <ReportRow label="Provident Fund Challan Report" onClick={() => handleReportClick('Provident Fund Challan Report', '/dashboard/reports/pf-challan')} />
                   <ReportRow label="ESI Report" onClick={() => handleReportClick('ESI Report', '/dashboard/reports/esi-report')} />
                   <ReportRow label="ESI Challan Report" onClick={() => router.push('/dashboard/reports/esi-challan')} />
-                  <ReportRow label="Loan Report" onClick={() => handleReportClick('Loan Report')} />
+                  <ReportRow label="Loan Report" onClick={() => handleReportClick('Loan Report', '/dashboard/reports/loan-report')} />
                   <ReportRow label="Tax Deducted at Source Report" onClick={() => handleReportClick('Tax Deducted at Source Report')} />
                 </AccordionContent>
               </AccordionItem>
