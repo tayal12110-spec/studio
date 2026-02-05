@@ -291,7 +291,7 @@ export default function CompanyReportsPage() {
                   />
                   <ReportRow
                     label="Trip Detailed Report"
-                    onClick={() => handleReportClick('Trip Detailed Report')}
+                    onClick={() => router.push('/dashboard/reports/trip-detailed')}
                   />
                   <ReportRow
                     label="Trip Summary Report"
