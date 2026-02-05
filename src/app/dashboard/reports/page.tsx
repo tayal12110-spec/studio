@@ -287,7 +287,7 @@ export default function CompanyReportsPage() {
                   />
                   <ReportRow
                     label="Meeting Summary Report"
-                    onClick={() => handleReportClick('Meeting Summary Report')}
+                    onClick={() => router.push('/dashboard/reports/meeting-summary')}
                   />
                   <ReportRow
                     label="Trip Detailed Report"
