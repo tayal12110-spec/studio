@@ -268,7 +268,7 @@ export default function CompanyReportsPage() {
              <ReportCategoryRow
               icon={Users}
               label="Employee List"
-              onClick={() => handleReportClick('Employee List Report')}
+              onClick={() => router.push('/dashboard/reports/employee-list')}
             />
              <ReportCategoryRow
               icon={Handshake}
