@@ -263,7 +263,7 @@ export default function CompanyReportsPage() {
             <ReportCategoryRow
               icon={NotesIcon}
               label="Notes"
-              onClick={() => handleReportClick('Notes Report')}
+              onClick={() => handleReportClick('Notes Report', '/dashboard/reports/notes')}
             />
              <ReportCategoryRow
               icon={Users}
