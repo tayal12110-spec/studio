@@ -283,7 +283,7 @@ export default function CompanyReportsPage() {
                 <AccordionContent className="p-0">
                   <ReportRow
                     label="Meeting Detailed Report"
-                    onClick={() => handleReportClick('Meeting Detailed Report')}
+                    onClick={() => router.push('/dashboard/reports/meeting-detailed')}
                   />
                   <ReportRow
                     label="Meeting Summary Report"
