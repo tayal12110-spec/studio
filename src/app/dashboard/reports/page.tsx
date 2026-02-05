@@ -59,7 +59,7 @@ const ReportCategoryRow = ({
 }) => (
   <div
     onClick={onClick}
-    className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 border-b"
+    className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50"
   >
     <div className="flex items-center gap-4">
       <Icon className="h-6 w-6 text-primary" />
@@ -200,8 +200,8 @@ export default function CompanyReportsPage() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="reports" className="m-0">
-            <Accordion type="single" collapsible defaultValue="item-1">
-              <AccordionItem value="item-1" className="border-b">
+            <Accordion type="multiple" className="w-full">
+              <AccordionItem value="item-1">
                 <AccordionTrigger className="p-4 hover:no-underline text-lg font-semibold">
                   <div className="flex items-center gap-4">
                     <ClipboardList className="h-6 w-6 text-primary" />
@@ -239,7 +239,7 @@ export default function CompanyReportsPage() {
                   />
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="item-2" className="border-b">
+              <AccordionItem value="item-2">
                 <AccordionTrigger className="p-4 hover:no-underline text-lg font-semibold">
                   <div className="flex items-center gap-4">
                     <Wallet className="h-6 w-6 text-primary" />
@@ -259,22 +259,47 @@ export default function CompanyReportsPage() {
                   <ReportRow label="TDS Summary Report" onClick={() => handleReportClick('TDS Summary Report', '/dashboard/reports/tds-summary')} />
                 </AccordionContent>
               </AccordionItem>
+              <div className="border-b">
+                <ReportCategoryRow
+                    icon={NotesIcon}
+                    label="Notes"
+                    onClick={() => handleReportClick('Notes Report', '/dashboard/reports/notes')}
+                />
+              </div>
+              <div className="border-b">
+                <ReportCategoryRow
+                    icon={Users}
+                    label="Employee List"
+                    onClick={() => router.push('/dashboard/reports/employee-list')}
+                />
+              </div>
+              <AccordionItem value="item-5">
+                <AccordionTrigger className="p-4 hover:no-underline text-lg font-semibold">
+                  <div className="flex items-center gap-4">
+                    <Handshake className="h-6 w-6 text-primary" />
+                    <span>CRM</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="p-0">
+                  <ReportRow
+                    label="Meeting Detailed Report"
+                    onClick={() => handleReportClick('Meeting Detailed Report')}
+                  />
+                  <ReportRow
+                    label="Meeting Summary Report"
+                    onClick={() => handleReportClick('Meeting Summary Report')}
+                  />
+                  <ReportRow
+                    label="Trip Detailed Report"
+                    onClick={() => handleReportClick('Trip Detailed Report')}
+                  />
+                  <ReportRow
+                    label="Trip Summary Report"
+                    onClick={() => handleReportClick('Trip Summary Report')}
+                  />
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
-            <ReportCategoryRow
-              icon={NotesIcon}
-              label="Notes"
-              onClick={() => handleReportClick('Notes Report', '/dashboard/reports/notes')}
-            />
-             <ReportCategoryRow
-              icon={Users}
-              label="Employee List"
-              onClick={() => router.push('/dashboard/reports/employee-list')}
-            />
-             <ReportCategoryRow
-              icon={Handshake}
-              label="CRM"
-              onClick={() => handleReportClick('CRM Report')}
-            />
           </TabsContent>
           <TabsContent value="downloads" className="p-4">
             {downloads.length === 0 ? (
