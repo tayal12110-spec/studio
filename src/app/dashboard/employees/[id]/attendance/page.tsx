@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import {
   ArrowLeft,
@@ -466,8 +467,10 @@ export default function AttendancePage() {
       </main>
       {activeTab === 'attendance' && (
        <footer className="sticky bottom-0 border-t bg-card p-4">
-        <Button className="w-full h-12 text-base" variant="outline">
-          Ask Staff To Mark Attendance
+        <Button asChild className="w-full h-12 text-base" variant="outline">
+          <Link href={`/dashboard/employees/${employeeId}/ask-attendance`}>
+            Ask Staff To Mark Attendance
+          </Link>
         </Button>
       </footer>
       )}

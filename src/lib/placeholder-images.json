@@ -47,6 +47,12 @@
       "description": "Illustration for adding an attendance kiosk",
       "imageUrl": "https://picsum.photos/seed/kiosk/400/300",
       "imageHint": "kiosk tasks"
+    },
+    {
+      "id": "punch-in-screen",
+      "description": "A screenshot of the application's punch-in screen on a mobile device.",
+      "imageUrl": "https://i.imgur.com/gJ5zJ5g.png",
+      "imageHint": "app screen"
     }
   ]
 }
