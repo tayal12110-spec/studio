@@ -82,11 +82,7 @@ function VerifyCompanyComponent() {
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
-      toast({
-        title: 'Company Created!',
-        description: 'Your new company has been successfully created.',
-      });
-      router.push('/dashboard/settings');
+      router.push('/dashboard/settings/company/create/set-pin');
     }, 1000);
   };
   
