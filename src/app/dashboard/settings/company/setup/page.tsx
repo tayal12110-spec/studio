@@ -93,11 +93,38 @@ export default function SetupCompanyPage() {
                         <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="it">IT/Software</SelectItem>
+                        <SelectItem value="agriculture-farming">Agriculture / Farming</SelectItem>
+                        <SelectItem value="automobile-workshop">Automobile Workshop</SelectItem>
+                        <SelectItem value="cable-service-provider">Cable Service Provider</SelectItem>
+                        <SelectItem value="call-center">Call Center</SelectItem>
+                        <SelectItem value="construction">Construction</SelectItem>
+                        <SelectItem value="contractor-manpower-agency">Contractor / Manpower Agency</SelectItem>
+                        <SelectItem value="distribution">Distribution</SelectItem>
+                        <SelectItem value="educational-institute">Educational Institute</SelectItem>
+                        <SelectItem value="financial-services">Financial Services</SelectItem>
+                        <SelectItem value="garments-textile">Garments / Textile</SelectItem>
+                        <SelectItem value="grocery-kirana-general-store">Grocery / Kirana / General Store</SelectItem>
+                        <SelectItem value="gym-health-fitness">Gym/Health/Fitness</SelectItem>
+                        <SelectItem value="heavy-machinery">Heavy Machinery</SelectItem>
+                        <SelectItem value="hospital-clinic">Hospital / Clinic</SelectItem>
+                        <SelectItem value="hotel-lodge">Hotel / Lodge</SelectItem>
+                        <SelectItem value="internet-service-provider">Internet Service Provider</SelectItem>
+                        <SelectItem value="it-software">IT Software</SelectItem>
+                        <SelectItem value="jewellery">Jewellery</SelectItem>
+                        <SelectItem value="logistics-transport">Logistics / Transport</SelectItem>
                         <SelectItem value="manufacturing">Manufacturing</SelectItem>
-                        <SelectItem value="retail">Retail</SelectItem>
-                        <SelectItem value="services">Services</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="news-channel">News Channel</SelectItem>
+                        <SelectItem value="ngo-non-profit">NGO / Non-profit</SelectItem>
+                        <SelectItem value="pest-control">Pest Control</SelectItem>
+                        <SelectItem value="pharmacy-store-medical-store">Pharmacy Store / Medical Store</SelectItem>
+                        <SelectItem value="printing">Printing</SelectItem>
+                        <SelectItem value="restaurant-dhaba-sweet-shop">Restaurant / Dhaba / Sweet Shop</SelectItem>
+                        <SelectItem value="saloon">Saloon</SelectItem>
+                        <SelectItem value="school">School</SelectItem>
+                        <SelectItem value="security-services">Security Services</SelectItem>
+                        <SelectItem value="showroom-outlet">Showroom / Outlet</SelectItem>
+                        <SelectItem value="supermarket">Supermarket</SelectItem>
+                        <SelectItem value="tailoring-boutique">Tailoring / Boutique</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
