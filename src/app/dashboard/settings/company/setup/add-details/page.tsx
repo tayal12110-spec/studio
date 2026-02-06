@@ -160,10 +160,10 @@ export default function AddDetailsPage() {
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="<10k">&lt; 10,000</SelectItem>
-                <SelectItem value="10k-50k">10,000 - 50,000</SelectItem>
-                <SelectItem value="50k-1L">50,000 - 1,00,000</SelectItem>
-                <SelectItem value=">1L">&gt; 1,00,000</SelectItem>
+                <SelectItem value="<1L">{'<1 Lakh'}</SelectItem>
+                <SelectItem value="1L-3L">1 Lakh to 3 Lakh</SelectItem>
+                <SelectItem value=">3L">3 Lakh+</SelectItem>
+                <SelectItem value="idk">I don't know</SelectItem>
               </SelectContent>
             </Select>
           </div>
