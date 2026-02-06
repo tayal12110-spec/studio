@@ -35,7 +35,7 @@ export default function DashboardLayout({
             {navItems.map((item) => {
               const isActive =
                 item.href === '/dashboard'
-                  ? pathname === item.href || (item.href === '/dashboard' && pathname === '/dashboard/settings')
+                  ? pathname === item.href
                   : pathname.startsWith(item.href);
               return (
                 <Link

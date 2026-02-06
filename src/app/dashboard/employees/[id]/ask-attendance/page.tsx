@@ -87,7 +87,7 @@ export default function AskAttendancePage() {
       <footer className="sticky bottom-0 border-t bg-card p-4">
         <Button 
           onClick={handleInvite}
-          className="w-full h-12 text-base bg-[#25D366] hover:bg-[#25D366]/90 text-white"
+          className="w-full h-12 text-base bg-green-500 hover:bg-green-600 text-white"
         >
           <WhatsAppIcon />
           INVITE STAFF NOW
