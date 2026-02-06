@@ -73,8 +73,7 @@ export default function AddDetailsPage() {
             <SelectContent>
               <SelectItem value="owner">Owner</SelectItem>
               <SelectItem value="manager">Manager</SelectItem>
-              <SelectItem value="hr">HR</SelectItem>
-              <SelectItem value="accountant">Accountant</SelectItem>
+              <SelectItem value="hr-admin">HR/Admin</SelectItem>
               <SelectItem value="employee">Employee</SelectItem>
             </SelectContent>
           </Select>
