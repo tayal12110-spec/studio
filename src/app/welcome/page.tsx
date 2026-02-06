@@ -39,7 +39,7 @@ export default function WelcomePage() {
 
       <footer className="sticky bottom-0 space-y-4 border-t bg-card p-4">
         <Button
-          onClick={() => router.push('/dashboard/settings/company/create')}
+          onClick={() => router.push('/dashboard/settings/company/setup')}
           className="w-full h-12 text-base bg-teal-500 hover:bg-teal-600 text-white"
         >
           Create Company Account <ArrowRight className="ml-2 h-5 w-5" />
