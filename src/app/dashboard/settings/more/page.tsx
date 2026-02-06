@@ -27,6 +27,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useFirestore, useCollection } from '@/firebase';
 import { collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
@@ -70,9 +71,10 @@ export default function MoreSettingsPage() {
   const [appNotifications, setAppNotifications] = useState(true);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isFeatureRequestDialogOpen, setIsFeatureRequestDialogOpen] = useState(false);
 
   const companyCode = 'ULEHLB';
-  const appVersion = 'v-6.88';
+  const appVersion = 'v-6.89';
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(companyCode);
@@ -128,9 +130,17 @@ export default function MoreSettingsPage() {
     }
   };
 
+  const handleRequestFeature = () => {
+    setIsFeatureRequestDialogOpen(false);
+    toast({
+        title: "Thank you for your feedback!",
+        description: "Your feature request has been noted."
+    })
+  }
+
   const menuItems = [
     { icon: ThumbsUp, label: 'Rate Us' },
-    { icon: Lightbulb, label: 'Request a feature' },
+    { icon: Lightbulb, label: 'Request a feature', onClick: () => setIsFeatureRequestDialogOpen(true) },
     { icon: Building2, label: 'Your Companies' },
     {
       icon: RefreshCcw,
@@ -211,6 +221,26 @@ export default function MoreSettingsPage() {
                 <AlertDialogAction onClick={handleDeleteAllStaff} disabled={isDeleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                     {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Delete All Staff'}
                 </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    
+    <AlertDialog open={isFeatureRequestDialogOpen} onOpenChange={setIsFeatureRequestDialogOpen}>
+        <AlertDialogContent className="sm:max-w-xs">
+            <AlertDialogHeader className="items-center text-center">
+                <div className="p-3 bg-yellow-100 rounded-full inline-flex mb-2">
+                    <Lightbulb className="h-8 w-8 text-yellow-500" />
+                </div>
+                <AlertDialogTitle className="text-xl">Request a feature</AlertDialogTitle>
+                <AlertDialogDescription className="pt-1">
+                    Help us improve SalaryBox! What features would you like to see next?
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-col gap-2 pt-2">
+                <AlertDialogAction onClick={handleRequestFeature} className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-11">
+                  Request a Feature
+                </AlertDialogAction>
+                <AlertDialogCancel className="w-full mt-0 h-11">Cancel</AlertDialogCancel>
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
