@@ -5,11 +5,6 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
 import { Card, CardContent } from '@/components/ui/card';
 
 const WhatsAppIcon = () => (
@@ -57,32 +52,26 @@ export default function AskAttendancePage() {
             <p className="text-2xl font-bold">1-Click</p>
         </div>
         
-        <Carousel className="w-full max-w-[280px]">
-            <CarouselContent>
-                <CarouselItem>
-                    <div className="p-1">
-                        <Card className="rounded-2xl border-4 border-gray-800 dark:border-gray-600 shadow-xl overflow-hidden bg-black">
-                            <CardContent className="flex aspect-[9/19.5] items-center justify-center p-0 relative">
-                                {punchInImage ? (
-                                    <Image 
-                                        src={punchInImage.imageUrl} 
-                                        alt={punchInImage.description} 
-                                        width={280} 
-                                        height={607}
-                                        className="object-contain"
-                                        data-ai-hint={punchInImage.imageHint} 
-                                    />
-                                ) : (
-                                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                        <p>Image not found</p>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </div>
-                </CarouselItem>
-            </CarouselContent>
-        </Carousel>
+        <div className="w-full max-w-[280px]">
+            <Card className="rounded-2xl border-4 border-gray-800 dark:border-gray-600 shadow-xl overflow-hidden bg-black">
+                <CardContent className="flex aspect-[9/19.5] items-center justify-center p-0 relative">
+                    {punchInImage ? (
+                        <Image 
+                            src={punchInImage.imageUrl} 
+                            alt={punchInImage.description} 
+                            width={280} 
+                            height={607}
+                            className="object-contain"
+                            data-ai-hint={punchInImage.imageHint} 
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <p>Image not found</p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </div>
 
       </main>
 
