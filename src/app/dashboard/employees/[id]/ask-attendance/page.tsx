@@ -27,6 +27,13 @@ const WhatsAppIcon = () => (
 export default function AskAttendancePage() {
   const router = useRouter();
   const punchInImage = PlaceHolderImages.find(p => p.id === 'punch-in-screen');
+  
+  const handleInvite = () => {
+    const message = encodeURIComponent(
+      "Hi! You have been invited to join your company on PayEase. Please download the app and mark your attendance daily. Download from here: https://payease.app/download"
+    );
+    window.open(`https://wa.me/?text=${message}`, '_blank');
+  };
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
@@ -78,7 +85,10 @@ export default function AskAttendancePage() {
       </main>
 
       <footer className="sticky bottom-0 border-t bg-card p-4">
-        <Button className="w-full h-12 text-base bg-[#25D366] hover:bg-[#25D366]/90 text-white">
+        <Button 
+          onClick={handleInvite}
+          className="w-full h-12 text-base bg-[#25D366] hover:bg-[#25D366]/90 text-white"
+        >
           <WhatsAppIcon />
           INVITE STAFF NOW
         </Button>
