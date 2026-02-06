@@ -14,6 +14,7 @@ import {
   Building2,
   Bell,
   ThumbsUp,
+  Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -28,6 +29,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { useFirestore } from '@/firebase';
 import { collection, deleteDoc, getDocs } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
@@ -71,6 +82,8 @@ export default function MoreSettingsPage() {
   const [appNotifications, setAppNotifications] = useState(true);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isCompanyDialogOpen, setIsCompanyDialogOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState('abhi');
 
   const companyCode = 'ULEHLB';
   const appVersion = 'v-6.89';
@@ -128,11 +141,24 @@ export default function MoreSettingsPage() {
         setIsDeleteDialogOpen(false);
     }
   };
+  
+  const handleSwitchCompany = () => {
+    toast({
+      title: `Switched to ${selectedCompany}`,
+    });
+    setIsCompanyDialogOpen(false);
+  };
+  
+  const handleCreateCompany = () => {
+    toast({
+        title: 'Feature coming soon!',
+    });
+  }
 
   const menuItems = [
     { icon: ThumbsUp, label: 'Rate Us' },
     { icon: Lightbulb, label: 'Request a feature', onClick: () => router.push('/dashboard/settings/more/request-a-feature') },
-    { icon: Building2, label: 'Your Companies' },
+    { icon: Building2, label: 'Your Companies', onClick: () => setIsCompanyDialogOpen(true) },
     {
       icon: RefreshCcw,
       label: 'Delete All Staff',
@@ -215,6 +241,35 @@ export default function MoreSettingsPage() {
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
+    
+    <Dialog open={isCompanyDialogOpen} onOpenChange={setIsCompanyDialogOpen}>
+        <DialogContent className="sm:max-w-xs">
+            <DialogHeader>
+                <DialogTitle>Your Companies</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 space-y-4">
+                <RadioGroup value={selectedCompany} onValueChange={setSelectedCompany}>
+                    <div className="flex items-center space-x-3">
+                        <RadioGroupItem value="abhi" id="company-abhi" />
+                        <Label htmlFor="company-abhi" className="font-normal w-full cursor-pointer">
+                            <p className="font-semibold">abhi</p>
+                            <p className="text-sm text-muted-foreground">Role : Admin</p>
+                        </Label>
+                    </div>
+                </RadioGroup>
+                <Button variant="link" className="p-0 h-auto text-primary" onClick={handleCreateCompany}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create New Company
+                </Button>
+            </div>
+            <DialogFooter className="flex-col gap-2">
+                <Button onClick={handleSwitchCompany} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Switch Company</Button>
+                <DialogClose asChild>
+                  <Button variant="ghost" className="w-full">Close</Button>
+                </DialogClose>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
     </>
   );
 }
