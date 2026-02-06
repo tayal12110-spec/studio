@@ -3,17 +3,20 @@
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Card, CardContent } from '@/components/ui/card';
+import Image from 'next/image';
 
 export default function AskAttendancePage() {
   const router = useRouter();
   const punchInImage = PlaceHolderImages.find(p => p.id === 'punch-in-screen');
-  
+
   const handleInvite = () => {
     // Temporarily disabled to debug build issue
-    console.log('Invite staff button clicked.');
+    if (typeof window !== 'undefined') {
+        const message = "Hi, you can now mark your attendance on SalaryBox app. Download now: https://play.google.com/store/apps/details?id=com.salarybox.app";
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+    }
   };
 
   return (
@@ -30,33 +33,17 @@ export default function AskAttendancePage() {
         <h1 className="ml-4 text-lg font-semibold">Ask staff to mark attendance</h1>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center p-6 space-y-8">
-        <div className="text-center">
-            <p className="text-xl text-primary font-medium">Staff can mark attendance in</p>
-            <p className="text-2xl font-bold">1-Click</p>
-        </div>
-        
-        <div className="w-full max-w-[280px]">
-            <Card className="rounded-2xl border-4 border-gray-800 dark:border-gray-600 shadow-xl overflow-hidden bg-black">
-                <CardContent className="flex aspect-[9/19.5] items-center justify-center p-0 relative">
-                    {punchInImage ? (
-                        <Image 
-                            src={punchInImage.imageUrl} 
-                            alt={punchInImage.description} 
-                            width={280} 
-                            height={607}
-                            className="object-contain"
-                            data-ai-hint={punchInImage.imageHint} 
-                        />
-                    ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                            <p>Image not found</p>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
-
+      <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+        {punchInImage && (
+             <Image 
+                src={punchInImage.imageUrl} 
+                alt={punchInImage.description} 
+                width={280} 
+                height={607}
+                className="object-contain rounded-2xl border-4 border-gray-800 dark:border-gray-600 shadow-xl"
+                data-ai-hint={punchInImage.imageHint} 
+            />
+        )}
       </main>
 
       <footer className="sticky bottom-0 border-t bg-card p-4">
