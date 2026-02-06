@@ -150,9 +150,7 @@ export default function MoreSettingsPage() {
   };
   
   const handleCreateCompany = () => {
-    toast({
-        title: 'Feature coming soon!',
-    });
+    router.push('/dashboard/settings/company/create');
   }
 
   const menuItems = [
