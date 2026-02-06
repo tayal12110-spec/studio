@@ -65,7 +65,7 @@ export default function AddDetailsPage() {
         title: 'Details Saved!',
       });
       setIsSubmitting(false);
-      router.push('/dashboard');
+      router.push('/subscription/trial');
     }, 1000);
   };
 
