@@ -83,7 +83,7 @@ export default function SetPinPage() {
         toast({
             title: 'PIN Set Successfully!',
         });
-        router.push('/dashboard');
+        router.push('/welcome');
     }, 1000);
   };
 
