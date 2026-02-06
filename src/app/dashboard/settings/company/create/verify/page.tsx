@@ -9,11 +9,12 @@ import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 
 function VerifyCompanyComponent() {
@@ -152,7 +153,7 @@ function VerifyCompanyComponent() {
           <AlertDialogHeader>
             <AlertDialogTitle>OTP Sent</AlertDialogTitle>
             <AlertDialogDescription>
-              OTP sent via WhatsApp
+              OTP sent via WhatsApp. For this prototype, please use the OTP: 123456.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
