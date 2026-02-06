@@ -48,14 +48,8 @@ export default function SetupCompanyPage() {
       return;
     }
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast({
-        title: 'Company Setup Complete!',
-      });
-      router.push('/dashboard');
-    }, 1000);
+    // Navigate to the next step
+    router.push('/dashboard/settings/company/setup/location');
   };
 
   return (
