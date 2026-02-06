@@ -29,6 +29,8 @@ export default function AskAttendancePage() {
   const punchInImage = PlaceHolderImages.find(p => p.id === 'punch-in-screen');
   
   const handleInvite = () => {
+    if (typeof window === 'undefined') return;
+    
     const message = encodeURIComponent(
       "Hi! You have been invited to join your company on PayEase. Please download the app and mark your attendance daily. Download from here: https://payease.app/download"
     );
