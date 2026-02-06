@@ -1,35 +1,19 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card, CardContent } from '@/components/ui/card';
-
-const WhatsAppIcon = () => (
-    <svg
-      role="img"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-      className="mr-2 h-6 w-6"
-      fill="currentColor"
-    >
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52s-.67-.149-.67-.149-2.203-1.043-2.589-1.043c-.387.001-.833.208-1.218.666-.386.458-1.12.933-1.12 2.268s1.144 2.622 1.318 2.82c.174.198 2.422 3.795 5.866 5.178.866.347 1.545.556 2.086.715.756.223 1.442.198 1.996.12.595-.08 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
-    </svg>
-  );
 
 export default function AskAttendancePage() {
   const router = useRouter();
   const punchInImage = PlaceHolderImages.find(p => p.id === 'punch-in-screen');
   
   const handleInvite = () => {
-    if (typeof window === 'undefined') return;
-    
-    const message = encodeURIComponent(
-      "Hi! You have been invited to join your company on PayEase. Please download the app and mark your attendance daily. Download from here: https://payease.app/download"
-    );
-    window.open(`https://wa.me/?text=${message}`, '_blank');
+    // Temporarily disabled to debug build issue
+    console.log('Invite staff button clicked.');
   };
 
   return (
@@ -80,7 +64,7 @@ export default function AskAttendancePage() {
           onClick={handleInvite}
           className="w-full h-12 text-base bg-green-500 hover:bg-green-600 text-white"
         >
-          <WhatsAppIcon />
+          <MessageSquare className="mr-2 h-6 w-6" />
           INVITE STAFF NOW
         </Button>
       </footer>
