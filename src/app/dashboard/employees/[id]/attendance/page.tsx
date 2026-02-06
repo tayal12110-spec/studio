@@ -17,12 +17,6 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { useDoc, useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import {
   doc,
@@ -59,6 +53,10 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const StatCard = ({ label, value, color }: { label: string; value: string | number; color: string }) => (
   <div className={`flex-1 text-center border-r last:border-r-0 ${color} py-2`}>
@@ -84,6 +82,10 @@ export default function AttendancePage() {
 
   const [month, setMonth] = useState(new Date(2026, 0)); // Jan 2026
   const [activeTab, setActiveTab] = useState('attendance');
+  
+  const [isMonthDialogOpen, setIsMonthDialogOpen] = useState(false);
+  const [dialogYear, setDialogYear] = useState(() => month.getFullYear());
+  const [dialogMonth, setDialogMonth] = useState(() => month.getMonth());
 
   const employeeRef = useMemoFirebase(
     () => (firestore && employeeId ? doc(firestore, 'employees', employeeId) : null),
@@ -234,6 +236,20 @@ export default function AttendancePage() {
         });
     }
   };
+  
+  const openMonthDialog = () => {
+    setDialogYear(month.getFullYear());
+    setDialogMonth(month.getMonth());
+    setIsMonthDialogOpen(true);
+  };
+  
+  const handleMonthConfirm = () => {
+    const newDate = new Date(dialogYear, dialogMonth);
+    if (!isSameMonth(newDate, month)) {
+        setMonth(newDate);
+    }
+    setIsMonthDialogOpen(false);
+  };
 
   const getDayClass = (day: Date) => {
     if (!isSameMonth(day, month)) {
@@ -306,22 +322,10 @@ export default function AttendancePage() {
                     <Info className="h-5 w-5 text-yellow-500" />
                     <span>Attendance For</span>
                  </div>
-                 <Popover>
-                    <PopoverTrigger asChild>
-                    <Button variant={'outline'} className={cn('w-[150px] justify-between text-left font-normal', !month && 'text-muted-foreground')}>
-                        {month ? format(month, 'MMM yyyy') : <span>Select month</span>}
-                        <CalendarIcon className="h-4 w-4" />
-                    </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                    <Calendar
-                        mode="single"
-                        onSelect={(date) => date && setMonth(date)}
-                        initialFocus
-                        defaultMonth={month}
-                    />
-                    </PopoverContent>
-                </Popover>
+                 <Button variant={'outline'} onClick={openMonthDialog} className={cn('w-[150px] justify-between text-left font-normal', !month && 'text-muted-foreground')}>
+                    {month ? format(month, 'MMM yyyy') : <span>Select month</span>}
+                    <CalendarIcon className="h-4 w-4" />
+                 </Button>
               </div>
 
               <div className="grid grid-cols-3 gap-4 text-center">
@@ -479,6 +483,44 @@ export default function AttendancePage() {
             </div>
         </footer>
       )}
+      
+      <Dialog open={isMonthDialogOpen} onOpenChange={setIsMonthDialogOpen}>
+        <DialogContent className="sm:max-w-xs">
+          <div className="space-y-6 pt-6">
+              <div className="space-y-3 px-1">
+                  <Label className="font-semibold">Select Year</Label>
+                  <Select value={dialogYear.toString()} onValueChange={(val) => setDialogYear(Number(val))}>
+                      <SelectTrigger className="w-[120px] rounded-full h-auto py-1 px-4 border-accent bg-accent/10 text-accent">
+                          <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="2026">2026</SelectItem>
+                          <SelectItem value="2025">2025</SelectItem>
+                          <SelectItem value="2024">2024</SelectItem>
+                      </SelectContent>
+                  </Select>
+              </div>
+              <div className="space-y-3 px-1">
+                  <Label className="font-semibold">Select Month</Label>
+                  <RadioGroup value={dialogMonth.toString()} onValueChange={(val) => setDialogMonth(Number(val))}>
+                      <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="1" id="month-feb" />
+                          <Label htmlFor="month-feb" className="font-normal">February</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="0" id="month-jan" />
+                          <Label htmlFor="month-jan" className="font-normal">January</Label>
+                      </div>
+                  </RadioGroup>
+              </div>
+          </div>
+          <DialogFooter>
+              <Button onClick={handleMonthConfirm} className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90">
+                  Confirm
+              </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
