@@ -295,7 +295,7 @@ export default function CompanyReportsPage() {
                   />
                   <ReportRow
                     label="Trip Summary Report"
-                    onClick={() => handleReportClick('Trip Summary Report')}
+                    onClick={() => router.push('/dashboard/reports/trip-summary')}
                   />
                 </AccordionContent>
               </AccordionItem>
