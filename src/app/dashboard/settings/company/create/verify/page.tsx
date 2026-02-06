@@ -13,6 +13,7 @@ import {
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 
 function VerifyCompanyComponent() {
