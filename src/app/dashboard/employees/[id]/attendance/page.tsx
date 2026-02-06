@@ -53,7 +53,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -486,7 +486,10 @@ export default function AttendancePage() {
       
       <Dialog open={isMonthDialogOpen} onOpenChange={setIsMonthDialogOpen}>
         <DialogContent className="sm:max-w-xs">
-          <div className="space-y-6 pt-6">
+          <DialogHeader>
+            <DialogTitle>Select Month & Year</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
               <div className="space-y-3 px-1">
                   <Label className="font-semibold">Select Year</Label>
                   <Select value={dialogYear.toString()} onValueChange={(val) => setDialogYear(Number(val))}>
