@@ -25,11 +25,13 @@ export default function SetupCompanyPage() {
   const [category, setCategory] = useState('');
   const [country, setCountry] = useState('India');
   const [pincode, setPincode] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
   const [whatsappAlerts, setWhatsappAlerts] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleContinue = () => {
-    if (!companyName.trim() || !staffCount.trim() || !pincode.trim()) {
+    if (!companyName.trim() || !staffCount.trim() || !pincode.trim() || !city.trim() || !state.trim()) {
       toast({
         variant: 'destructive',
         title: 'Please fill all required fields.',
@@ -119,6 +121,28 @@ export default function SetupCompanyPage() {
                     onChange={(e) => setPincode(e.target.value)}
                     className="mt-1 bg-white dark:bg-card"
                 />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <Label htmlFor="city">City</Label>
+                    <Input
+                        id="city"
+                        placeholder="Enter your city"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="mt-1 bg-white dark:bg-card"
+                    />
+                </div>
+                <div>
+                    <Label htmlFor="state">State</Label>
+                    <Input
+                        id="state"
+                        placeholder="Enter your state"
+                        value={state}
+                        onChange={(e) => setState(e.target.value)}
+                        className="mt-1 bg-white dark:bg-card"
+                    />
+                </div>
             </div>
             <div className="flex items-center justify-between pt-4">
                 <Label htmlFor="whatsapp-alerts" className="font-normal text-base">Send free Whatsapp alerts</Label>
