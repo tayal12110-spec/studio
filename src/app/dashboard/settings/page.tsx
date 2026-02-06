@@ -61,7 +61,7 @@ const SettingsRow = ({
   );
   
   if (href) {
-    return <Link href={href} className="no-underline">{content}</Link>;
+    return <Link href={href} className="no-underline text-foreground">{content}</Link>;
   }
   return <div className="cursor-pointer">{content}</div>;
 };
@@ -84,7 +84,7 @@ export default function SettingsPage() {
     { icon: BarChart3, label: 'Reports', href: '/dashboard/reports' },
     { icon: Puzzle, label: 'Free Tools' },
     { icon: Gift, label: 'Refer & Earn', hasBadge: true },
-    { icon: SettingsIcon, label: 'More' },
+    { icon: SettingsIcon, label: 'More', href: '/dashboard/settings/more' },
   ];
 
   return (
@@ -120,7 +120,7 @@ export default function SettingsPage() {
             </Card>
         </div>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">v-6.87</p>
+        <p className="mt-6 text-center text-sm text-muted-foreground">v-6.88</p>
 
       </main>
     </div>
