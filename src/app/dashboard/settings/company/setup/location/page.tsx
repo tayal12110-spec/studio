@@ -1,36 +1,61 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Loader2, MapPin } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ArrowLeft, Loader2, MapPin, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent } from '@/components/ui/card';
+import { useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
-export default function SetupLocationPage() {
+export default function AddBranchLocationPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
+  const firestore = useFirestore();
+
+  const branchName = searchParams.get('branchName') || 'New Branch';
 
   const [location] = useState(
-    '187, Sukhdev Vihar, Okhla, New Delhi, Delhi 110...'
+    '190, Sukhdev Vihar, Okhla, New Delhi, Delhi 110...'
   );
   const [radius, setRadius] = useState(100);
-  const [isContinuing, setIsContinuing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleContinue = () => {
-    setIsContinuing(true);
-    // Here you would save the location and radius
+    if (!firestore) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Firestore is not available. Please try again.',
+      });
+      return;
+    }
+    setIsSaving(true);
+
+    const branchesCol = collection(firestore, 'branches');
+    const newBranch = {
+      name: branchName,
+      address: location,
+      radius: radius,
+    };
+
+    addDocumentNonBlocking(branchesCol, newBranch);
+
     toast({
-      title: 'Location Set!',
-      description: 'Your company attendance location has been configured.',
+      title: 'Branch Added!',
+      description: `The branch "${branchName}" has been successfully added.`,
     });
+
     setTimeout(() => {
-      setIsContinuing(false);
-      router.push('/dashboard');
-    }, 1000);
+      setIsSaving(false);
+      // Navigate to the next setup page
+      router.push('/dashboard/settings/company/setup/add-details');
+    }, 500);
   };
 
   return (
@@ -56,7 +81,7 @@ export default function SetupLocationPage() {
             objectFit="cover"
             data-ai-hint="map view"
           />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+          <div className="absolute inset-0 flex items-center justify-center">
             <div className="rounded-md bg-white p-2 shadow-lg dark:bg-card">
               <p className="text-sm font-medium">
                 Company Location will be set here
@@ -65,7 +90,7 @@ export default function SetupLocationPage() {
           </div>
         </div>
 
-        <div className="flex-1 space-y-6 p-6 bg-slate-50 dark:bg-background">
+        <div className="flex-1 space-y-6 p-6">
           <div>
             <h2 className="text-xl font-semibold">
               Tell us your company address!
@@ -117,9 +142,9 @@ export default function SetupLocationPage() {
         <Button
           onClick={handleContinue}
           className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
-          disabled={isContinuing}
+          disabled={isSaving}
         >
-          {isContinuing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Continue <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
       </footer>
