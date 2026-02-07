@@ -1,8 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function AskAttendancePage() {
   const router = useRouter();
@@ -14,6 +16,8 @@ export default function AskAttendancePage() {
         window.open(whatsappUrl, '_blank');
     }
   };
+
+  const punchInScreenImage = PlaceHolderImages.find(img => img.id === 'punch-in-screen');
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
@@ -30,7 +34,18 @@ export default function AskAttendancePage() {
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-         <p className="text-muted-foreground">(Image showing how to mark attendance will be displayed here)</p>
+         {punchInScreenImage ? (
+            <Image
+                src={punchInScreenImage.imageUrl}
+                alt={punchInScreenImage.description}
+                width={300}
+                height={500}
+                className="rounded-lg shadow-md"
+                data-ai-hint={punchInScreenImage.imageHint}
+            />
+         ) : (
+            <p className="text-muted-foreground">(Image showing how to mark attendance will be displayed here)</p>
+         )}
       </main>
 
       <footer className="sticky bottom-0 border-t bg-card p-4">
