@@ -10,13 +10,13 @@ export default function AskAttendancePage() {
   const router = useRouter();
   const punchInImage = PlaceHolderImages.find(p => p.id === 'punch-in-screen');
 
-  const handleInvite = () => {
-    if (typeof window !== 'undefined') {
-        const message = "Hi, you can now mark your attendance on SalaryBox app. Download now: https://play.google.com/store/apps/details?id=com.salarybox.app";
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, '_blank');
-    }
-  };
+  // const handleInvite = () => {
+  //   if (typeof window !== 'undefined') {
+  //       const message = "Hi, you can now mark your attendance on SalaryBox app. Download now: https://play.google.com/store/apps/details?id=com.salarybox.app";
+  //       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  //       window.open(whatsappUrl, '_blank');
+  //   }
+  // };
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-slate-50 dark:bg-background">
@@ -47,8 +47,8 @@ export default function AskAttendancePage() {
 
       <footer className="sticky bottom-0 border-t bg-card p-4">
         <Button 
-          onClick={handleInvite}
-          className="w-full h-12 text-base bg-green-500 hover:bg-green-600 text-white"
+          // onClick={handleInvite}
+          className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90"
         >
           <MessageSquare className="mr-2 h-6 w-6" />
           INVITE STAFF NOW
