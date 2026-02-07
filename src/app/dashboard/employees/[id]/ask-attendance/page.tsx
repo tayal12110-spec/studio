@@ -11,7 +11,6 @@ export default function AskAttendancePage() {
   const punchInImage = PlaceHolderImages.find(p => p.id === 'punch-in-screen');
 
   const handleInvite = () => {
-    // Temporarily disabled to debug build issue
     if (typeof window !== 'undefined') {
         const message = "Hi, you can now mark your attendance on SalaryBox app. Download now: https://play.google.com/store/apps/details?id=com.salarybox.app";
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
