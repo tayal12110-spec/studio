@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Loader2, MapPin, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection } from 'firebase/firestore';
 
-function SetupLocationPageContent() {
+export const dynamic = 'force-dynamic';
+
+export default function SetupLocationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -150,12 +153,4 @@ function SetupLocationPageContent() {
       </footer>
     </div>
   );
-}
-
-export default function SetupLocationPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <SetupLocationPageContent />
-    </Suspense>
-  )
 }

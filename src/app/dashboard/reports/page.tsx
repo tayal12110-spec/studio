@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -23,8 +24,10 @@ import {
 } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+
+export const dynamic = 'force-dynamic';
 
 type DownloadedReport = {
   name: string;
@@ -69,7 +72,7 @@ const ReportCategoryRow = ({
   </div>
 );
 
-function CompanyReportsPageContent() {
+export default function CompanyReportsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -340,13 +343,5 @@ function CompanyReportsPageContent() {
         </Tabs>
       </main>
     </div>
-  );
-}
-
-export default function CompanyReportsPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <CompanyReportsPageContent />
-    </Suspense>
   );
 }

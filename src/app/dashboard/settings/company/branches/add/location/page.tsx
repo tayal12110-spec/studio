@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Loader2, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,9 @@ import {
 import { useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection } from 'firebase/firestore';
 
-function AddBranchLocationPageContent() {
+export const dynamic = 'force-dynamic';
+
+export default function AddBranchLocationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -178,12 +181,4 @@ function AddBranchLocationPageContent() {
       </footer>
     </div>
   );
-}
-
-export default function AddBranchLocationPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <AddBranchLocationPageContent />
-    </Suspense>
-  )
 }
