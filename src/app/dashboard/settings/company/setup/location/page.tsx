@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Loader2, MapPin, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection } from 'firebase/firestore';
 
-export default function AddBranchLocationPage() {
+function SetupLocationPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -150,4 +150,12 @@ export default function AddBranchLocationPage() {
       </footer>
     </div>
   );
+}
+
+export default function SetupLocationPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SetupLocationPageContent />
+    </Suspense>
+  )
 }

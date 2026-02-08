@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 
 type DownloadedReport = {
@@ -69,7 +69,7 @@ const ReportCategoryRow = ({
   </div>
 );
 
-export default function CompanyReportsPage() {
+function CompanyReportsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -340,5 +340,13 @@ export default function CompanyReportsPage() {
         </Tabs>
       </main>
     </div>
+  );
+}
+
+export default function CompanyReportsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CompanyReportsPageContent />
+    </Suspense>
   );
 }
