@@ -130,7 +130,7 @@ export default function AddEmployeePage() {
             </div>
 
             <div>
-              <Label htmlFor="base-salary">Base Salary (USD)</Label>
+              <Label htmlFor="base-salary">Base Salary (INR)</Label>
               <Input
                 id="base-salary"
                 type="number"

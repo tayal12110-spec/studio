@@ -221,7 +221,7 @@ export function PayrollDialog({
                 <div className="rounded-lg border p-4">
                   <p className="text-sm text-muted-foreground">Gross Salary</p>
                   <p className="text-2xl font-bold">
-                    ${result.grossSalary.toFixed(2)}
+                    ₹{result.grossSalary.toFixed(2)}
                   </p>
                 </div>
                 <div className="rounded-lg border bg-primary text-primary-foreground p-4">
@@ -229,7 +229,7 @@ export function PayrollDialog({
                     Net Salary
                   </p>
                   <p className="text-2xl font-bold">
-                    ${result.netSalary.toFixed(2)}
+                    ₹{result.netSalary.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -247,14 +247,14 @@ export function PayrollDialog({
                     <TableRow key={i}>
                       <TableCell>{ded.type}</TableCell>
                       <TableCell className="text-right">
-                        -${ded.amount.toFixed(2)}
+                        -₹{ded.amount.toFixed(2)}
                       </TableCell>
                     </TableRow>
                   ))}
                    <TableRow>
                       <TableCell>Tax</TableCell>
                       <TableCell className="text-right">
-                        -${result.taxAmount.toFixed(2)}
+                        -₹{result.taxAmount.toFixed(2)}
                       </TableCell>
                     </TableRow>
                 </TableBody>

@@ -100,13 +100,13 @@ export const columns: ColumnDef<Employee>[] = [
   {
     accessorKey: 'baseSalary',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Base Salary" />
+      <DataTableColumnHeader column={column} title="Base Salary" className="justify-end" />
     ),
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue('baseSalary'));
-      const formatted = new Intl.NumberFormat('en-US', {
+      const formatted = new Intl.NumberFormat('en-IN', {
         style: 'currency',
-        currency: 'USD',
+        currency: 'INR',
       }).format(amount);
 
       return <div className="text-right font-medium">{formatted}</div>;
