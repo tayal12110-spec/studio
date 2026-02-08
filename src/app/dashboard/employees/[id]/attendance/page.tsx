@@ -465,15 +465,6 @@ export default function AttendancePage() {
           </TabsContent>
         </Tabs>
       </main>
-      {activeTab === 'attendance' && (
-       <footer className="sticky bottom-0 border-t bg-card p-4">
-        <Button asChild className="w-full h-12 text-base" variant="outline">
-          <Link href={`/dashboard/employees/${employeeId}/ask-attendance`}>
-            Ask Staff To Mark Attendance
-          </Link>
-        </Button>
-      </footer>
-      )}
       {activeTab === 'salary' && (
         <footer className="sticky bottom-0 border-t bg-card p-4 flex items-center justify-between gap-4">
             <div>
