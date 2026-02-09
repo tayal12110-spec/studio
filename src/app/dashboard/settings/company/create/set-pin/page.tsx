@@ -13,12 +13,8 @@ interface PinInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onChange: (pin: string) => void;
 }
 
-const PinInput = ({
-  length,
-  onChange,
-  className,
-  ...props
-}: PinInputProps) => {
+const PinInput = (props: PinInputProps) => {
+  const { length, onChange, className, ...restProps } = props;
   const [values, setValues] = useState<string[]>(Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -55,12 +51,13 @@ const PinInput = ({
           onKeyDown={(e) => handleKeyDown(e, index)}
           className="h-14 w-12 border-0 border-b-2 border-gray-300 bg-transparent p-0 rounded-none text-center text-4xl focus:ring-0 focus:border-accent dark:border-gray-600 dark:focus:border-accent"
           style={{ caretColor: 'transparent' }}
-          {...props}
+          {...restProps}
         />
       ))}
     </div>
   );
 };
+
 
 export default function SetPinPage() {
   const router = useRouter();
