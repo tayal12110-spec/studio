@@ -14,6 +14,7 @@ import {
   Share2,
   ExternalLink,
   File as FileIcon,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +25,7 @@ import {
 } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 
 export const dynamic = 'force-dynamic';
@@ -72,7 +73,7 @@ const ReportCategoryRow = ({
   </div>
 );
 
-export default function CompanyReportsPage() {
+function CompanyReportsPageComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -344,4 +345,12 @@ export default function CompanyReportsPage() {
       </main>
     </div>
   );
+}
+
+export default function CompanyReportsPage() {
+    return (
+        <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+            <CompanyReportsPageComponent />
+        </Suspense>
+    )
 }
