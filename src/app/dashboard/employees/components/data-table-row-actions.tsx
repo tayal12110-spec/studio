@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import type { Employee } from '../data';
+import type { Employee } from '../../data';
 import { useState } from 'react';
 import { PayrollDialog } from './payroll-dialog';
 
