@@ -82,7 +82,7 @@ function VerifyCompanyComponent() {
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
-      router.push('/dashboard/settings/company/create/set-pin');
+      router.push('/welcome');
     }, 1000);
   };
   
