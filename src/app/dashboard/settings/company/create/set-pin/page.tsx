@@ -8,15 +8,13 @@ import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-const PinInput = ({
-  length,
-  onChange,
-  className,
-}: {
+interface PinInputProps {
   length: number;
   onChange: (pin: string) => void;
   className?: string;
-}) => {
+}
+
+const PinInput: React.FC<PinInputProps> = ({ length, onChange, className }) => {
   const [values, setValues] = useState<string[]>(Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
