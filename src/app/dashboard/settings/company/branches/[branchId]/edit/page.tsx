@@ -15,7 +15,7 @@ import {
   updateDocumentNonBlocking,
 } from '@/firebase';
 import { doc, DocumentReference } from 'firebase/firestore';
-import type { Branch } from '../../../../../../data';
+import type { Branch } from '../../../../../data';
 
 export default function EditBranchPage() {
   const router = useRouter();
