@@ -8,13 +8,18 @@ import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-interface PinInputProps {
+interface PinInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   length: number;
   onChange: (pin: string) => void;
-  className?: string;
 }
 
-const PinInput = ({ length, onChange, className }: PinInputProps) => {
+const PinInput: React.FC<PinInputProps> = ({
+  length,
+  onChange,
+  className,
+  children,
+  ...props
+}) => {
   const [values, setValues] = useState<string[]>(Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -51,6 +56,7 @@ const PinInput = ({ length, onChange, className }: PinInputProps) => {
           onKeyDown={(e) => handleKeyDown(e, index)}
           className="h-14 w-12 border-0 border-b-2 border-gray-300 bg-transparent p-0 rounded-none text-center text-4xl focus:ring-0 focus:border-accent dark:border-gray-600 dark:focus:border-accent"
           style={{ caretColor: 'transparent' }}
+          {...props}
         />
       ))}
     </div>
