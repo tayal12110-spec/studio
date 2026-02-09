@@ -14,7 +14,7 @@ interface PinInputProps {
   className?: string;
 }
 
-const PinInput: React.FC<PinInputProps> = ({ length, onChange, className }) => {
+const PinInput = ({ length, onChange, className }: PinInputProps) => {
   const [values, setValues] = useState<string[]>(Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
