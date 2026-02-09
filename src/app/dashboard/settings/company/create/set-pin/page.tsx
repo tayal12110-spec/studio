@@ -13,13 +13,12 @@ interface PinInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onChange: (pin: string) => void;
 }
 
-const PinInput: React.FC<PinInputProps> = ({
+const PinInput = ({
   length,
   onChange,
   className,
-  children,
   ...props
-}) => {
+}: PinInputProps) => {
   const [values, setValues] = useState<string[]>(Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
