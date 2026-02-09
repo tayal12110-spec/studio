@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCollection, useFirestore, useMemoFirebase, useUser, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, CollectionReference, doc } from 'firebase/firestore';
-import type { Branch } from '../../../../data';
+import type { Branch } from '../../../data';
 import {
   DropdownMenu,
   DropdownMenuContent,
