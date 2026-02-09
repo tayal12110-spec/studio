@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, CollectionReference } from 'firebase/firestore';
-import type { Branch } from '../../../../data';
+import type { Branch } from '../../../data';
 import Image from 'next/image';
 import {
   Accordion,
