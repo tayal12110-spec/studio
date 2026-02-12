@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
   ArrowLeft,
   Calendar as CalendarIcon,
   ChevronDown,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -37,6 +38,14 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  useDoc,
+  useFirestore,
+  useMemoFirebase,
+  updateDocumentNonBlocking,
+} from '@/firebase';
+import { doc, DocumentReference } from 'firebase/firestore';
+import type { Employee } from '../../../data';
 
 const ContributionRow = ({
   label,
@@ -75,9 +84,19 @@ export default function SalaryDetailsPage() {
   const params = useParams();
   const employeeId = params.id as string;
   const { toast } = useToast();
+  const firestore = useFirestore();
+
+  const employeeRef = useMemoFirebase(
+    () => (firestore && employeeId ? doc(firestore, 'employees', employeeId) : null),
+    [firestore, employeeId]
+  ) as DocumentReference<Employee> | null;
+
+  const { data: employee } = useDoc<Employee>(employeeRef);
+  
   const [month, setMonth] = useState(new Date(2026, 0, 1));
   const [salaryType, setSalaryType] = useState('per-month');
-  const [basicSalary, setBasicSalary] = useState('9800.00');
+  const [basicSalary, setBasicSalary] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   // Employee PF State
   const [isPfDialogOpen, setIsPfDialogOpen] = useState(false);
@@ -138,6 +157,12 @@ export default function SalaryDetailsPage() {
   const [deductionName, setDeductionName] = useState('');
   const [deductionAmount, setDeductionAmount] = useState('');
   const [isDeductionFixed, setIsDeductionFixed] = useState(false);
+
+  useEffect(() => {
+    if (employee) {
+      setBasicSalary(employee.baseSalary.toString() || '');
+    }
+  }, [employee]);
 
   const calculateContribution = (base: string, option: ContributionOption) => {
     const salary = parseFloat(base) || 0;
@@ -245,11 +270,19 @@ export default function SalaryDetailsPage() {
   };
 
   const handleUpdateSalary = () => {
+    if (!employeeRef) return;
+    setIsSaving(true);
+    updateDocumentNonBlocking(employeeRef, {
+      baseSalary: Number(basicSalary),
+    });
     toast({
       title: 'Salary Updated',
       description: 'The salary details have been successfully updated.',
     });
-    router.push(`/dashboard/employees/${employeeId}`);
+    setTimeout(() => {
+      setIsSaving(false);
+      router.push(`/dashboard/employees/${employeeId}`);
+    }, 500);
   };
 
   const renderContributionButton = (label: string, onClick: () => void) => (
@@ -556,9 +589,11 @@ export default function SalaryDetailsPage() {
             </div>
             <Button
               onClick={handleUpdateSalary}
+              disabled={isSaving}
               className="h-12 w-48 bg-accent text-base text-accent-foreground hover:bg-accent/90"
             >
-              Update Salary
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSaving ? 'Updating...' : 'Update Salary'}
             </Button>
           </div>
         </footer>
