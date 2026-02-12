@@ -19,7 +19,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDoc, useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
+import { useDoc, useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import {
   doc,
   collection,
@@ -342,6 +342,24 @@ export default function AttendancePage() {
     setSelectedDays([]);
     setIsSelectMode(false);
   };
+  
+  const handleBulkUnmark = () => {
+    if (!firestore || !employeeId || !attendanceColRef || selectedDays.length === 0) return;
+
+    selectedDays.forEach(day => {
+        const attendanceDate = format(day, 'yyyy-MM-dd');
+        const attendanceRef = doc(firestore, 'employees', employeeId, 'attendance', attendanceDate);
+        deleteDocumentNonBlocking(attendanceRef);
+    });
+    
+    toast({
+        title: 'Attendance Updated',
+        description: `${selectedDays.length} day(s) have been unmarked.`,
+    });
+    
+    setSelectedDays([]);
+    setIsSelectMode(false);
+  };
 
 
   const changeMonth = (offset: number) => {
@@ -538,9 +556,10 @@ export default function AttendancePage() {
         <div className="fixed bottom-20 left-0 right-0 z-10 bg-card border-t p-4 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.1)]">
             <div className="max-w-xl mx-auto space-y-2">
                 <p className="text-center text-sm font-medium mb-2">{selectedDays.length} days selected</p>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                     <Button onClick={() => handleBulkUpdate('PRESENT')} className="bg-green-500 hover:bg-green-600 text-white">Mark as Present</Button>
                     <Button onClick={() => handleBulkUpdate('ABSENT')} className="bg-red-500 hover:bg-red-600 text-white">Mark as Absent</Button>
+                    <Button onClick={handleBulkUnmark} variant="outline">Unmark</Button>
                 </div>
             </div>
         </div>
