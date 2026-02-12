@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
   ArrowLeft,
   Edit,
@@ -14,6 +14,7 @@ import {
   Info,
   ChevronLeft,
   ChevronRight,
+  X,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -77,12 +78,33 @@ const SalaryDetailRow = ({ label, value }: { label: string; value: number }) => 
 export default function AttendancePage() {
   const router = useRouter();
   const params = useParams();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const employeeId = params.id as string;
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const [month, setMonth] = useState(new Date(2026, 0)); // Jan 2026
+  const getInitialMonth = () => {
+    const monthParam = searchParams.get('month');
+    if (monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
+        const [year, month] = monthParam.split('-').map(Number);
+        return new Date(year, month - 1);
+    }
+    return new Date(2026, 0); // Default to Jan 2026
+  };
+
+  const [month, _setMonth] = useState(getInitialMonth);
+
+  const setMonth = (date: Date) => {
+    _setMonth(date);
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('month', format(date, 'yyyy-MM'));
+    router.replace(`${pathname}?${newSearchParams.toString()}`, {scroll: false});
+  };
+
   const [activeTab, setActiveTab] = useState('attendance');
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedDays, setSelectedDays] = useState<Date[]>([]);
   
   const [isMonthDialogOpen, setIsMonthDialogOpen] = useState(false);
   const [dialogYear, setDialogYear] = useState(() => month.getFullYear());
@@ -282,9 +304,48 @@ export default function AttendancePage() {
             return 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
+  
+  const handleDayClick = (day: Date) => {
+    if (isSelectMode) {
+      if (!isSameMonth(day, month)) return;
+      
+      const isSelected = selectedDays.some(d => isSameDay(d, day));
+      if (isSelected) {
+        setSelectedDays(selectedDays.filter(d => !isSameDay(d, day)));
+      } else {
+        setSelectedDays([...selectedDays, day]);
+      }
+    } else {
+      router.push(`/dashboard/employees/${employeeId}/edit-attendance?date=${format(day, 'yyyy-MM-dd')}`);
+    }
+  };
+
+  const handleBulkUpdate = (status: AttendanceStatus) => {
+    if (!firestore || !employeeId || !attendanceColRef || selectedDays.length === 0) return;
+
+    selectedDays.forEach(day => {
+        const attendanceDate = format(day, 'yyyy-MM-dd');
+        const attendanceRef = doc(firestore, 'employees', employeeId, 'attendance', attendanceDate);
+        const newAttendanceData = {
+            employeeId,
+            date: attendanceDate,
+            status: status,
+        };
+        setDocumentNonBlocking(attendanceRef, newAttendanceData, { merge: true });
+    });
+    
+    toast({
+        title: 'Attendance Updated',
+        description: `${selectedDays.length} day(s) have been marked as ${status}.`,
+    });
+    
+    setSelectedDays([]);
+    setIsSelectMode(false);
+  };
+
 
   const changeMonth = (offset: number) => {
-      setMonth(currentMonth => offset > 0 ? addMonths(currentMonth, 1) : subMonths(currentMonth, 1));
+      setMonth(offset > 0 ? addMonths(month, 1) : subMonths(month, 1));
   };
   
   const isLoading = isLoadingEmployee || isLoadingAttendance;
@@ -329,7 +390,7 @@ export default function AttendancePage() {
                  </Button>
               </div>
 
-              <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-4 gap-2 text-center">
                  <Button variant="ghost" className="flex-col h-auto text-blue-600">
                     <Download className="h-6 w-6"/>
                     <span className="text-sm mt-1">Download Report</span>
@@ -354,6 +415,13 @@ export default function AttendancePage() {
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
+                <Button variant="ghost" className="flex-col h-auto text-blue-600" onClick={() => {
+                  setIsSelectMode(prev => !prev);
+                  if (isSelectMode) setSelectedDays([]);
+                }}>
+                    <UserCheck className="h-6 w-6"/>
+                    <span className="text-sm mt-1">{isSelectMode ? "Cancel" : "Bulk Mark"}</span>
+                 </Button>
                  <Button variant="ghost" className="flex-col h-auto text-blue-600">
                     <MapPin className="h-6 w-6"/>
                     <span className="text-sm mt-1">Live Location</span>
@@ -383,8 +451,8 @@ export default function AttendancePage() {
                       <div key={day.toString()}>
                           <Button 
                             variant="default" 
-                            className={cn('w-full aspect-square p-0 h-auto rounded-lg', getDayClass(day))}
-                            onClick={() => router.push(`/dashboard/employees/${employeeId}/edit-attendance?date=${format(day, 'yyyy-MM-dd')}`)}
+                            className={cn('w-full aspect-square p-0 h-auto rounded-lg', getDayClass(day), selectedDays.some(d => isSameDay(d, day)) && 'ring-2 ring-primary ring-offset-2')}
+                            onClick={() => handleDayClick(day)}
                           >
                             {format(day, 'd')}
                           </Button>
@@ -465,6 +533,19 @@ export default function AttendancePage() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {activeTab === 'attendance' && isSelectMode && selectedDays.length > 0 && (
+        <div className="fixed bottom-20 left-0 right-0 z-10 bg-card border-t p-4 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.1)]">
+            <div className="max-w-xl mx-auto space-y-2">
+                <p className="text-center text-sm font-medium mb-2">{selectedDays.length} days selected</p>
+                <div className="grid grid-cols-2 gap-2">
+                    <Button onClick={() => handleBulkUpdate('PRESENT')} className="bg-green-500 hover:bg-green-600 text-white">Mark as Present</Button>
+                    <Button onClick={() => handleBulkUpdate('ABSENT')} className="bg-red-500 hover:bg-red-600 text-white">Mark as Absent</Button>
+                </div>
+            </div>
+        </div>
+      )}
+
       {activeTab === 'salary' && (
         <footer className="sticky bottom-0 border-t bg-card p-4 flex items-center justify-between gap-4">
             <div>
