@@ -156,17 +156,15 @@ export default function AttendancePage() {
 
     daysInMonth.forEach(day => {
       const dateStr = format(day, 'yyyy-MM-dd');
-      let status = attendanceMap.get(dateStr);
+      let status: AttendanceStatus | undefined = attendanceMap.get(dateStr);
       
       if (!status) {
         if (getDay(day) === 0) { // Sunday
             status = 'WEEK OFF';
-        } else {
-            status = 'ABSENT';
         }
       }
       
-      if(stats[status] !== undefined) {
+      if(status && stats[status] !== undefined) {
            stats[status]++;
       }
     });
