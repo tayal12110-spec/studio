@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -70,7 +71,8 @@ export default function EditAttendancePage() {
     
     setTimeout(() => {
         setIsSaving(false);
-        router.back();
+        const yearMonth = format(selectedDate, 'yyyy-MM');
+        router.push(`/dashboard/employees/${employeeId}/attendance?month=${yearMonth}`);
     }, 500);
   };
   
