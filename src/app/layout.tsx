@@ -1,3 +1,4 @@
+// Forced build update to refresh custom domains
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -6,7 +7,7 @@ import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'PayEase',
-  description: 'Modern Payroll Management',
+  description: 'Modern Payroll Management System',
 };
 
 export default function RootLayout({
