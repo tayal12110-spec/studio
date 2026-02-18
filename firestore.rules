@@ -1,4 +1,4 @@
-// Updated to re-trigger deployment again
+// Updated to re-trigger deployment and clear CDN cache
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
