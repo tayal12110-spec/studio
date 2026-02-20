@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
@@ -75,7 +75,7 @@ const SalaryDetailRow = ({ label, value }: { label: string; value: number }) => 
 );
 
 
-export default function AttendancePage() {
+function AttendancePageComponent() {
   const router = useRouter();
   const params = useParams();
   const pathname = usePathname();
@@ -314,7 +314,7 @@ export default function AttendancePage() {
         setSelectedDays([...selectedDays, day]);
       }
     } else {
-      router.push(`/dashboard/employees/${employeeId}/edit-attendance?date=${format(day, 'yyyy-MM-dd')}`);
+      router.push(`/dashboard/employees/${employeeId}/edit-attendance?date=${format(day, 'yyyy-MM-dd')}&month=${format(month, 'yyyy-MM')}`);
     }
   };
 
@@ -617,5 +617,13 @@ export default function AttendancePage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function AttendancePage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <AttendancePageComponent />
+    </Suspense>
   );
 }

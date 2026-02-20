@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Loader2, MapPin, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,7 @@ import { collection } from 'firebase/firestore';
 
 export const dynamic = 'force-dynamic';
 
-export default function SetupLocationPage() {
+function SetupLocationPageComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -144,7 +143,7 @@ export default function SetupLocationPage() {
       <footer className="sticky bottom-0 border-t bg-card p-4">
         <Button
           onClick={handleContinue}
-          className="h-12 w-full bg-accent text-base text-accent-foreground hover:bg-accent/90"
+          className="w-full h-12 text-base bg-accent text-accent-foreground hover:bg-accent/90"
           disabled={isSaving}
         >
           {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -152,5 +151,13 @@ export default function SetupLocationPage() {
         </Button>
       </footer>
     </div>
+  );
+}
+
+export default function SetupLocationPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+      <SetupLocationPageComponent />
+    </Suspense>
   );
 }

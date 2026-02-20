@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, RotateCw, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,7 @@ import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 const attendanceStatuses: AttendanceStatus[] = ['ABSENT', 'HALF DAY', 'PRESENT', 'WEEK OFF', 'HOLIDAY'];
 const leaveTypes: AttendanceStatus[] = ['PAID LEAVE', 'HALF DAY LEAVE', 'UNPAID LEAVE'];
 
-export default function EditAttendancePage() {
+function EditAttendancePageComponent() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -71,7 +70,7 @@ export default function EditAttendancePage() {
     
     setTimeout(() => {
         setIsSaving(false);
-        const yearMonth = format(selectedDate, 'yyyy-MM');
+        const yearMonth = searchParams.get('month') || format(selectedDate, 'yyyy-MM');
         router.push(`/dashboard/employees/${employeeId}/attendance?month=${yearMonth}`);
     }, 500);
   };
@@ -110,9 +109,9 @@ export default function EditAttendancePage() {
         case 'WEEK OFF':
         case 'HOLIDAY':
           return 'text-gray-600 border-gray-300 hover:bg-gray-100';
-        case 'PAID LEAVE': return 'text-purple-600 border-purple-300 hover:bg-purple-50 hover:text-purple-700';
-        case 'HALF DAY LEAVE': return 'text-fuchsia-600 border-fuchsia-300 hover:bg-fuchsia-50 hover:text-fuchsia-700';
-        case 'UNPAID LEAVE': return 'text-sky-600 border-sky-400 hover:bg-sky-50 hover:text-sky-700';
+        case 'PAID LEAVE': return 'text-purple-600 border-purple-300 hover:bg-purple-700 hover:text-white';
+        case 'HALF DAY LEAVE': return 'text-fuchsia-600 border-fuchsia-300 hover:bg-fuchsia-700 hover:text-white';
+        case 'UNPAID LEAVE': return 'text-sky-600 border-sky-400 hover:bg-sky-700 hover:text-white';
         default: return 'text-muted-foreground';
       }
     }
@@ -190,5 +189,13 @@ export default function EditAttendancePage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function EditAttendancePage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <EditAttendancePageComponent />
+    </Suspense>
   );
 }

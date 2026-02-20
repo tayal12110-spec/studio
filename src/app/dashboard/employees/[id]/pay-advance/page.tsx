@@ -1,14 +1,15 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { format, parse, isValid } from 'date-fns';
 import Link from 'next/link';
 
-export default function PayAdvancePage() {
+function PayAdvancePageComponent() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -57,5 +58,13 @@ export default function PayAdvancePage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function PayAdvancePage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <PayAdvancePageComponent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,7 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 
-export default function AddAdvancePage() {
+function AddAdvancePageComponent() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -187,5 +187,13 @@ export default function AddAdvancePage() {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+export default function AddAdvancePage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <AddAdvancePageComponent />
+    </Suspense>
   );
 }
